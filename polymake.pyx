@@ -14,6 +14,7 @@ from libc.stdlib cimport malloc
 from sage.matrix.matrix_rational_dense cimport Matrix_rational_dense
 from sage.structure.sage_object cimport SageObject
 from sage.rings.integer cimport Integer as SageInteger
+from sage.rings.rational cimport Rational as SageRational
 from sage.libs.gmp.mpz cimport mpz_set
 from sage.libs.gmp.mpq cimport mpq_set
 from sage.rings.all import QQ
@@ -83,7 +84,7 @@ cdef class Polytope(SageObject):
 
     def _get_bool_property(self, prop):
         cdef Integer pm_res
-        pm_get(self.pm_obj.give("SIMPLE"),pm_res)
+        pm_get(self.pm_obj.give(prop),pm_res)
         return bool(pm_res.compare(0))
 
     def _get_integer_property(self, prop):
@@ -168,6 +169,18 @@ cdef class Polytope(SageObject):
         """
         return self._get_bool_property("SIMPLE")
 
+    def is_simplicial(self):
+        """
+        EXAMPLES::
+
+            sage: import polymake
+            sage: m = matrix(QQ,[[1, 3, 0, 0], [1, 0, 3, 0], [1, 1, 1, 1], [1, 0, 0, 3]])
+            sage: p = polymake.Polytope('POINTS',m)
+            sage: p.is_simplicial()
+            True
+        """
+        return self._get_bool_property("SIMPLICIAL")
+
     def graph(self):
         cdef MatrixRational pm_mat
         cdef PerlObject *graph = new PerlObject("Graph<Undirected>")
@@ -186,7 +199,7 @@ cdef class Polytope(SageObject):
         EXAMPLES::
 
             sage: import polymake
-            sage: cube = polymake.cube(3)
+            sage: cube = polymake.cube(3,0)
             sage: cube.vertices()
             [1 0 0 0]
             [1 1 0 0]
@@ -204,7 +217,7 @@ cdef class Polytope(SageObject):
         EXAMPLES::
 
             sage: import polymake
-            sage: cube = polymake.cube(3)
+            sage: cube = polymake.cube(3,0)
             sage: cube.facets()
             [ 0  1  0  0]
             [ 1 -1  0  0]
@@ -233,9 +246,9 @@ def new_Polytope_from_function(name, *args):
     res.pm_obj = new_PerlObject_from_PerlObject(pm_obj)
     return res
 
-def cube(dimension, scale=0):
+def cube(dimension, scale=1):
     """
-    Return a cube of given dimension.
+    Return a cube of given dimension.  +/-1-coordinates by default.
 
     EXAMPLES::
 
