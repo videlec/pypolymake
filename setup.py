@@ -35,5 +35,5 @@ setup(
   #cmdclass = {'build_ext': build_ext},
   ext_modules = [polymake],
         include_dirs=[path.join(SAGE_LOCAL,'include'),
-            path.join(SAGE_LOCAL,'include','sage')]
+            path.join(SAGE_LOCAL,'include','csage')]
   )
