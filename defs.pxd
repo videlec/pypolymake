@@ -78,5 +78,15 @@ cdef extern from "polymake/Matrix.h" namespace 'polymake':
     void pm_get "WRAP_IN" (PropertyValue, Integer) except +ValueError
     void pm_get_MatrixRational "WRAP_IN" (PropertyValue, MatrixRational) \
             except +ValueError
+    void pm_get_VectorInteger "WRAP_IN" (PropertyValue, VectorInteger) \
+            except +ValueError
     void pm_get_PerlObject "WRAP_IN" (PropertyValue, PerlObject) \
             except +ValueError
+
+cdef extern from "polymake/Vector.h" namespace 'polymake':
+    cdef cppclass VectorInteger "Vector<Integer>":
+        VectorInteger()
+        VectorInteger(int nr)
+        #void assign(int r, int val)
+        Integer get "operator[]" (int i)
+        int size()

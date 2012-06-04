@@ -3,7 +3,7 @@
 ### distutils: include_dirs = /opt/food/include
 
 ###############################################################################
-#       Copyright (C) 2011 Burcin Erocal <burcin@erocal.org>
+#       Copyright (C) 2011-2012 Burcin Erocal <burcin@erocal.org>
 #  Distributed under the terms of the GNU General Public License (GPL),
 #  version 2 or any later version.  The full text of the GPL is available at:
 #                  http://www.gnu.org/licenses/
@@ -12,23 +12,36 @@
 from libc.stdlib cimport malloc
 
 from sage.matrix.matrix_rational_dense cimport Matrix_rational_dense
+from sage.modules.vector_integer_dense cimport Vector_integer_dense
 from sage.structure.sage_object cimport SageObject
 from sage.rings.integer cimport Integer as SageInteger
 from sage.rings.rational cimport Rational as SageRational
 from sage.libs.gmp.mpz cimport mpz_set
 from sage.libs.gmp.mpq cimport mpq_set
-from sage.rings.all import QQ
+from sage.rings.all import QQ, ZZ
 from sage.matrix.matrix_space import MatrixSpace
 
-from defs cimport Main, PerlObject, MatrixRational, Rational, Integer
+from defs cimport Main, PerlObject, MatrixRational, Rational, Integer, \
+        VectorInteger
 from defs cimport CallPolymakeFunction, CallPolymakeFunction1, \
         CallPolymakeFunction2, CallPolymakeFunction3, \
         new_PerlObject_from_PerlObject
 from defs cimport pm_get, pm_get_MatrixRational, pm_get_PerlObject, \
+        pm_get_VectorInteger, \
         pm_assign, get_element
 
 # FIXME: pass user-settings parameter
 cdef Main pm
+
+cdef Vector_integer_dense pm_VectorInteger_to_sage(VectorInteger pm_vec):
+    cdef Py_ssize_t size = pm_vec.size()
+    # this seems to be a rather unreliable way to getting a new element
+    # even though it is documented to work in the comments of zero_vector()
+    cdef Vector_integer_dense svec = (ZZ**size).zero_vector()
+    cdef Py_ssize_t i
+    for i in range(size):
+        mpz_set(svec._entries[i], pm_vec.get(i).get_rep())
+    return svec
 
 cdef Matrix_rational_dense pm_mat_to_sage(MatrixRational pm_mat):
     """
@@ -36,7 +49,7 @@ cdef Matrix_rational_dense pm_mat_to_sage(MatrixRational pm_mat):
     """
     cdef Py_ssize_t nr = pm_mat.rows(), nc = pm_mat.cols()
     cdef Matrix_rational_dense smat = MatrixSpace(QQ, nr, nc)() #zero matrix
-    cdef i, j
+    cdef Py_ssize_t i, j
     for i in range(nr):
         for j in range(nc):
             mpq_set(smat._matrix[i][j],
@@ -99,9 +112,20 @@ cdef class Polytope(SageObject):
         pm_get_MatrixRational(self.pm_obj.give(prop), pm_mat)
         return pm_mat_to_sage(pm_mat)
 
+    def _get_vector_property(self, prop):
+        cdef VectorInteger pm_vec
+        pm_get_VectorInteger(self.pm_obj.give(prop), pm_vec)
+        return pm_VectorInteger_to_sage(pm_vec)
+
     def __add__(left, right):
         if not (isinstance(left, Polytope) and isinstance(right, Polytope)):
             raise TypeError("both arguments must be instances of Polytope")
+
+    def f_vector(self):
+        return self._get_vector_property("F_VECTOR")
+
+    def h_star_vector(self):
+        return self._get_vector_property("H_STAR_VECTOR")
 
     def num_facets(self):
         """
