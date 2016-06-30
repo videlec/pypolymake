@@ -17,7 +17,7 @@ following polymake construction::
 
 is translated in Python as::
 
-    >>> from pypolymake import *
+    >>> from polymake import *
     >>> c = cube(5)
     >>> c.F_VECTOR()
     (32, 80, 80, 40, 10)
