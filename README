@@ -4,9 +4,8 @@ pypolymake
 What is it?
 -----------
 
-This Python module provides wrappers for polymake
-
-    https://polymake.org/doku.php
+The Python module pypolymake provides wrappers for `polymake
+<https://polymake.org/doku.php>`_.
 
 The language has been kept as close as possible as the original. The
 following polymake construction::
@@ -25,12 +24,16 @@ is translated in Python as::
 Installation
 ------------
 
-To install you currently need Sage but the library is mostly Sage agnostic. You
-need to download (or clone) this repository and run the command::
+To install pypolymake you currently need Sage but the library is mostly Sage
+agnostic. The package can be installed through PyPI via::
+
+    $ sage -pip install pypolymake --user
+
+(the `--user` argument make the installation in your home directory and can be
+omitted if you have write access to your Sage installation).  Alternatively,
+you can download (or clone) this repository and run the command::
 
     $ sage -python setup.py install --user
-
-(the `--user` argument make the installation in your home)
 
 On OS X, need to make sure that libperl is found::
 
@@ -38,8 +41,11 @@ On OS X, need to make sure that libperl is found::
     (sage-sh) $ export LDFLAGS="-L/System/Library/Perl/5.18/darwin-thread-multi-2level/CORE/ $LDFLAGS"
     (sage-sh) $ python setup.py install --user
 
+Source code
+-----------
 
-It is planned to make it available on pypi as soon as Sage is not needed anymore.
+The source code of the project is available on github at
+https://github.com/videlec/pypolymake
 
 Authors
 -------
