@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+r"""
+Installation script for pypolymake
+
+It depends on distutils
+"""
 
 from distutils.core import setup
 from distutils.extension import Extension
@@ -42,9 +46,6 @@ extensions = [
         ["src/polymake/polytope.pyx"],
         language = 'c++')
 ]
-extensions = cythonize(extensions,
-        include_path = ["src", os.path.join(SAGE_LOCAL, "include")]
-        )
 
 setup(
   name = "pypolymake",
@@ -58,6 +59,7 @@ setup(
   packages = ["polymake", "cygmp"],
   package_dir = {"polymake": os.path.join("src", "polymake"),
                  "cygmp": os.path.join("src", "cygmp")},
-  package_data = {"polymake": ["*.pxd"],
-                  "cygmp": ["*.pxd"]},
+  package_data = {"polymake": ["*.pxd", "*.h"],
+                  "cygmp": ["*.pxd", "*.h"]},
+  cmdclass = {'build_ext': build_ext}
 )

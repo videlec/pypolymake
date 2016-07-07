@@ -3,4 +3,7 @@
 *.cpp
 *.so
 *.pyc
+.pypirc
+MANIFEST
 build/
+dist/
