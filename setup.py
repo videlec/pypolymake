@@ -53,7 +53,7 @@ setup(
   author_email = "sage-devel@googlegroups.com",
   version = open("VERSION").read().strip(),
   description = "Python wrapper for polymake",
-  long_description = open("README.rst").read(),
+  long_description = open("README").read(),
   license = "GNU General Public License, version 3 or later",
   ext_modules = extensions,
   packages = ["polymake", "cygmp"],
