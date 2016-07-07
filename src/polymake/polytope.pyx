@@ -1,6 +1,3 @@
-# distutils: language = c++
-# distutils: libraries = polymake gmp xml2 perl
-
 ###############################################################################
 #       Copyright (C) 2011-2012 Burcin Erocal <burcin@erocal.org>
 #                     2016      Vincent Delecroix <vincent.delecroix@labri.fr>
@@ -18,58 +15,20 @@ from defs cimport CallPolymakeFunction, CallPolymakeFunction1, \
         new_PerlObject_from_PerlObject
 from defs cimport pm_get_Integer, pm_get_MatrixRational, pm_get_PerlObject, \
         pm_get_VectorInteger, \
-        pm_assign_MatrixRational, get_element
+        pm_assign_MatrixRational
 
 
 from cygmp.types cimport mpz_t, mpq_t
-from cygmp.mpz cimport mpz_init, mpz_clear, mpz_set, mpz_fits_ulong_p,\
-    mpz_fits_slong_p, mpz_get_ui, mpz_get_si, mpz_ptr, mpz_srcptr, mpz_get_str,\
-    mpz_sizeinbase
 from cygmp.mpq cimport mpq_init, mpq_clear, mpq_set, mpq_set_ui, \
         mpq_set_si, mpq_get_str, mpq_numref, mpq_denref
 
 from .number cimport Integer, Rational
 from .vector cimport VectorInteger
-from .matrix cimport MatrixRational
+from .matrix cimport MatrixRational, mat_to_pm
 
 # FIXME: pass user-settings parameter
 cdef Main pm
 
-cdef pm_MatrixRational* mat_to_pm(mat):
-    """
-    Create a polymake rational matrix from input so that:
-    
-    - there are methods ``nrows``, ``ncols`` giving the number of rows and cols
-    - accessing to the elements is done via ``mat[i,j]``
-    - given a rational entry we access to numerator and denominator via the
-      methods ``.numerator()`` and ``.denominator()``
-    """
-    cdef Py_ssize_t nr = mat.nrows()
-    cdef Py_ssize_t nc = mat.ncols()
-    cdef mpq_t z
-    # create polymake matrix with dimensions of mat
-    cdef pm_MatrixRational* pm_mat = new pm_MatrixRational(nr, nc)
-    cdef Py_ssize_t i, j
-    cdef pm_Rational *tmp_rat
-    # loop through the elements and assign values
-
-    cdef long num, den
-
-    mpq_init(z)
-    for i in range(nr):
-        for j in range(nc):
-            elt = mat[i,j]
-            try:
-                num = elt.numerator()
-                den = elt.denominator()
-            except AttributeError:
-                num = elt
-                den = 1
-            mpq_set_si(z, num, den)
-            get_element(pm_mat[0], i, j).set_mpq_t(z)
-
-    mpq_clear(z)
-    return pm_mat
 
 cdef class PerlObject:
     cdef pm_PerlObject * pm_obj
@@ -82,25 +41,56 @@ cdef class PerlObject:
     def __dealloc__(self):
         del self.pm_obj
 
+    def _get_property(self, prop):
+        r"""
+        Generic method to get a property of the object
+        """
+        cdef PerlObject ans = PerlObject.__new__(PerlObject)
+        cdef pm_PerlObject o
+        pm_get_PerlObject(self.pm_obj.give(prop), o)
+        ans.pm_obj = new_PerlObject_from_PerlObject(o)
+        return ans
+
     def _get_bool_property(self, prop):
+        r"""
+        Get a property as a boolean
+        """
         cdef pm_Integer pm_res
         pm_get_Integer(self.pm_obj.give(prop), pm_res)
         return bool(pm_res.compare(0))
 
     def _get_integer_property(self, prop):
+        r"""
+        Get a property as a Cython integer
+        """
         cdef Integer ans = Integer.__new__(Integer)
         pm_get_Integer(self.pm_obj.give(prop), ans.pm_obj)
         return ans
 
     def _get_rational_matrix_property(self, prop):
+        r"""
+        Get a property as a rational matrix
+        """
         cdef MatrixRational ans = MatrixRational.__new__(MatrixRational)
         pm_get_MatrixRational(self.pm_obj.give(prop), ans.pm_obj)
         return ans
 
     def _get_integer_vector_property(self, prop):
+        r"""
+        Get a property as an integer vector
+        """
         cdef VectorInteger ans = VectorInteger.__new__(VectorInteger)
         pm_get_VectorInteger(self.pm_obj.give(prop), ans.pm_obj)
         return ans
+
+    def type_name(self):
+        r"""
+        Return the name of the type of this object
+        """
+        return <bytes> self.pm_obj.type().name()
+
+    def __repr__(self):
+        return "{}<{}>".format(self.type_name(), hex(id(self)))
 
 cdef class Polytope(PerlObject):
     r"""
@@ -136,16 +126,17 @@ cdef class Polytope(PerlObject):
             raise TypeError("both arguments must be instances of Polytope")
         raise NotImplementedError
 
-    #TODO: does not work
-    def DIM(self):
-        return self._get_integer_property("DIM")
+
+#    #TODO: does not work
+#    def DIM(self):
+#        return self._get_integer_property("DIM")
 
     def FACETS(self):
         return self._get_rational_matrix_property("FACETS")
 
-    #TODO: does not work
-    def FULL_DIM(self):
-        return self._get_integer_property("FULL_DIM")
+#    #TODO: does not work
+#    def FULL_DIM(self):
+#        return self._get_integer_property("FULL_DIM")
 
     def F_VECTOR(self):
         return self._get_integer_vector_property("F_VECTOR")
@@ -170,8 +161,6 @@ cdef class Polytope(PerlObject):
 
     def VERTICES(self):
         return self._get_rational_matrix_property("VERTICES")
-
-
 
 #    def graph(self):
 #        cdef MatrixRational pm_mat

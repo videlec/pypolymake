@@ -1,5 +1,3 @@
-# distutils: language = c++
-
 from libcpp cimport bool
 from libcpp.string cimport string
 from cygmp.types cimport mpz_t, mpq_t, mpz_srcptr
@@ -11,9 +9,6 @@ cdef extern from "polymake/Main.h" namespace "polymake":
     cdef cppclass Main:
         void set_application(char*)
         void set_preference(char*)
-
-    cdef cppclass PropertyValue:
-        pass
 
 cdef extern from "polymake/Rational.h" namespace 'polymake':
     ctypedef pm_const_Integer "const Integer"
@@ -33,17 +28,22 @@ cdef extern from "polymake/Rational.h" namespace 'polymake':
         pm_Rational& set_mpq_srcptr "set" (mpq_srcptr)
 #        pm_Rational operator+ (pm_const_Rational&)
 
-#ctypedef const_string "const std::string"
-
 cdef extern from "polymake/client.h":
+    cdef cppclass pm_PerlPropertyValue "perl::PropertyValue":
+        pass
+
     cdef cppclass pm_PerlObject "perl::Object":
         pm_PerlObject()
         pm_PerlObject(char*) except +ValueError
         void VoidCallPolymakeMethod(char*) except +ValueError
         void save(char*)
-        PropertyValue take(char*)
-        PropertyValue give(char*) # do not add except here, see pm_get for why
-#        int exists(const_string& name)
+        pm_PerlPropertyValue take(char*)
+        pm_PerlPropertyValue give(char*) # do not add except here, see pm_get for why
+        pm_PerlObjectType type()
+        int exists(const string& name)
+
+    cdef cppclass pm_PerlObjectType "perl::ObjectType":
+        string name()
 
     pm_PerlObject CallPolymakeFunction (char*) except +ValueError
     pm_PerlObject CallPolymakeFunction1 "CallPolymakeFunction" \
@@ -75,7 +75,7 @@ cdef extern from "polymake/Matrix.h" namespace 'polymake':
 
 
     # WRAP_OUT(x,y) x<<y
-    void pm_assign_MatrixRational "WRAP_OUT" (PropertyValue, pm_MatrixRational)
+    void pm_assign_MatrixRational "WRAP_OUT" (pm_PerlPropertyValue, pm_MatrixRational)
 
     # the except clause below is fake
     # it is used to catch errors in PerlObject.give(), however adding
@@ -83,13 +83,13 @@ cdef extern from "polymake/Matrix.h" namespace 'polymake':
     # split lines like
     #        pm_get(self.pm_obj.give(prop), pm_res)
     # and store the result of give() first. This causes problems since
-    # PropertyValue doesn't have a default constructor.
+    # pm_PerlPropertyValue doesn't have a default constructor.
 
     # WRAP_IN(x,y) x>>y
-    void pm_get_Integer "WRAP_IN" (PropertyValue, pm_Integer) except +ValueError
-    void pm_get_MatrixRational "WRAP_IN" (PropertyValue, pm_MatrixRational) except +ValueError
-    void pm_get_VectorInteger "WRAP_IN" (PropertyValue, pm_VectorInteger) except +ValueError
-    void pm_get_PerlObject "WRAP_IN" (PropertyValue, pm_PerlObject) except +ValueError
+    void pm_get_Integer "WRAP_IN" (pm_PerlPropertyValue, pm_Integer) except +ValueError
+    void pm_get_MatrixRational "WRAP_IN" (pm_PerlPropertyValue, pm_MatrixRational) except +ValueError
+    void pm_get_VectorInteger "WRAP_IN" (pm_PerlPropertyValue, pm_VectorInteger) except +ValueError
+    void pm_get_PerlObject "WRAP_IN" (pm_PerlPropertyValue, pm_PerlObject) except +ValueError
 
 cdef extern from "polymake/Vector.h" namespace 'polymake':
     cdef cppclass pm_VectorInteger "Vector<Integer>":
@@ -104,7 +104,3 @@ cdef extern from "polymake/Vector.h" namespace 'polymake':
         pm_VectorRational(int nr)
         pm_Rational get "operator []" (int i)
         int size()
-
-
-#cdef extern from "utils.h":
-#    string Integer_repr(pm_Integer &);

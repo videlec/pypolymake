@@ -1,6 +1,3 @@
-# distutils: language = c++
-# distutils: libraries = polymake gmp xml2 perl
-
 ###############################################################################
 #       Copyright (C) 2011-2012 Burcin Erocal <burcin@erocal.org>
 #                     2016      Vincent Delecroix <vincent.delecroix@labri.fr>
@@ -9,19 +6,7 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-from libc.stdlib cimport malloc, free
-
-from defs cimport Main, pm_PerlObject, pm_MatrixRational, pm_Rational, pm_Integer, \
-        pm_VectorInteger
-from defs cimport CallPolymakeFunction, CallPolymakeFunction1, \
-        CallPolymakeFunction2, CallPolymakeFunction3, \
-        new_PerlObject_from_PerlObject
-from defs cimport pm_get_Integer, pm_get_MatrixRational, pm_get_PerlObject, \
-        pm_get_VectorInteger, \
-        pm_assign_MatrixRational, get_element
-
-
-from .number cimport Integer, Rational
+from .number cimport Integer
 
 cdef class VectorInteger:
     def __len__(self):

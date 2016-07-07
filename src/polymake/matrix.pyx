@@ -7,15 +7,10 @@
 ###############################################################################
 
 from libc.stdlib cimport malloc, free
+from cygmp.types cimport mpz_t, mpq_t
+from cygmp.mpq cimport *
 
-from defs cimport Main, pm_PerlObject, pm_MatrixRational, pm_Rational, pm_Integer, \
-        pm_VectorInteger
-from defs cimport CallPolymakeFunction, CallPolymakeFunction1, \
-        CallPolymakeFunction2, CallPolymakeFunction3, \
-        new_PerlObject_from_PerlObject
-from defs cimport pm_get_Integer, pm_get_MatrixRational, pm_get_PerlObject, \
-        pm_get_VectorInteger, \
-        pm_assign_MatrixRational, get_element
+from defs cimport pm_MatrixRational, pm_Rational, pm_Integer, pm_VectorInteger, get_element
 
 from .number cimport Rational
 
@@ -43,6 +38,43 @@ cdef class MatrixRational:
         line_format = "[ " +  \
                 " ".join("{{:{width}}}".format(width=t) for t in col_sizes) + \
                       "]"
-        
+
         return "\n".join(line_format.format(*row) for row in rows)
+
+
+cdef pm_MatrixRational* mat_to_pm(mat):
+    """
+    Create a polymake rational matrix from input so that:
+
+    - there are methods ``nrows``, ``ncols`` giving the number of rows and cols
+    - accessing to the elements is done via ``mat[i,j]``
+    - given a rational entry we access to numerator and denominator via the
+      methods ``.numerator()`` and ``.denominator()``
+    """
+    cdef Py_ssize_t nr = mat.nrows()
+    cdef Py_ssize_t nc = mat.ncols()
+    cdef mpq_t z
+    # create polymake matrix with dimensions of mat
+    cdef pm_MatrixRational* pm_mat = new pm_MatrixRational(nr, nc)
+    cdef Py_ssize_t i, j
+    cdef pm_Rational *tmp_rat
+    # loop through the elements and assign values
+
+    cdef long num, den
+
+    mpq_init(z)
+    for i in range(nr):
+        for j in range(nc):
+            elt = mat[i,j]
+            try:
+                num = elt.numerator()
+                den = elt.denominator()
+            except AttributeError:
+                num = elt
+                den = 1
+            mpq_set_si(z, num, den)
+            get_element(pm_mat[0], i, j).set_mpq_t(z)
+
+    mpq_clear(z)
+    return pm_mat
 

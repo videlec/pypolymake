@@ -1,6 +1,3 @@
-# distutils: language = c++
-# distutils: libraries = polymake gmp xml2 perl
-
 ###############################################################################
 #       Copyright (C) 2016 Vincent Delecroix <vincent.delecroix@labri.fr> 
 #
@@ -10,7 +7,11 @@
 ###############################################################################
 
 from cpython.object cimport Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
-from operator import add as op_add, mul as op_mul, sub as op_sub, div as op_div, pow as op_pow
+from operator import add as op_add,\
+                     mul as op_mul,\
+                     sub as op_sub,\
+                     div as op_div,\
+                     pow as op_pow
 
 from cygmp.types cimport mpz_t, mpq_t
 from cygmp.mpz cimport mpz_init, mpz_clear, mpz_set_si, mpz_add, mpz_sub, mpz_mul, mpz_cmp
