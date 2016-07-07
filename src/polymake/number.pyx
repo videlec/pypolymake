@@ -27,7 +27,7 @@ cpdef Integer Integer_binop(Integer a, Integer b, op):
         mpz_sub(z, a.pm_obj.get_rep(), b.pm_obj.get_rep())
     elif op is op_mul:
         mpz_mul(z, a.pm_obj.get_rep(), b.pm_obj.get_rep())
-    elif ops is op_pow:
+    elif op is op_pow:
         raise NotImplementedError
     else:
         raise TypeError("{!r} is not a valid operator".format(op))

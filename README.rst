@@ -32,6 +32,13 @@ need to download (or clone) this repository and run the command::
 
 (the `--user` argument make the installation in your home)
 
+On OS X, need to make sure that libperl is found:
+
+    $ sage -sh
+    (sage-sh) $ export LDFLAGS="-L/System/Library/Perl/5.18/darwin-thread-multi-2level/CORE/ $LDFLAGS"
+    (sage-sh) $ python setup.py install --user
+
+
 It is planned to make it available on pypi as soon as Sage is not needed anymore.
 
 Authors
