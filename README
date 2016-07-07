@@ -21,6 +21,9 @@ is translated in Python as::
     >>> c.F_VECTOR()
     (32, 80, 80, 40, 10)
 
+The library is currently under development. Many things are not working and are
+likely to cause segmentation fault.
+
 Installation
 ------------
 
