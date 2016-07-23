@@ -5,26 +5,17 @@ Installation script for pypolymake
 It depends on distutils
 """
 
+## Users are expected to set CFLAGS, CXXFLAGS, LDFLAGS
+## so that the installed polymake and gmp libraries are found.
+## Within "sage -sh", all environment variables are automatically
+## set correctly.
+
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Build import cythonize
 from Cython.Distutils import build_ext
 
 import os
-
-try:
-    SAGE_LOCAL = os.environ['SAGE_LOCAL']
-    SAGE_ROOT = os.environ['SAGE_ROOT']
-except KeyError:
-    raise ValueError("pypolymake installation failed!\n"
-                     "SAGE_LOCAL and SAGE_ROOT should be defined.\n"
-                     "Perhaps you are not inside a Sage shell.")
-
-includes = [
-    os.path.join('src', 'pypolmake'),
-    os.path.join(SAGE_LOCAL, 'include'),
-    os.path.join(SAGE_ROOT, 'src')
-]
 
 extensions = [
     Extension("cygmp.utils",
@@ -36,20 +27,17 @@ extensions = [
         ["src/polymake/number.pyx"],
         depends = ["src/cygmp/*", "src/polymake/defs.pxd"],
         libraries = ["gmp", "polymake", "xml2", "perl"],
-        language = 'c++',
-        include_dirs = includes),
+        language = 'c++'),
     Extension("polymake.vector",
         ["src/polymake/vector.pyx"],
         depends = ["src/cygmp/*", "src/polymake/defs.pxd"],
         libraries = ["gmp", "polymake", "xml2", "perl"],
-        language = 'c++',
-        include_dirs = includes),
+        language = 'c++'),
     Extension("polymake.matrix",
         ["src/polymake/matrix.pyx"],
         depends = ["src/cygmp/*", "src/polymake/defs.pxd"],
         libraries = ["gmp", "polymake", "xml2", "perl"],
-        language = 'c++',
-        include_dirs = includes),
+        language = 'c++'),
     Extension("polymake.polytope",
         ["src/polymake/polytope.pyx"],
         depends = ["src/cygmp/*", "src/polymake/defs.pxd"],
