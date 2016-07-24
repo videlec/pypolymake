@@ -121,17 +121,28 @@ cdef class Polytope(PerlObject):
         """
         self.pm_obj.save(filename)
 
-    def __add__(left, right):
-        if not (isinstance(left, Polytope) and isinstance(right, Polytope)):
-            raise TypeError("both arguments must be instances of Polytope")
-        raise NotImplementedError
-
-
+#    #TODO: does not work
+#    def AMBIENT_DIM(self):
+#        return self._get_integer_property("AMBIENT_DIM")
+#
 #    #TODO: does not work
 #    def DIM(self):
 #        return self._get_integer_property("DIM")
 
+
     def FACETS(self):
+        r"""Return the facets of this polytope as the rows of a matrix
+
+        >>> import polymake
+        >>> c = polymake.cube(3)
+        >>> c.FACETS()
+        [ 1 1  0  0 ]
+        [ 1 -1 0  0 ]
+        [ 1 0  1  0 ]
+        [ 1 0  -1 0 ]
+        [ 1 0  0  1 ]
+        [ 1 0  0  -1]
+        """
         return self._get_rational_matrix_property("FACETS")
 
 #    #TODO: does not work
@@ -139,27 +150,87 @@ cdef class Polytope(PerlObject):
 #        return self._get_integer_property("FULL_DIM")
 
     def F_VECTOR(self):
+        r"""Return the f-vector of this polytope
+
+        >>> import polymake
+        >>> c = polymake.cube(3)
+        >>> c.F_VECTOR()
+        (8, 12, 6)
+        """
         return self._get_integer_vector_property("F_VECTOR")
 
     def H_STAR_VECTOR(self):
+        r"""Return the h-star vector of this polytope
+
+        >>> import polymake
+        >>> c = polymake.cube(4)
+        >>> c.H_STAR_VECTOR()
+        (1, 76, 230, 76, 1)
+        """
         return self._get_integer_vector_property("H_STAR_VECTOR")
 
     def N_FACETS(self):
+        r"""Return the number of facets of this polytope
+
+        >>> import polymake
+        >>> c = polymake.birkhoff(4)
+        >>> c.N_FACETS()
+        16
+        """
         return self._get_integer_property("N_FACETS")
 
-    def N_POINTS(self):
-        return self._get_integer_property("N_POINTS")
+#    TODO: does not work
+#    def N_POINTS(self):
+#        return self._get_integer_property("N_POINTS")
 
     def N_VERTICES(self):
+        r"""Return the number of vertices of this polytope
+
+        >>> import polymake
+        >>> c = polymake.dwarfed_cube(4)
+        >>> c.N_VERTICES()
+        17
+        """
         return self._get_integer_property("N_VERTICES")
 
     def SIMPLE(self):
+        r"""Return whether this polytope is simple
+
+        >>> import polymake
+        >>> c = polymake.birkhoff(5)
+        >>> c.SIMPLE()
+        False
+        >>> c = polymake.dwarfed_cube(4)
+        >>> c.SIMPLE()
+        True
+        """
         return self._get_bool_property("SIMPLE")
 
     def SIMPLICIAL(self):
+        r"""Return whether this polytope is simplicial
+
+        >>> import polymake
+        >>> c = polymake.dwarfed_cube(3)
+        >>> c.SIMPLICIAL()
+        False
+        """
         return self._get_bool_property("SIMPLICIAL")
 
     def VERTICES(self):
+        r"""Return the vertices of this polytope as the rows of a matrix
+
+        >>> import polymake
+        >>> c = polymake.cube(3)
+        >>> c.VERTICES()
+        [ 1 -1 -1 -1]
+        [ 1 1  -1 -1]
+        [ 1 -1 1  -1]
+        [ 1 1  1  -1]
+        [ 1 -1 -1 1 ]
+        [ 1 1  -1 1 ]
+        [ 1 -1 1  1 ]
+        [ 1 1  1  1 ]
+        """
         return self._get_rational_matrix_property("VERTICES")
 
 #    def graph(self):
@@ -195,55 +266,195 @@ def new_Polytope_from_function(name, *args):
     return res
 
 def associahedron(d):
-    r"""
-    Produce a d-dimensional associahedron (or Stasheff polytope).
+    r"""Produce a d-dimensional associahedron (or Stasheff polytope)
+
+    >>> import polymake
+    >>> a = polymake.associahedron(3)
+    >>> a.VERTICES()
+    [ 1 1  4  19 1  16]
+    [ 1 20 1  4  9  16]
+    [ 1 19 4  1  10 16]
+    [ 1 16 9  4  1  20]
+    [ 1 16 10 1  4  19]
+    [ 1 1  20 1  4  18]
+    [ 1 1  19 4  1  19]
+    [ 1 19 1  10 1  19]
+    [ 1 4  1  20 1  16]
+    [ 1 4  1  10 16 10]
+    [ 1 1  10 1  19 10]
+    [ 1 1  4  9  16 10]
+    [ 1 10 1  4  19 10]
+    [ 1 9  4  1  20 10]
     """
     return new_Polytope_from_function("associahedron", d)
 
 def birkhoff(n, even=False):
-    """
-    Birkhoff polytope
+    """Constructs the Birkhoff polytope of dimension `n^2`.
+
+    It is the polytope of `n \\times n` stochastic matrices (encoded as `n^2`
+    row vectors), thus matrices with non-negative entries whose row and column
+    entries sum up to one. Its vertices are the permutation matrices.
+
+    Keyword arguments:
+
+    n -- integer
+    even -- boolean (default to False)
+
+    >>> import polymake
+    >>> b = polymake.birkhoff(3)
+    >>> b.VERTICES()
+    [ 1 1 0 0 0 1 0 0 0 1]
+    [ 1 0 1 0 1 0 0 0 0 1]
+    [ 1 0 0 1 1 0 0 0 1 0]
+    [ 1 1 0 0 0 0 1 0 1 0]
+    [ 1 0 1 0 0 0 1 1 0 0]
+    [ 1 0 0 1 0 1 0 1 0 0]
     """
     return new_Polytope_from_function("birkhoff", n, even)
 
-def cube(d, scale=1):
-    r"""
-    Return a cube of given dimension.  +/-1-coordinates by default.
+def cube(d, x_up=1, x_low=-1):
+    r"""Produce a d-dimensional cube
+
+    Regular polytope corresponding to the Coxeter group of type
+    `B^{d-1} = C^{d-1}`.  The bounding hyperplanes are `x_i <= x_{up}` and
+    `x_i >= x_{low}`.
+
+    Keyword arguments:
+
+    d -- dimension
+    x_up -- upper bound in each dimension
+    x_low -- lower bound in each dimension
+
+    >>> import polymake
+    >>> polymake.cube(2).VERTICES()
+    [ 1 -1 -1]
+    [ 1 1  -1]
+    [ 1 -1 1 ]
+    [ 1 1  1 ]
+    >>> polymake.cube(2,2,0).VERTICES()
+    [ 1 0 0]
+    [ 1 2 0]
+    [ 1 0 2]
+    [ 1 2 2]
+    >>> polymake.cube(2,1,1).VERTICES()
+    Traceback (most recent call last):
+    ...
+    ValueError: cube: x_up > x_low required at .../Main.cc line ...
+    <BLANKLINE>
     """
-    return new_Polytope_from_function("cube", d, scale)
+    return new_Polytope_from_function("cube", d, x_up, x_low)
 
 def cuboctahedron():
-    r"""
-    Return the cuboctahedron
+    r"""Create cuboctahedron.  An Archimedean solid.
+
+    >>> import polymake
+    >>> polymake.cuboctahedron().VERTICES()
+    [ 1 1  1  0 ]
+    [ 1 1  0  1 ]
+    [ 1 0  1  1 ]
+    [ 1 1  0  -1]
+    [ 1 0  1  -1]
+    [ 1 1  -1 0 ]
+    [ 1 0  -1 1 ]
+    [ 1 -1 1  0 ]
+    [ 1 -1 0  1 ]
+    [ 1 0  -1 -1]
+    [ 1 -1 0  -1]
+    [ 1 -1 -1 0 ]
     """
     return new_Polytope_from_function("cuboctahedron")
 
+def cyclic(d, n):
+    r"""Produce a d-dimensional cyclic polytope with n points.
+
+    Prototypical example of a neighborly polytope. Combinatorics completely
+    known due to Gale's evenness criterion. Coordinates are chosen on the
+    (spherical) moment curve at integer steps from start, or 0 if unspecified.
+    If spherical is true the vertices lie on the sphere with center
+    (1/2,0,...,0) and radius 1/2. In this case (the necessarily positive)
+    parameter start defaults to 1.
+
+    >>> import polymake
+    >>> polymake.cyclic(2, 4).VERTICES()
+    [ 1 0 0]
+    [ 1 1 1]
+    [ 1 2 4]
+    [ 1 3 9]
+    >>> polymake.cyclic(3, 3)
+    Traceback (most recent call last):
+    ...
+    ValueError: cyclic: d >= 2 and n > d required
+    <BLANKLINE>
+    """
+    return new_Polytope_from_function('cyclic', d, n)
+
 def cyclic_caratheodory(d, n):
-    r"""
-    Produce a d-dimensional cyclic polytope with n points.
+    r"""Produce a d-dimensional cyclic polytope with n points.
+
+    Prototypical example of a neighborly polytope. Combinatorics completely known
+    due to Gale's evenness criterion. Coordinates are chosen on the trigonometric
+    moment curve. For cyclic polytopes from other curves, see :func:`cyclic`.
     """
     return new_Polytope_from_function('cyclic_caratheodory', d, n)
 
 def delpezzo(d, scale=1):
     r"""
     Produce a d-dimensional del-Pezzo polytope
+
+    It is the convex hull of the cross polytope together with the all-ones and
+    minus all-ones vector. All coordinates are +/- scale or 0.
+
+    Keyword arguments:
+
+    d -- the dimension
+    scale -- the absolute value of each non-zero vertex coordinate.
+
+    >>> import polymake
+    >>> polymake.delpezzo(2).VERTICES()
+    [ 1 1  0 ]
+    [ 1 0  1 ]
+    [ 1 -1 0 ]
+    [ 1 0  -1]
+    [ 1 1  1 ]
+    [ 1 -1 -1]
     """
     return new_Polytope_from_function("delpezzo", d, scale)
 
 def dwarfed_cube(d):
-    r"""
-    Produce a d-dimensional dwarfed cube.
+    r"""Produce a d-dimensional dwarfed cube.
+
+    Keyword arguments:
+
+    d -- the dimension
+
+    >>> import polymake
+    >>> polymake.dwarfed_cube(2).VERTICES()
+    [ 1 1   0  ]
+    [ 1 1/2 1  ]
+    [ 1 1   1/2]
+    [ 1 0   1  ]
+    [ 1 0   0  ]
     """
     return new_Polytope_from_function("dwarfed_cube", d)
 
 def rand_sphere(dim, npoints):
-    """
-    Return a random spherical polytope of given dimension and number of points.
+    r"""Produce a d-dimensional polytope with n random vertices uniformly
+    distributed on the unit sphere.
+
+    Keyword arguments:
+
+    d -- the dimension
+    n -- the number of random vertices
+
+    >>> import polymake
+    >>> p = polymake.rand_sphere(3, 10)
+    >>> p.N_VERTICES()
+    10
     """
     return new_Polytope_from_function("rand_sphere", dim, npoints)
 
 
-
+##########################################
 # TODO for more support
 
 def dodecahedron():
