@@ -1,0 +1,14 @@
+- use C++ operator for operations on integers, rationals vectors,
+  matrices, etc
+
+- how can we pass the options to the polytope constructor like
+  "cyclic(d, n;  Options)" where options are start and spherical?
+
+- how to access to the "fake" perl properties of polytopes like DIM,
+  AMBIENT_DIM, etc?
+
+- how do we access (from C++) to the raw documentation strings?
+
+- the function to generate predefined polytope does not seem to
+  be declared in a header file... it would be nice to be able
+  to use some auto-generation of the documentation
