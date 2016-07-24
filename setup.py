@@ -5,11 +5,6 @@ Installation script for pypolymake
 It depends on distutils
 """
 
-## Users are expected to set CFLAGS, CXXFLAGS, LDFLAGS
-## so that the installed polymake and gmp libraries are found.
-## Within "sage -sh", all environment variables are automatically
-## set correctly.
-
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Build import cythonize

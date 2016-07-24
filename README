@@ -22,33 +22,37 @@ is translated in Python as::
     (32, 80, 80, 40, 10)
 
 The library is currently under development. Many things are not working and are
-likely to cause segmentation fault.
+likely to cause segmentation fault!
 
-Installation
-------------
+Installation and source code
+----------------------------
 
-To install pypolymake you currently need Sage but the library is mostly Sage
-agnostic. The package can be installed through PyPI via::
+To install pypolymake you need polymake in version 3.0 or later together with
+its header files.
 
-    $ sage -pip install pypolymake --user
+The simplest way to install the package is to use::
+
+    $ pip install pypolymake --user
 
 (the `--user` argument make the installation in your home directory and can be
-omitted if you have write access to your Sage installation).  Alternatively,
-you can download (or clone) this repository and run the command::
+omitted if you have write access to your system).  Alternatively,
+you can download (or clone) the source repository at
 
-    $ sage -python setup.py install --user
+    https://github.com/videlec/pypolymake
 
-On OS X, need to make sure that libperl is found::
+and then run in that directory
 
-    $ sage -sh
-    (sage-sh) $ export LDFLAGS="-L/System/Library/Perl/5.18/darwin-thread-multi-2level/CORE/ $LDFLAGS"
-    (sage-sh) $ python setup.py install --user
+    $ python setup.py install --user
 
-Source code
------------
+If polymake headers or libraries are installed in a non standard location you
+may need to set the environment variables CFLAGS, CXXFLAGS, LDFLAGS. For example,
+on OS X, you need to update LDFLAGS as::
 
-The source code of the project is available on github at
-https://github.com/videlec/pypolymake
+    $ export LDFLAGS="-L/System/Library/Perl/5.18/darwin-thread-multi-2level/CORE/ $LDFLAGS"
+    $ python setup.py install --user
+
+You might also need to set LD_LIBRARY_PATH before starting Python if the shared
+library of polymake (libpolymake.so) is not in a standard directory.
 
 Authors
 -------
