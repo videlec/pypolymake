@@ -13,11 +13,13 @@ class TestPolymakeInteger(unittest.TestCase):
     def test_cmp(self):
         a = polymake.number.Integer(2)
         b = polymake.number.Integer(3)
+        self.assertTrue(a == a)
         self.assertTrue(a != b)
         self.assertTrue(a < b)
         self.assertTrue(a <= b)
         self.assertTrue(b >= a)
         self.assertTrue(b > a)
+        self.assertFalse(a != a)
         self.assertFalse(a == b)
         self.assertFalse(a >= b)
         self.assertFalse(a > b)
