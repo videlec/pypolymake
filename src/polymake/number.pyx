@@ -14,7 +14,7 @@ from operator import add as op_add,\
                      pow as op_pow
 
 from cygmp.types cimport mpz_t, mpq_t
-from cygmp.mpz cimport mpz_init, mpz_clear, mpz_set_si, mpz_add, mpz_sub, mpz_mul, mpz_cmp
+from cygmp.mpz cimport mpz_init, mpz_clear, mpz_set_si, mpz_add, mpz_sub, mpz_mul, mpz_cmp, mpz_cmp_si, mpz_sgn
 from cygmp.utils cimport mpz_set_pylong, mpz_get_bytes, mpq_get_bytes
 
 cpdef Integer Integer_binop(Integer a, Integer b, op): 
@@ -38,8 +38,7 @@ cpdef Integer Integer_binop(Integer a, Integer b, op):
     return ans
 
 cdef class Integer:
-    r"""
-    Polymake integer
+    r"""Polymake integer
     """
     def __init__(self, data):
         cdef mpz_t z
@@ -56,6 +55,9 @@ cdef class Integer:
         self.pm_obj.set(z)
         mpz_clear(z)
 
+    def __nonzero__(self):
+        return mpz_sgn(self.pm_obj.get_rep()) != 0
+
     def __repr__(self):
         return mpz_get_bytes(self.pm_obj.get_rep())
 
@@ -66,10 +68,21 @@ cdef class Integer:
         return self.pm_obj.to_double()
 
     def __richcmp__(self, other, op):
-        if type(self) is not type(other):
-            raise TypeError
-        cdef int c = mpz_cmp((<Integer>self).pm_obj.get_rep(),
+        cdef int c
+
+        if type(self) is type(other):
+            c = mpz_cmp((<Integer>self).pm_obj.get_rep(),
                         (<Integer>other).pm_obj.get_rep())
+        elif type(self) is Integer:
+            if isinstance(other, int):
+                c = mpz_cmp_si((<Integer>self).pm_obj.get_rep(), <long> other)
+            else:
+                raise NotImplementedError
+        elif isinstance(self, int):
+            c = -mpz_cmp_si((<Integer>other).pm_obj.get_rep(), <long> self)
+        else:
+           raise NotImplementedError
+
         if c < 0:
             return op in (Py_LE, Py_LT, Py_NE)
         elif c == 0:
@@ -92,12 +105,8 @@ cdef class Integer:
             raise TypeError
         return Integer_binop(self, other, op_mul)
 
-#    def __dealloc__(self):
-#        del self.pm_obj
-
 cdef class Rational:
-    r"""
-    Polymake rational
+    r"""Polymake rational
     """
     def __repr__(self):
         return mpq_get_bytes(self.pm_obj.get_rep())
