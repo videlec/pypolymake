@@ -57,6 +57,14 @@ class TestCommand(Command):
         doctest.testmod(polymake.polytope)
 
         # run the tests in the tests/ repo
+        import os
+        from subprocess import call
+        for f in os.listdir('tests'):
+            if f.startswith('test_') and f.endswith('.py'):
+                f = os.path.join("tests", f)
+                print "running tests in {}".format(f)
+                if call(["python", f]) != 0:
+                    raise RuntimeError("some tests failed in {}".format(f))
 
 setup(
   name = "pypolymake",
