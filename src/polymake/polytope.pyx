@@ -25,6 +25,7 @@ from cygmp.mpq cimport mpq_init, mpq_clear, mpq_set, mpq_set_ui, \
 from .number cimport Integer, Rational
 from .vector cimport VectorInteger
 from .matrix cimport MatrixRational, mat_to_pm
+from .matrix import clean_mat
 
 # FIXME: pass user-settings parameter
 cdef Main pm
@@ -108,7 +109,8 @@ cdef class Polytope(PerlObject):
             raise ValueError("property must be VERTICES, POINTS or FACETS")
         pm.set_application("polytope")
         self.pm_obj = new pm_PerlObject("Polytope<Rational>")
-        cdef pm_MatrixRational* pm_mat = mat_to_pm(data)
+        nr, nc, mat = clean_mat(data)
+        cdef pm_MatrixRational* pm_mat = mat_to_pm(nr, nc, mat)
         pm_assign_MatrixRational(self.pm_obj.take(prop_name), pm_mat[0])
         del pm_mat
 
