@@ -336,11 +336,6 @@ def cube(d, x_up=1, x_low=-1):
     [ 1 2 0]
     [ 1 0 2]
     [ 1 2 2]
-    >>> polymake.cube(2,1,1).VERTICES()
-    Traceback (most recent call last):
-    ...
-    ValueError: cube: x_up > x_low required at .../Main.cc line ...
-    <BLANKLINE>
     """
     return new_Polytope_from_function("cube", d, x_up, x_low)
 
