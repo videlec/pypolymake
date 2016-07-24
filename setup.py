@@ -5,6 +5,7 @@ Installation script for pypolymake
 It depends on distutils
 """
 
+from distutils.cmd import Command
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Build import cythonize
@@ -40,6 +41,23 @@ extensions = [
         language = 'c++')
 ]
 
+class TestCommand(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        # run the doctests
+        import doctest
+        import polymake
+        doctest.testmod(polymake.polytope)
+
+        # run the tests in the tests/ repo
+
 setup(
   name = "pypolymake",
   author ="Vincent Delecroix, Burcin Erocal",
@@ -54,5 +72,5 @@ setup(
                  "cygmp": os.path.join("src", "cygmp")},
   package_data = {"polymake": ["*.pxd", "*.h"],
                   "cygmp": ["*.pxd", "*.h"]},
-  cmdclass = {'build_ext': build_ext}
+  cmdclass = {'build_ext': build_ext, 'test': TestCommand}
 )
