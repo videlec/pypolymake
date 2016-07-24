@@ -54,8 +54,16 @@ on OS X, you need to update LDFLAGS as::
 You might also need to set LD_LIBRARY_PATH before starting Python if the shared
 library of polymake (libpolymake.so) is not in a standard directory.
 
+License
+-------
+
+The library pypolymake is distributed under the terms of the GNU General Public
+License (GPL) as published by the Free Software Foundation; either version 3 of
+the License, or (at your option) any later version (see http://www.gnu.org/licenses/)
+
 Authors
 -------
 
 This project has been started by Burcin Erocal in 2011 and continued
 by Vincent Delecroix in 2016
+
