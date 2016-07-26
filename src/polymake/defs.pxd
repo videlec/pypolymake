@@ -18,23 +18,73 @@ cdef extern from "polymake/Main.h" namespace "polymake":
         void set_application(char*)
         void set_preference(char*)
 
-cdef extern from "polymake/Rational.h" namespace 'polymake':
+cdef extern from "polymake/Integer.h" namespace 'polymake':
     ctypedef pm_const_Integer "const Integer"
     cdef cppclass pm_Integer "Integer" :
         mpz_t get_rep()
+        pm_Integer set_mpz "set" (mpz_t)
         Py_ssize_t strsize(int)
         int compare(int)
         long to_long()   # FIXME: this is const
         double to_double()
         pm_Integer& set(mpz_srcptr)
 
+        bool operator== (pm_Integer)
+        bool operator== (long)
+        bool operator> (pm_Integer)
+        bool operator> (long)
+        bool operator< (pm_Integer)
+        bool operator< (long)
+
+        int compare(pm_Integer)
+        int compare(long)
+
+        pm_Integer operator+ (pm_Integer)
+        pm_Integer operator+ (long)
+        pm_Integer operator- (pm_Integer)
+        pm_Integer operator- (long)
+        pm_Integer operator* (pm_Integer)
+        pm_Integer operator* (long)
+        pm_Integer operator/ (pm_Integer)
+        pm_Integer operator/ (long)
+        pm_Integer negate()
+
+cdef extern from "polymake/Rational.h" namespace 'polymake':
     ctypedef pm_const_Rational "const Rational"
     cdef cppclass pm_Rational "Rational":
-#        pm_Rational(mpq_t)
         mpq_t get_rep()
         pm_Rational set_mpq_t "set" (mpq_t)
         pm_Rational& set_mpq_srcptr "set" (mpq_srcptr)
-#        pm_Rational operator+ (pm_const_Rational&)
+
+        pm_Rational abs()
+
+        bool operator== (pm_Rational)
+        bool operator== (pm_Integer)
+        bool operator== (long)
+        bool operator< (pm_Rational)
+        bool operator< (pm_Integer)
+        bool operator< (long)
+        bool operator> (pm_Rational)
+        bool operator> (pm_Integer)
+        bool operator> (long)
+
+        int compare(pm_Rational)
+        int compare(pm_Integer)
+        int compare(long)
+
+        pm_Rational operator+ (pm_Rational)
+        pm_Rational operator+ (pm_Integer)
+        pm_Rational operator+ (long)
+        pm_Rational operator- (pm_Rational)
+        pm_Rational operator- (pm_Integer)
+        pm_Rational operator- (long)
+        pm_Rational operator* (pm_Rational)
+        pm_Rational operator* (pm_Integer)
+        pm_Rational operator* (long)
+        pm_Rational operator/ (pm_Rational)
+        pm_Rational operator/ (pm_Integer)
+        pm_Rational operator/ (long)
+
 
 cdef extern from "polymake/client.h":
     cdef cppclass pm_PerlPropertyValue "perl::PropertyValue":

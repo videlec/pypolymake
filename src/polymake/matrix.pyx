@@ -13,6 +13,7 @@ from cygmp.mpq cimport *
 from defs cimport pm_MatrixRational, pm_Rational, pm_Integer, pm_VectorInteger, get_element
 
 from .number cimport Rational
+from number import get_num_den
 
 cdef class MatrixRational:
     def __getitem__(self, elt):
@@ -40,27 +41,6 @@ cdef class MatrixRational:
                       "]"
 
         return "\n".join(line_format.format(*row) for row in rows)
-
-def get_num_den(elt):
-    num = None
-    den = None
-    try:
-        num = elt.numerator
-        den = elt.denominator
-    except AttributeError:
-        try:
-            num, den = elt
-        except (TypeError, ValueError):
-            pass
-
-    if callable(num) and callable(den):
-        num = num()
-        den = den()
-    if isinstance(num, (int,long)) and isinstance(den, (int,long)):
-        return (num, den)
-
-    raise ValueError("not able to convert {} to a rational".format(elt))
-
 
 
 def clean_mat(mat):

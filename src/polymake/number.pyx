@@ -14,28 +14,30 @@ from operator import add as op_add,\
                      pow as op_pow
 
 from cygmp.types cimport mpz_t, mpq_t
-from cygmp.mpz cimport mpz_init, mpz_clear, mpz_set_si, mpz_add, mpz_sub, mpz_mul, mpz_cmp, mpz_cmp_si, mpz_sgn
+from cygmp.mpz cimport mpz_init, mpz_clear, mpz_set_si, mpz_sgn
+from cygmp.mpq cimport mpq_init, mpq_clear, mpq_numref, mpq_denref, mpq_canonicalize
 from cygmp.utils cimport mpz_set_pylong, mpz_get_bytes, mpq_get_bytes
 
-cpdef Integer Integer_binop(Integer a, Integer b, op): 
-    cdef Integer ans = Integer.__new__(Integer)
-    cdef mpz_t z
-    mpz_init(z)
+def get_num_den(elt):
+    num = None
+    den = None
+    try:
+        num = elt.numerator
+        den = elt.denominator
+    except AttributeError:
+        try:
+            num, den = elt
+        except (TypeError, ValueError):
+            pass
 
-    if op is op_add:
-        mpz_add(z, a.pm_obj.get_rep(), b.pm_obj.get_rep())
-    elif op is op_sub:
-        mpz_sub(z, a.pm_obj.get_rep(), b.pm_obj.get_rep())
-    elif op is op_mul:
-        mpz_mul(z, a.pm_obj.get_rep(), b.pm_obj.get_rep())
-    elif op is op_pow:
-        raise NotImplementedError
-    else:
-        raise TypeError("{!r} is not a valid operator".format(op))
+    if callable(num) and callable(den):
+        num = num()
+        den = den()
+    if isinstance(num, (int,long)) and isinstance(den, (int,long)):
+        return (num, den)
 
-    ans.pm_obj.set(z)
-    mpz_clear(z)
-    return ans
+    raise ValueError("not able to convert {} to a rational".format(elt))
+
 
 cdef class Integer:
     r"""Polymake integer
@@ -71,17 +73,13 @@ cdef class Integer:
         cdef int c
 
         if type(self) is type(other):
-            c = mpz_cmp((<Integer>self).pm_obj.get_rep(),
-                        (<Integer>other).pm_obj.get_rep())
-        elif type(self) is Integer:
-            if isinstance(other, int):
-                c = mpz_cmp_si((<Integer>self).pm_obj.get_rep(), <long> other)
-            else:
-                raise NotImplementedError
+            c = (<Integer>self).pm_obj.compare((<Integer>other).pm_obj)
         elif isinstance(self, int):
-            c = -mpz_cmp_si((<Integer>other).pm_obj.get_rep(), <long> self)
+            c = -(<Integer>other).pm_obj.compare(<long>self)
+        elif isinstance(other, int):
+            c = (<Integer>self).pm_obj.compare(<long>other)
         else:
-           raise NotImplementedError
+           return NotImplemented
 
         if c < 0:
             return op in (Py_LE, Py_LT, Py_NE)
@@ -91,22 +89,164 @@ cdef class Integer:
             return op in (Py_GE, Py_GT, Py_NE)
 
     def __add__(self, other):
-        if type(self) is not type(other):
-            raise TypeError
-        return Integer_binop(self, other, op_add)
+        cdef Integer ans = Integer.__new__(Integer)
+        if type(self) is type(other):
+            ans.pm_obj = (<Integer>self).pm_obj + (<Integer>other).pm_obj
+        elif isinstance(self, int):
+            ans.pm_obj = (<Integer>other).pm_obj + <long>self
+        elif isinstance(other, int):
+            ans.pm_obj = (<Integer>self).pm_obj + <long>other
+        else:
+            return NotImplemented
+        return ans
 
     def __sub__(self, other):
-        if type(self) is not type(other):
-            raise TypeError
-        return Integer_binop(self, other, op_sub)
+        cdef Integer ans = Integer.__new__(Integer)
+        if type(self) is type(other):
+            ans.pm_obj = (<Integer>self).pm_obj - (<Integer>other).pm_obj
+        elif isinstance(self, int):
+            ans.pm_obj = -((<Integer>other).pm_obj - <long>self)
+        elif isinstance(other, int):
+            ans.pm_obj = (<Integer>self).pm_obj - <long>other
+        else:
+            return NotImplemented
+        return ans
 
     def __mul__(self, other):
-        if type(self) is not type(other):
-            raise TypeError
-        return Integer_binop(self, other, op_mul)
+        cdef Integer ans = Integer.__new__(Integer)
+        if type(self) is type(other):
+            ans.pm_obj = (<Integer>self).pm_obj * (<Integer>other).pm_obj
+        elif isinstance(self, int):
+            ans.pm_obj = (<Integer>other).pm_obj * <long>self
+        elif isinstance(other, int):
+            ans.pm_obj = (<Integer>self).pm_obj * <long>other
+        else:
+            return NotImplemented
+        return ans
+
+    def __div__(self, other):
+        cdef Integer ans = Integer.__new__(Integer)
+        if type(self) is type(other):
+            ans.pm_obj = (<Integer>self).pm_obj / (<Integer>other).pm_obj
+        elif isinstance(self, int):
+            ans.pm_obj = (<Integer>Integer(self)).pm_obj / (<Integer>other).pm_obj
+        elif isinstance(other, int):
+            ans.pm_obj = (<Integer>self).pm_obj / <long>other
+        else:
+            return NotImplemented
+        return ans
 
 cdef class Rational:
     r"""Polymake rational
     """
+    def __init__(self, num, den=None):
+        if den is None:
+            num, den = get_num_den(num)
+
+        cdef mpq_t z
+        mpq_init(z)
+        if isinstance(num, int):
+            mpz_set_si(mpq_numref(z), <int>num)
+        elif isinstance(num, long):
+            mpz_set_pylong(mpq_numref(z), num)
+        else:
+            raise ValueError("Polymake integer can only be initialized from Python int and long")
+        if isinstance(den, int):
+            mpz_set_si(mpq_denref(z), <int>den)
+        elif isinstance(num, long):
+            mpz_set_pylong(mpq_denref(z), den)
+
+        mpq_canonicalize(z)
+        self.pm_obj.set_mpq_t(z)
+        mpq_clear(z)
+
+    def __richcmp__(self, other, op):
+        cdef int c
+
+        if type(self) is type(other):
+            c = (<Rational>self).pm_obj.compare((<Rational>other).pm_obj)
+        elif isinstance(self, Integer):
+            c = (<Rational>other).pm_obj.compare((<Integer>self).pm_obj)
+        elif isinstance(other, Integer):
+            c = (<Rational>self).pm_obj.compare((<Integer>other).pm_obj)
+        elif isinstance(self, int):
+            c = (<Rational>other).pm_obj.compare(<long>self)
+        elif isinstance(other, int):
+            c = (<Rational>self).pm_obj.compare(<long>other)
+        else:
+           return NotImplemented
+
+        if c < 0:
+            return op in (Py_LE, Py_LT, Py_NE)
+        elif c == 0:
+            return op in (Py_LE, Py_EQ, Py_GE)
+        else:
+            return op in (Py_GE, Py_GT, Py_NE)
+
     def __repr__(self):
         return mpq_get_bytes(self.pm_obj.get_rep())
+
+    def __add__(self, other):
+        cdef Rational ans = Rational.__new__(Rational)
+        if type(self) is type(other):
+            ans.pm_obj = (<Rational>self).pm_obj + (<Rational>other).pm_obj
+        elif type(self) is Integer:
+            ans.pm_obj = (<Rational>other).pm_obj + (<Integer>other).pm_obj
+        elif type(other) is Integer:
+            ans.pm_obj = (<Rational>self).pm_obj + (<Integer>other).pm_obj
+        elif isinstance(self, long):
+            ans.pm_obj = (<Rational>other).pm_obj + <long>self
+        elif isinstance(other, long):
+            ans.pm_obj = (<Rational>self).pm_obj + <long>other
+        else:
+            return NotImplemented
+        return ans
+
+    def __sub__(self, other):
+        cdef Rational ans = Rational.__new__(Rational)
+        if type(self) is type(other):
+            ans.pm_obj = (<Rational>self).pm_obj - (<Rational>other).pm_obj
+        elif type(self) is Integer:
+            ans.pm_obj = (<Rational>other).pm_obj - (<Integer>other).pm_obj
+        elif type(other) is Integer:
+            ans.pm_obj = (<Rational>self).pm_obj - (<Integer>other).pm_obj
+        elif isinstance(self, long):
+            ans.pm_obj = (<Rational>other).pm_obj - <long>self
+        elif isinstance(other, long):
+            ans.pm_obj = (<Rational>self).pm_obj - <long>other
+        else:
+            return NotImplemented
+        return ans
+
+    def __mul__(self, other):
+        cdef Rational ans = Rational.__new__(Rational)
+        if type(self) is type(other):
+            ans.pm_obj = (<Rational>self).pm_obj * (<Rational>other).pm_obj
+        elif type(self) is Integer:
+            ans.pm_obj = (<Rational>other).pm_obj * (<Integer>other).pm_obj
+        elif type(other) is Integer:
+            ans.pm_obj = (<Rational>self).pm_obj * (<Integer>other).pm_obj
+        elif isinstance(self, long):
+            ans.pm_obj = (<Rational>other).pm_obj * <long>self
+        elif isinstance(other, long):
+            ans.pm_obj = (<Rational>self).pm_obj * <long>other
+        else:
+            return NotImplemented
+        return ans
+
+    def __div__(self, other):
+        cdef Rational ans = Rational.__new__(Rational)
+        if type(self) is type(other):
+            ans.pm_obj = (<Rational>self).pm_obj / (<Rational>other).pm_obj
+        elif type(other) is Integer:
+            ans.pm_obj = (<Rational>self).pm_obj / (<Integer>other).pm_obj
+        elif isinstance(other, long):
+            ans.pm_obj = (<Rational>self).pm_obj / <long>other
+        else:
+            if not type(self) is Rational:
+                try:
+                    return Rational(self) / <Rational>other
+                except (ValueError,TypeError):
+                    pass
+            return NotImplemented
+        return ans
