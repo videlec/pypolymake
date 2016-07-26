@@ -1,6 +1,3 @@
-- use C++ operator for operations on integers, rationals vectors,
-  matrices, etc
-
 - how can we pass the options to the polytope constructor like
   "cyclic(d, n;  Options)" where options are start and spherical?
 
