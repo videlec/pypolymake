@@ -36,11 +36,8 @@ The simplest way to install the package is to use::
 
 (the `--user` argument make the installation in your home directory and can be
 omitted if you have write access to your system).  Alternatively,
-you can download (or clone) the source repository at
-
-    https://github.com/videlec/pypolymake
-
-and then run in that directory
+you can download (or clone) the source repository at https://github.com/videlec/pypolymake
+and then run in that directory::
 
     $ python setup.py install --user
 
