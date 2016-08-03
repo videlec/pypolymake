@@ -41,6 +41,7 @@ cdef extern from "polymake/Integer.h" namespace 'polymake':
 
         pm_Integer operator+ (pm_Integer)
         pm_Integer operator+ (long)
+        pm_Integer operator- ()
         pm_Integer operator- (pm_Integer)
         pm_Integer operator- (long)
         pm_Integer operator* (pm_Integer)
@@ -75,6 +76,7 @@ cdef extern from "polymake/Rational.h" namespace 'polymake':
         pm_Rational operator+ (pm_Rational)
         pm_Rational operator+ (pm_Integer)
         pm_Rational operator+ (long)
+        pm_Rational operator- ()
         pm_Rational operator- (pm_Rational)
         pm_Rational operator- (pm_Integer)
         pm_Rational operator- (long)
