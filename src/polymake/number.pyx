@@ -14,7 +14,7 @@ from operator import add as op_add,\
                      pow as op_pow
 
 from cygmp.types cimport mpz_t, mpq_t
-from cygmp.mpz cimport mpz_init, mpz_clear, mpz_set_si, mpz_sgn
+from cygmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
 from cygmp.mpq cimport mpq_init, mpq_clear, mpq_numref, mpq_denref, mpq_canonicalize
 from cygmp.utils cimport mpz_set_pylong, mpz_get_bytes, mpq_get_bytes
 
@@ -58,7 +58,7 @@ cdef class Integer:
         mpz_clear(z)
 
     def __nonzero__(self):
-        return mpz_sgn(self.pm_obj.get_rep()) != 0
+        return self.pm_obj.non_zero()
 
     def __repr__(self):
         return mpz_get_bytes(self.pm_obj.get_rep())
@@ -125,6 +125,9 @@ cdef class Integer:
         return ans
 
     def __div__(self, other):
+        if not other:
+            raise ZeroDivisionError("polymake.number.Integer division by zero")
+
         cdef Integer ans = Integer.__new__(Integer)
         if type(self) is type(other):
             ans.pm_obj = (<Integer>self).pm_obj / (<Integer>other).pm_obj
@@ -143,6 +146,9 @@ cdef class Rational:
         if den is None:
             num, den = get_num_den(num)
 
+        if not den:
+            raise ValueError("denominator must not be zero")
+
         cdef mpq_t z
         mpq_init(z)
         if isinstance(num, int):
@@ -159,6 +165,9 @@ cdef class Rational:
         mpq_canonicalize(z)
         self.pm_obj.set_mpq_t(z)
         mpq_clear(z)
+
+    def __nonzero__(self):
+        return self.pm_obj.non_zero()
 
     def __richcmp__(self, other, op):
         cdef int c
@@ -191,12 +200,12 @@ cdef class Rational:
         if type(self) is type(other):
             ans.pm_obj = (<Rational>self).pm_obj + (<Rational>other).pm_obj
         elif type(self) is Integer:
-            ans.pm_obj = (<Rational>other).pm_obj + (<Integer>other).pm_obj
+            ans.pm_obj = (<Rational>other).pm_obj + (<Integer>self).pm_obj
         elif type(other) is Integer:
             ans.pm_obj = (<Rational>self).pm_obj + (<Integer>other).pm_obj
-        elif isinstance(self, long):
+        elif isinstance(self, int):
             ans.pm_obj = (<Rational>other).pm_obj + <long>self
-        elif isinstance(other, long):
+        elif isinstance(other, int):
             ans.pm_obj = (<Rational>self).pm_obj + <long>other
         else:
             return NotImplemented
@@ -207,12 +216,12 @@ cdef class Rational:
         if type(self) is type(other):
             ans.pm_obj = (<Rational>self).pm_obj - (<Rational>other).pm_obj
         elif type(self) is Integer:
-            ans.pm_obj = (<Rational>other).pm_obj - (<Integer>other).pm_obj
+            ans.pm_obj = -((<Rational>other).pm_obj - (<Integer>self).pm_obj)
         elif type(other) is Integer:
             ans.pm_obj = (<Rational>self).pm_obj - (<Integer>other).pm_obj
-        elif isinstance(self, long):
-            ans.pm_obj = (<Rational>other).pm_obj - <long>self
-        elif isinstance(other, long):
+        elif isinstance(self, int):
+            ans.pm_obj = -((<Rational>other).pm_obj - <long>self)
+        elif isinstance(other, int):
             ans.pm_obj = (<Rational>self).pm_obj - <long>other
         else:
             return NotImplemented
@@ -223,24 +232,27 @@ cdef class Rational:
         if type(self) is type(other):
             ans.pm_obj = (<Rational>self).pm_obj * (<Rational>other).pm_obj
         elif type(self) is Integer:
-            ans.pm_obj = (<Rational>other).pm_obj * (<Integer>other).pm_obj
+            ans.pm_obj = (<Rational>other).pm_obj * (<Integer>self).pm_obj
         elif type(other) is Integer:
             ans.pm_obj = (<Rational>self).pm_obj * (<Integer>other).pm_obj
-        elif isinstance(self, long):
+        elif isinstance(self, int):
             ans.pm_obj = (<Rational>other).pm_obj * <long>self
-        elif isinstance(other, long):
+        elif isinstance(other, int):
             ans.pm_obj = (<Rational>self).pm_obj * <long>other
         else:
             return NotImplemented
         return ans
 
     def __div__(self, other):
+        if not other:
+            raise ZeroDivisionError("polymake.number.Rational division by zero")
+
         cdef Rational ans = Rational.__new__(Rational)
         if type(self) is type(other):
             ans.pm_obj = (<Rational>self).pm_obj / (<Rational>other).pm_obj
         elif type(other) is Integer:
             ans.pm_obj = (<Rational>self).pm_obj / (<Integer>other).pm_obj
-        elif isinstance(other, long):
+        elif isinstance(other, int):
             ans.pm_obj = (<Rational>self).pm_obj / <long>other
         else:
             if not type(self) is Rational:

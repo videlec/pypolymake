@@ -36,6 +36,11 @@ class TestPolymakeRational(unittest.TestCase):
                         polymake.number.Rational(-1,2) ==
                         polymake.number.Rational(1,-2))
 
+        with self.assertRaises(ValueError):
+             polymake.number.Rational(0,0)
+        with self.assertRaises(ValueError):
+            polymake.number.Rational(2,0)
+
     def test_binop(self):
         a = polymake.number.Rational(1,2)
         b = polymake.number.Rational(2,3)
@@ -53,6 +58,31 @@ class TestPolymakeRational(unittest.TestCase):
             self.assertTrue(a * b == polymake.number.Rational(anum*bnum, aden*bden))
             if bnum:
                 self.assertTrue(a / b == polymake.number.Rational(anum*bden, aden*bnum))
+
+            ones = [1, polymake.number.Integer(1)]
+            for o in ones:
+                msg = "a = {}  type(o) = {}".format(a, type(o))
+                self.assertTrue(a + o == polymake.number.Rational(anum+aden, aden), msg)
+                self.assertTrue(o + a == polymake.number.Rational(anum+aden, aden), msg)
+                self.assertTrue(a - o == polymake.number.Rational(anum-aden, aden), msg)
+                self.assertTrue(o - a == polymake.number.Rational(aden-anum, aden), msg)
+            twos = [2, polymake.number.Integer(2)]
+            for t in twos:
+                msg = "a = {}  type(t) = {}".format(a, type(t))
+                self.assertTrue(a * t == polymake.number.Rational(2*anum, aden), msg)
+                self.assertTrue(t * a == polymake.number.Rational(anum*2, aden), msg)
+                self.assertTrue(a / t == polymake.number.Rational(anum, aden*2), msg)
+# this is not supported yet
+#                if anum:
+#                    self.assertTrue(t / a == polymake.number.Rational(2*aden, anum), msg)
+
+    def test_zero_division(self):
+        zeros = [0, polymake.number.Integer(0), polymake.number.Rational(0)]
+        rats = [polymake.number.Rational(0,1), polymake.number.Rational(1,1)]
+        for z in zeros:
+            for r in rats:
+                with self.assertRaises(ZeroDivisionError):
+                    r / z
 
 if __name__ == '__main__':
     unittest.main()

@@ -29,6 +29,8 @@ cdef extern from "polymake/Integer.h" namespace 'polymake':
         double to_double()
         pm_Integer& set(mpz_srcptr)
 
+        bool non_zero()
+
         bool operator== (pm_Integer)
         bool operator== (long)
         bool operator> (pm_Integer)
@@ -58,6 +60,8 @@ cdef extern from "polymake/Rational.h" namespace 'polymake':
         pm_Rational& set_mpq_srcptr "set" (mpq_srcptr)
 
         pm_Rational abs()
+
+        bool non_zero()
 
         bool operator== (pm_Rational)
         bool operator== (pm_Integer)

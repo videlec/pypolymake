@@ -55,5 +55,13 @@ class TestPolymakeInteger(unittest.TestCase):
             self.assertEqual(a*pb, polymake.number.Integer(a*b))
             self.assertEqual(a-pb, polymake.number.Integer(a-b))
 
+    def test_zero_division(self):
+        zeros = [0, polymake.number.Integer(0), polymake.number.Rational(0)]
+        rats = [polymake.number.Integer(0), polymake.number.Integer(1)]
+        for z in zeros:
+            for r in rats:
+                with self.assertRaises(ZeroDivisionError):
+                    r / z
+
 if __name__ == '__main__':
     unittest.main()
