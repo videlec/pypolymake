@@ -5,6 +5,24 @@ import polymake
 import unittest
 
 class TestPolymakeRational(unittest.TestCase):
+    def test_init(self):
+        self.assertTrue(polymake.number.Rational(-2,4) ==
+                        polymake.number.Rational(2,-4) ==
+                        polymake.number.Rational(-1,2) ==
+                        polymake.number.Rational(1,-2))
+
+        with self.assertRaises(ValueError):
+             polymake.number.Rational(0,0)
+        with self.assertRaises(ValueError):
+            polymake.number.Rational(2,0)
+
+    def test_bool(self):
+        self.assertEqual(bool(polymake.number.Rational(0,1)), False)
+        self.assertEqual(bool(polymake.number.Rational(1,1)), True)
+        self.assertEqual(bool(polymake.number.Rational(-1,2)), True)
+        self.assertEqual(bool(polymake.number.Rational(2,3)), True)
+        self.assertEqual(bool(polymake.number.Rational(-2,1)), True)
+
     def test_cmp(self):
         a = 2
         b = 3
@@ -29,17 +47,6 @@ class TestPolymakeRational(unittest.TestCase):
 
         self.assertFalse(qb <= qa or pb <= qa or qb <= pa or qb <= a or b <= qa)
         self.assertFalse(qb <  qa or pb <  qa or qb <  pa or qb <  a or b <  qa)
-
-    def test_init(self):
-        self.assertTrue(polymake.number.Rational(-2,4) ==
-                        polymake.number.Rational(2,-4) ==
-                        polymake.number.Rational(-1,2) ==
-                        polymake.number.Rational(1,-2))
-
-        with self.assertRaises(ValueError):
-             polymake.number.Rational(0,0)
-        with self.assertRaises(ValueError):
-            polymake.number.Rational(2,0)
 
     def test_binop(self):
         a = polymake.number.Rational(1,2)
