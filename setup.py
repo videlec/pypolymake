@@ -100,7 +100,7 @@ setup(
   packages = ["polymake", "cygmp"],
   package_dir = {"polymake": os.path.join("src", "polymake"),
                  "cygmp": os.path.join("src", "cygmp")},
-  package_data = {"polymake": ["*.pxd", "*.h"],
-                  "cygmp": ["*.pxd", "*.h"]},
+  package_data = {"polymake": ["*.pxd", "*.pyx", "*.h"],
+                  "cygmp": ["*.pxd", "*.pyx", "*.h"]},
   cmdclass = {'test': TestCommand}
 )
