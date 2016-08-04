@@ -22,7 +22,7 @@ from .vector cimport VectorInteger
 cdef property_unknown = 'unknown'
 cdef property_bool = 'bool'
 cdef property_int = 'int'
-cdef property_integer = 'integer'
+cdef property_integer = 'Integer'
 cdef property_rational = 'Rational'
 
 cdef property_array_int = 'Array<Int>'
@@ -71,7 +71,6 @@ cdef dict polytope_rational_properties = {
     'CONE_AMBIENT_DIM'                   : property_unknown,
     'CONE_DIM'                           : property_unknown,
     'CONNECTIVITY'                       : property_unknown,
-    'CENTERED'                           : property_bool,
     'COORDINATE_LABELS'                  : property_unknown,
     'CS_PERMUTATION'                     : property_array_int,
     'CUBICAL'                            : property_bool,
@@ -283,11 +282,6 @@ cdef dict graph_properties    = {
     'SQUARED_EDGE_LENGTHS'            : property_unknown,
     'TRIANGLE_FREE'                   : property_bool,
     'VISUAL'                          : property_unknown,
-}
-
-cdef dict polymake_properties ={
-    property_polytope_rational: polytope_rational_properties,
-    property_graph_undirected: graph_properties
 }
 
 def handler_generic(perl_object, prop):
