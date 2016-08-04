@@ -9,7 +9,6 @@ from distutils.cmd import Command
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Build import cythonize
-from Cython.Distutils import build_ext
 
 import os
 
@@ -54,16 +53,17 @@ class TestCommand(Command):
         # run the doctests
         import doctest
         import polymake
-        doctest.testmod(polymake.polytope)
+        (failure_count, test_count) = doctest.testmod(polymake.polytope)
+        if failure_count:
+            raise RuntimeError("{} test(s) failed in polymake.polytope".format(failure_count))
 
         # run the tests in the tests/ repo
-        import os
         from subprocess import call
         for f in os.listdir('tests'):
             if f.startswith('test_') and f.endswith('.py'):
                 f = os.path.join("tests", f)
                 print "running tests in {}".format(f)
-                if call(["python", f]) != 0:
+                if call(["python", f]):
                     raise RuntimeError("some tests failed in {}".format(f))
 
 setup(
@@ -74,11 +74,11 @@ setup(
   description = "Python wrapper for polymake",
   long_description = open("README").read(),
   license = "GNU General Public License, version 3 or later",
-  ext_modules = extensions,
+  ext_modules = cythonize(extensions),
   packages = ["polymake", "cygmp"],
   package_dir = {"polymake": os.path.join("src", "polymake"),
                  "cygmp": os.path.join("src", "cygmp")},
   package_data = {"polymake": ["*.pxd", "*.h"],
                   "cygmp": ["*.pxd", "*.h"]},
-  cmdclass = {'build_ext': build_ext, 'test': TestCommand}
+  cmdclass = {'test': TestCommand}
 )
