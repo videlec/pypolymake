@@ -8,6 +8,8 @@
 
 from .defs cimport pm_PerlObject
 
+cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj)
+
 cdef class PerlObject:
     cdef pm_PerlObject * pm_obj  # underlying perl object
     cdef ref                     # reference to other perl object

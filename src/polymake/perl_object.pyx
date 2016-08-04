@@ -7,12 +7,46 @@
 ###############################################################################
 
 
-from .properties cimport handlers, property_unknown
+from .defs cimport (Main, CallPolymakeFunction, CallPolymakeFunction1,
+        CallPolymakeFunction2, CallPolymakeFunction3,
+        new_PerlObject_from_PerlObject)
+
+cdef Main pm
+
+
+from .properties cimport handlers, pm_type_unknown, type_properties
 cdef int DEBUG = 0
 
 # this is a bug in Cython!
 def _NOT_TO_BE_USED_():
     raise ValueError
+
+cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj):
+    cdef PerlObject ans = PerlObject.__new__(PerlObject)
+    ans.pm_obj = new_PerlObject_from_PerlObject(pm_obj)
+    pm_type = pm_obj.type().name()
+    ans.properties = type_properties.get(pm_type)
+    if ans.properties is None:
+        for k,v in type_properties.items():
+            if pm_type.startswith(k):
+                ans.properties = v
+    return ans
+
+def call_polymake_function(app, name, *args):
+    pm.set_application(app)
+    cdef pm_PerlObject pm_obj
+    if len(args) == 0:
+        pm_obj = CallPolymakeFunction(name)
+    elif len(args) == 1:
+        pm_obj = CallPolymakeFunction1(name, args[0])
+    elif len(args) == 2:
+        pm_obj = CallPolymakeFunction2(name, args[0], args[1])
+    elif len(args) == 3:
+        pm_obj = CallPolymakeFunction3(name, args[0], args[1], args[2])
+    else:
+        raise NotImplementedError("can only handle 0-3 arguments")
+
+    return wrap_perl_object(pm_obj)
 
 cdef class PerlObject:
     def __dealloc__(self):
@@ -26,7 +60,7 @@ cdef class PerlObject:
         except KeyError:
             if DEBUG:
                 print("  unregistered property...")
-            handler = handlers[property_unknown]
+            handler = handlers[pm_type_unknown]
         else:
             if DEBUG:
                 print("  pm_type = {}".format(pm_type))
@@ -60,7 +94,7 @@ cdef class PerlObject:
         12
         """
         if pm_type is None:
-            pm_type = property_unknown
+            pm_type = pm_type_unknown
         return handlers[pm_type](self, prop)
 
     def type_name(self):
@@ -79,6 +113,9 @@ cdef class PerlObject:
             Sometimes this gives a Segmentation fault!
         """
         return <bytes> self.pm_obj.description()
+
+    def __str__(self):
+        return "{}<{}>".format(self.type_name(), hex(id(self)))
 
     def __repr__(self):
         return "{}<{}>".format(self.type_name(), hex(id(self)))
