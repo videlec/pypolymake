@@ -74,7 +74,8 @@ class TestCommand(Command):
         # run the doctests
         import doctest
         import polymake
-        (failure_count, test_count) = doctest.testmod(polymake.polytope)
+        (failure_count, test_count) = doctest.testmod(polymake.functions,
+                optionflags=doctest.ELLIPSIS)
         if failure_count:
             raise RuntimeError("{} test(s) failed in polymake.polytope".format(failure_count))
 

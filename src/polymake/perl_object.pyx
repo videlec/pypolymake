@@ -7,11 +7,9 @@
 ###############################################################################
 
 
-from .defs cimport (Main, CallPolymakeFunction, CallPolymakeFunction1,
+from .defs cimport (CallPolymakeFunction, CallPolymakeFunction1,
         CallPolymakeFunction2, CallPolymakeFunction3,
         new_PerlObject_from_PerlObject)
-
-cdef Main pm
 
 
 from .properties cimport handlers, pm_type_unknown, type_properties

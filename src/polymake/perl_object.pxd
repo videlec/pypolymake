@@ -6,9 +6,12 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-from .defs cimport pm_PerlObject
+from .defs cimport (Main, pm_PerlObject)
 
 cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj)
+
+# FIXME: pass user-settings parameter
+cdef Main pm
 
 cdef class PerlObject:
     cdef pm_PerlObject * pm_obj  # underlying perl object
