@@ -99,12 +99,17 @@ cdef extern from "polymake/client.h":
     cdef cppclass pm_PerlObject "perl::Object":
         pm_PerlObject()
         pm_PerlObject(char*) except +ValueError
+        bool valid()
         void VoidCallPolymakeMethod(char*) except +ValueError
         void save(char*)
         pm_PerlPropertyValue take(char*)
         pm_PerlPropertyValue give(char*) # do not add except here, see pm_get for why
         pm_PerlObjectType type()
         int exists(const string& name)
+        string name()
+        string description()
+        bool isa(pm_PerlObjectType)
+        pm_PerlObject parent()
 
     cdef cppclass pm_PerlObjectType "perl::ObjectType":
         string name()
@@ -151,6 +156,7 @@ cdef extern from "polymake/Matrix.h" namespace 'polymake':
 
     # WRAP_IN(x,y) x>>y
     void pm_get_Integer "WRAP_IN" (pm_PerlPropertyValue, pm_Integer) except +ValueError
+    void pm_get_Rational "WRAP_IN" (pm_PerlPropertyValue, pm_Rational) except +ValueError
     void pm_get_MatrixRational "WRAP_IN" (pm_PerlPropertyValue, pm_MatrixRational) except +ValueError
     void pm_get_VectorInteger "WRAP_IN" (pm_PerlPropertyValue, pm_VectorInteger) except +ValueError
     void pm_get_PerlObject "WRAP_IN" (pm_PerlPropertyValue, pm_PerlObject) except +ValueError

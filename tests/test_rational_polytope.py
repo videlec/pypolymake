@@ -14,30 +14,35 @@ p2 = polymake.Polytope('POINTS', m2)
 p3 = polymake.Polytope('POINTS', m3)
 
 class TestPolymakePolytope(unittest.TestCase):
+    def test_ALTSHULER_DET(self):
+        self.assertEqual(p1.ALTSHULER_DET, 0)
+        self.assertEqual(p2.ALTSHULER_DET, 1872)
+        self.assertEqual(p3.ALTSHULER_DET, 4)
+
     def test_N_FACETS(self):
-        self.assertEqual(p1.N_FACETS(), 6)
-        self.assertEqual(p2.N_FACETS(), 13)
-        self.assertEqual(p3.N_FACETS(), 3)
+        self.assertEqual(p1.N_FACETS, 6)
+        self.assertEqual(p2.N_FACETS, 13)
+        self.assertEqual(p3.N_FACETS, 3)
 
     def test_N_VERTICES(self):
-        self.assertEqual(p1.N_VERTICES(), 8)
-        self.assertEqual(p2.N_VERTICES(), 10)
-        self.assertEqual(p3.N_VERTICES(), 3)
+        self.assertEqual(p1.N_VERTICES, 8)
+        self.assertEqual(p2.N_VERTICES, 10)
+        self.assertEqual(p3.N_VERTICES, 3)
 
     def test_SIMPLE(self):
-        self.assertTrue(p1.SIMPLE())
-        self.assertFalse(p2.SIMPLE())
-        self.assertTrue(p3.SIMPLE())
+        self.assertTrue(p1.SIMPLE)
+        self.assertFalse(p2.SIMPLE)
+        self.assertTrue(p3.SIMPLE)
 
     def test_SIMPLICIAL(self):
-        self.assertFalse(p1.SIMPLICIAL())
-        self.assertFalse(p2.SIMPLICIAL())
-        self.assertTrue(p3.SIMPLICIAL())
+        self.assertFalse(p1.SIMPLICIAL)
+        self.assertFalse(p2.SIMPLICIAL)
+        self.assertTrue(p3.SIMPLICIAL)
 
     def test_F_VECTOR(self):
-        self.assertEqual(map(int, p1.F_VECTOR()), [8, 12, 6])
-        self.assertEqual(map(int, p2.F_VECTOR()), [10, 21, 13])
-        self.assertEqual(map(int, p3.F_VECTOR()), [3, 3])
+        self.assertEqual(map(int, p1.F_VECTOR), [8, 12, 6])
+        self.assertEqual(map(int, p2.F_VECTOR), [10, 21, 13])
+        self.assertEqual(map(int, p3.F_VECTOR), [3, 3])
 
 if __name__ == '__main__':
     unittest.main()

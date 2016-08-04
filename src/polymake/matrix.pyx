@@ -10,10 +10,10 @@ from libc.stdlib cimport malloc, free
 from cygmp.types cimport mpz_t, mpq_t
 from cygmp.mpq cimport *
 
-from defs cimport pm_MatrixRational, pm_Rational, pm_Integer, pm_VectorInteger, get_element
+from .defs cimport pm_MatrixRational, pm_Rational, pm_Integer, pm_VectorInteger, get_element
 
 from .number cimport Rational
-from number import get_num_den
+from .number import get_num_den
 
 cdef class MatrixRational:
     def __getitem__(self, elt):

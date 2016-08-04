@@ -11,15 +11,21 @@ The language has been kept as close as possible as the original. The
 following polymake construction::
 
     polytope> $c = cube(5);
-    polytope > print $c->F_VECTOR;
+    polytope> print $c->F_VECTOR;
     32 80 80 40 10
+    polytope> $g = $c->GRAPH;
+    polytope> print $g->DIAMETER;
+    5
 
 is translated in Python as::
 
     >>> from polymake import *
     >>> c = cube(5)
-    >>> c.F_VECTOR()
+    >>> print(c.F_VECTOR)
     (32, 80, 80, 40, 10)
+    >>> g = c.GRAPH
+    >>> print(g.DIAMETER)
+    5
 
 The library is currently under development. Many things are not working and are
 likely to cause segmentation fault!

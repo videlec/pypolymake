@@ -14,30 +14,51 @@ import os
 
 extensions = [
     Extension("cygmp.utils",
-        ["src/cygmp/utils.pyx"],
-        depends = ["src/cygmp/*"],
+        ["src/cygmp/utils.pyx", "src/cygmp/pylong.c",],
+        depends = ["src/cygmp/all.pxd", "src/cygmp/mpq.pxd",
+            "src/cygmp/random.pxd", "src/cygmp/utils.pyx",
+            "src/cygmp/misc.pxd", "src/cygmp/mpn.pxd",
+            "src/cygmp/mpz.pxd", "src/cygmp/python_extra.h",
+            "src/cygmp/types.pxd", "src/cygmp/utils.pxd"],
         libraries = ["gmp"],
         language = 'c'),
+
     Extension("polymake.number",
         ["src/polymake/number.pyx"],
-        depends = ["src/cygmp/*", "src/polymake/defs.pxd"],
+        depends = ["src/polymake/defs.pxd"],
         libraries = ["gmp", "polymake", "xml2", "perl"],
         language = 'c++'),
+
     Extension("polymake.vector",
         ["src/polymake/vector.pyx"],
-        depends = ["src/cygmp/*", "src/polymake/defs.pxd"],
+        depends = ["src/polymake/defs.pxd"],
         libraries = ["gmp", "polymake", "xml2", "perl"],
         language = 'c++'),
+
     Extension("polymake.matrix",
         ["src/polymake/matrix.pyx"],
-        depends = ["src/cygmp/*", "src/polymake/defs.pxd"],
+        depends = ["src/polymake/defs.pxd"],
         libraries = ["gmp", "polymake", "xml2", "perl"],
         language = 'c++'),
+
+    Extension("polymake.perl_object",
+        ["src/polymake/perl_object.pyx"],
+        depends = ["src/polymake/defs.pxd"],
+        libraries = ["gmp", "polymake", "xml2", "perl"],
+        language = 'c++'),
+
+    Extension("polymake.properties",
+        ["src/polymake/properties.pyx"],
+        depends = ["src/polymake/defs.pxd"],
+        libraries = ["gmp", "polymake", "xml2", "perl"],
+        language = 'c++'),
+
     Extension("polymake.polytope",
         ["src/polymake/polytope.pyx"],
-        depends = ["src/cygmp/*", "src/polymake/defs.pxd"],
+        depends = ["src/polymake/defs.pxd"],
         libraries = ["gmp", "polymake", "xml2", "perl"],
-        language = 'c++')
+        language = 'c++'),
+
 ]
 
 class TestCommand(Command):
