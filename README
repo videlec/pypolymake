@@ -27,8 +27,9 @@ is translated in Python as::
     >>> print(g.DIAMETER)
     5
 
-The library is currently under development. Many things are not working and are
-likely to cause segmentation fault!
+The library is currently under development and is compatible with Python2 and
+Python3. As it is under development, many things are not working and are likely
+to break.
 
 Installation and source code
 ----------------------------
