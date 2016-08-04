@@ -35,7 +35,7 @@ Installation and source code
 ----------------------------
 
 To install pypolymake you need polymake in version 3.0 or later together with
-its header files.
+its header files. You also need `Cython <http://cython.org/>`_.
 
 The simplest way to install the package is to use::
 
