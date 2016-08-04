@@ -3,6 +3,7 @@
 *.cpp
 *.so
 *.pyc
+.*.swp
 .pypirc
 MANIFEST
 build/
