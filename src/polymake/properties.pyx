@@ -1,3 +1,20 @@
+r"""
+Structure of polymake objects and mapping to Python objects
+
+Up to now we registered around 20 polymake types (e.g. "bool", "int",
+"Vector<Integer>", etc). To each objects is attached a list of properties that
+are hardcoded in dictionaries. The keys in the dictionary are the property names
+and the values are the type of the property.
+
+To each type is associated a handler that will build the corresponding Python
+object. The generic one is just a generic wrapper over perl object. This can be
+overriden (e.g. you might want integer properties to output integers from gmpy).
+
+.. TODO::
+
+    Ideally the structure of polymake objects should be computed dynamically...
+    However, it is not easy to achieve.
+"""
 ###############################################################################
 #       Copyright (C) 2016      Vincent Delecroix <vincent.delecroix@labri.fr>
 #
