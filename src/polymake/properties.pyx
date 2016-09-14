@@ -348,7 +348,7 @@ cdef dict handlers = {
     pm_type_matrix_int             : handler_generic,
     pm_type_matrix_integer         : handler_generic,
     pm_type_matrix_rational        : handler_matrix_rational,
-    pm_type_sparse_matrix_rational : handler_generic,
+    pm_type_sparse_matrix_rational : handler_matrix_rational,
 
     # others
     pm_type_polytope_rational: handler_generic,
