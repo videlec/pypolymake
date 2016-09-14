@@ -39,12 +39,13 @@ its header files. You also need `Cython <http://cython.org/>`_.
 
 The simplest way to install the package is to use::
 
-    $ pip install pypolymake --user
+    $ pip install pypolymake [--user] [--pre]
 
-(the `--user` argument make the installation in your home directory and can be
-omitted if you have write access to your system).  Alternatively,
-you can download (or clone) the source repository at https://github.com/videlec/pypolymake
-and then run in that directory::
+(the `--pre` argument is needed on recent pip versions to allow installation
+of beta releases, the `--user` argument make the installation in your home
+directory and can be omitted if you have write access to your system). 
+Alternatively, you can download (or clone) the source repository at
+https://github.com/videlec/pypolymake and then run in that directory::
 
     $ python setup.py install --user
 
