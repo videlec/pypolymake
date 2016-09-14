@@ -5,6 +5,8 @@ Installation script for pypolymake
 It depends on distutils
 """
 
+from __future__ import print_function
+
 from distutils.cmd import Command
 from distutils.core import setup
 from distutils.extension import Extension
@@ -14,7 +16,7 @@ import os
 
 extensions = [
     Extension("cygmp.utils",
-        ["src/cygmp/utils.pyx", "src/cygmp/pylong.c",],
+        ["src/cygmp/utils.pyx"],
         depends = ["src/cygmp/all.pxd", "src/cygmp/mpq.pxd",
             "src/cygmp/random.pxd", "src/cygmp/utils.pyx",
             "src/cygmp/misc.pxd", "src/cygmp/mpn.pxd",
@@ -84,7 +86,7 @@ class TestCommand(Command):
         for f in os.listdir('tests'):
             if f.startswith('test_') and f.endswith('.py'):
                 f = os.path.join("tests", f)
-                print "running tests in {}".format(f)
+                print("running tests in {}".format(f))
                 if call(["python", f]):
                     raise RuntimeError("some tests failed in {}".format(f))
 
