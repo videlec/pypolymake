@@ -33,10 +33,11 @@ def get_num_den(elt):
     if callable(num) and callable(den):
         num = num()
         den = den()
-    if isinstance(num, (int,long)) and isinstance(den, (int,long)):
-        return (num, den)
+    if not isinstance(num, (int,long)) or not isinstance(den, (int,long)):
+        num = int(num)
+        den = int(den)
 
-    raise ValueError("not able to convert {} to a rational".format(elt))
+    return (num, den)
 
 
 cdef class Integer:
