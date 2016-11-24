@@ -225,6 +225,21 @@ def kneser_graph(n, k):
     """
     return call_polymake_function("polytope", "kneser_graph", n, k)
 
+def neighborly_cubical(d, n):
+    r""" Produce the combinatorial description of a neighborly cubical polytope.
+
+    Keyword arguments:
+
+    d -- dimension of the polytope
+    n -- dimension of the equivalent cube
+
+   The facets are labelled in oriented matroid notation as in the cubical Gale
+    evenness criterion.  See Joswig and Ziegler, Discr. Comput. Geom.
+    24:315-344 (2000).
+    """
+    return call_polymake_function("polytope", "neighborly_cubical", d, n)
+
+
 def rand_sphere(dim, npoints):
     r"""Produce a d-dimensional polytope with n random vertices uniformly
     distributed on the unit sphere.
