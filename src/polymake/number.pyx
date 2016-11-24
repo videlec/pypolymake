@@ -13,7 +13,7 @@ from operator import add as op_add,\
                      div as op_div,\
                      pow as op_pow
 
-from cygmp.types cimport mpz_t, mpq_t
+from cygmp.types cimport mpz_t, mpq_t, mpq_srcptr
 from cygmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
 from cygmp.mpq cimport mpq_init, mpq_clear, mpq_numref, mpq_denref, mpq_canonicalize
 from cygmp.utils cimport mpz_set_pylong, mpz_get_bytes, mpq_get_bytes
@@ -57,6 +57,12 @@ cdef class Integer:
 
         self.pm_obj.set(z)
         mpz_clear(z)
+
+    def _integer_(self, R=None):
+        r"""Conversion to Sage integer
+
+        Overflow currently causes a segmentation fault!"""
+        return R(int(self))
 
     def __nonzero__(self):
         return self.pm_obj.non_zero()
@@ -167,6 +173,10 @@ cdef class Rational:
         self.pm_obj.set_mpq_t(z)
         mpq_clear(z)
 
+    def _rational_(self):
+        r"""Conversion to Sage rational"""
+        return self.numerator()._integer_() / self.denominator()._integer_()
+
     def __nonzero__(self):
         return self.pm_obj.non_zero()
 
@@ -195,6 +205,18 @@ cdef class Rational:
 
     def __repr__(self):
         return mpq_get_bytes(self.pm_obj.get_rep())
+
+    def numerator(self):
+        cdef Integer ans = Integer.__new__(Integer)
+        cdef mpq_srcptr z = self.pm_obj.get_rep()
+        ans.pm_obj.set(mpq_numref(z))
+        return ans
+
+    def denominator(self):
+        cdef Integer ans = Integer.__new__(Integer)
+        cdef mpq_srcptr z = self.pm_obj.get_rep()
+        ans.pm_obj.set(mpq_denref(z))
+        return ans
 
     def __add__(self, other):
         cdef Rational ans = Rational.__new__(Rational)
