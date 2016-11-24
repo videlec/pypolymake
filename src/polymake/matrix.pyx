@@ -92,7 +92,8 @@ cdef pm_MatrixRational* mat_to_pm(int nr, int nc, list mat):
     # clean data
     mpq_init(z)
     for i,row in enumerate(mat):
-        for j,(num,den) in enumerate(row):
+        for j,elt in enumerate(row):
+            num, den = get_num_den(elt)
             mpq_set_si(z, num, den)
             get_element(pm_mat[0], i, j).set_mpq_t(z)
     mpq_clear(z)
