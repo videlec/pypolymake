@@ -8,7 +8,7 @@
 
 from libcpp cimport bool
 from libcpp.string cimport string
-from cygmp.types cimport mpz_t, mpq_t, mpz_srcptr
+from cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
 
 cdef extern from "wrap.h" namespace "polymake":
     pass
@@ -55,7 +55,7 @@ cdef extern from "polymake/Integer.h" namespace 'polymake':
 cdef extern from "polymake/Rational.h" namespace 'polymake':
     ctypedef pm_const_Rational "const Rational"
     cdef cppclass pm_Rational "Rational":
-        mpq_t get_rep()
+        mpq_srcptr get_rep()
         pm_Rational set_mpq_t "set" (mpq_t)
         pm_Rational& set_mpq_srcptr "set" (mpq_srcptr)
 
