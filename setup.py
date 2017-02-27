@@ -28,37 +28,37 @@ extensions = [
     Extension("polymake.number",
         ["src/polymake/number.pyx"],
         depends = ["src/polymake/defs.pxd"],
-        libraries = ["gmp", "polymake", "xml2", "perl"],
+        libraries = ["gmp", "polymake"],
         language = 'c++'),
 
     Extension("polymake.vector",
         ["src/polymake/vector.pyx"],
         depends = ["src/polymake/defs.pxd"],
-        libraries = ["gmp", "polymake", "xml2", "perl"],
+        libraries = ["gmp", "polymake"],
         language = 'c++'),
 
     Extension("polymake.matrix",
         ["src/polymake/matrix.pyx"],
         depends = ["src/polymake/defs.pxd"],
-        libraries = ["gmp", "polymake", "xml2", "perl"],
+        libraries = ["gmp", "polymake"],
         language = 'c++'),
 
     Extension("polymake.perl_object",
         ["src/polymake/perl_object.pyx"],
         depends = ["src/polymake/defs.pxd"],
-        libraries = ["gmp", "polymake", "xml2", "perl"],
+        libraries = ["gmp", "polymake"],
         language = 'c++'),
 
     Extension("polymake.properties",
         ["src/polymake/properties.pyx"],
         depends = ["src/polymake/defs.pxd"],
-        libraries = ["gmp", "polymake", "xml2", "perl"],
+        libraries = ["gmp", "polymake"],
         language = 'c++'),
 
     Extension("polymake.polytope",
         ["src/polymake/polytope.pyx"],
         depends = ["src/polymake/defs.pxd"],
-        libraries = ["gmp", "polymake", "xml2", "perl"],
+        libraries = ["gmp", "polymake"],
         language = 'c++'),
 
 ]
