@@ -155,6 +155,7 @@ cdef extern from "polymake/Matrix.h" namespace 'polymake':
     # pm_PerlPropertyValue doesn't have a default constructor.
 
     # WRAP_IN(x,y) x>>y
+    void pm_get_float "WRAP_IN" (pm_PerlPropertyValue, float)
     void pm_get_Integer "WRAP_IN" (pm_PerlPropertyValue, pm_Integer) except +ValueError
     void pm_get_Rational "WRAP_IN" (pm_PerlPropertyValue, pm_Rational) except +ValueError
     void pm_get_MatrixRational "WRAP_IN" (pm_PerlPropertyValue, pm_MatrixRational) except +ValueError

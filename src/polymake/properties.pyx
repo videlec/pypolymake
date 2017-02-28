@@ -25,7 +25,7 @@ overriden (e.g. you might want integer properties to output integers from gmpy).
 
 from .defs cimport (pm_PerlObject, new_PerlObject_from_PerlObject,
         pm_get_PerlObject, pm_MatrixRational, pm_VectorInteger, pm_Integer,
-        pm_Rational, pm_get_Integer, pm_get_Rational, pm_get_MatrixRational,
+        pm_get_float, pm_Rational, pm_get_Integer, pm_get_Rational, pm_get_MatrixRational,
         pm_get_VectorInteger, pm_get_PerlObject)
 
 from .perl_object cimport PerlObject, wrap_perl_object
@@ -39,6 +39,7 @@ from .vector cimport VectorInteger
 cdef pm_type_unknown = 'unknown'
 cdef pm_type_bool = 'bool'
 cdef pm_type_int = 'int'
+cdef pm_type_float = 'float'
 cdef pm_type_integer = 'Integer'
 cdef pm_type_rational = 'Rational'
 
@@ -88,7 +89,7 @@ type_properties[pm_type_polytope_rational] = {
     'COCUBICAL'                          : pm_type_bool,
     'COCUBICALITY'                       : pm_type_unknown,
     'COMBINATORIAL_DIM'                  : pm_type_integer,
-    'COMPLEXITY'                         : pm_type_unknown,
+    'COMPLEXITY'                         : pm_type_float,
     'COMPRESSED'                         : pm_type_unknown,
     'CONE_AMBIENT_DIM'                   : pm_type_unknown,
     'CONE_DIM'                           : pm_type_unknown,
@@ -327,6 +328,12 @@ def handler_integer(perl_object, prop):
     pm_get_Integer(po.give(prop), ans.pm_obj)
     return ans
 
+def handler_float(perl_object, prop):
+    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
+    cdef float ans
+    pm_get_float(po.give(prop), ans)
+    return ans
+
 def handler_rational(perl_object, prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef Rational ans = Rational.__new__(Rational)
@@ -351,6 +358,7 @@ cdef dict handlers = {
     # numbers
     pm_type_bool     : handler_bool,
     pm_type_int      : handler_integer,
+    pm_type_float    : handler_float,
     pm_type_integer  : handler_integer,
     pm_type_rational : handler_rational,
 
