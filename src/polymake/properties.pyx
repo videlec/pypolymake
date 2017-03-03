@@ -33,6 +33,8 @@ from .matrix cimport MatrixRational
 from .number cimport Integer, Rational
 from .vector cimport VectorInteger
 
+include "cysignals/signals.pxi"
+include "cysignals/memory.pxi"
 
 # The names used below are the exact output of "PerlObject.type_name()". They
 # also correspond to C++ types.
@@ -307,49 +309,70 @@ type_properties[pm_type_graph_undirected]    = {
     'VISUAL'                          : pm_type_unknown,
 }
 
-def handler_generic(perl_object, prop):
+def handler_generic(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef pm_PerlObject pm_ans
-    pm_get_PerlObject(po.give(prop), pm_ans)
+    cdef char * cprop = prop
+    sig_on()
+    pm_get_PerlObject(po.give(cprop), pm_ans)
+    sig_off()
     if not pm_ans.valid():
         raise ValueError("invalid property")
 
     return wrap_perl_object(pm_ans)
 
-def handler_bool(perl_object, prop):
+def handler_bool(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef pm_Integer pm_ans
-    pm_get_Integer(po.give(prop), pm_ans)
+    cdef char * cprop = prop
+    sig_on()
+    pm_get_Integer(po.give(cprop), pm_ans)
+    sig_off()
     return bool(pm_ans.compare(0))
 
-def handler_integer(perl_object, prop):
+def handler_integer(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef Integer ans = Integer.__new__(Integer)
-    pm_get_Integer(po.give(prop), ans.pm_obj)
+    cdef char * cprop = prop
+    sig_on()
+    pm_get_Integer(po.give(cprop), ans.pm_obj)
+    sig_off()
     return ans
 
-def handler_float(perl_object, prop):
+def handler_float(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef float ans
-    pm_get_float(po.give(prop), ans)
+    cdef char * cprop = prop
+    sig_on()
+    pm_get_float(po.give(cprop), ans)
+    sig_off()
     return ans
 
-def handler_rational(perl_object, prop):
+def handler_rational(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef Rational ans = Rational.__new__(Rational)
-    pm_get_Rational(po.give(prop), ans.pm_obj)
+    cdef char * cprop = prop
+    sig_on()
+    pm_get_Rational(po.give(cprop), ans.pm_obj)
+    sig_off()
     return ans
 
-def handler_vector_integer(perl_object, prop):
+def handler_vector_integer(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef VectorInteger ans = VectorInteger.__new__(VectorInteger)
-    pm_get_VectorInteger(po.give(prop), ans.pm_obj)
+    cdef char * cprop = prop
+    sig_on()
+    pm_get_VectorInteger(po.give(cprop), ans.pm_obj)
+    sig_off()
     return ans
 
-def handler_matrix_rational(perl_object, prop):
+def handler_matrix_rational(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef MatrixRational ans = MatrixRational.__new__(MatrixRational)
-    pm_get_MatrixRational(po.give(prop), ans.pm_obj)
+    cdef char * cprop = prop
+    sig_on()
+    pm_get_MatrixRational(po.give(cprop), ans.pm_obj)
+    sig_off()
     return ans
 
 cdef dict handlers = {
@@ -372,6 +395,7 @@ cdef dict handlers = {
     # matrices
     pm_type_matrix_int             : handler_generic,
     pm_type_matrix_integer         : handler_generic,
+    pm_type_matrix_float           : handler_generic,
     pm_type_matrix_rational        : handler_matrix_rational,
     pm_type_sparse_matrix_rational : handler_matrix_rational,
 
