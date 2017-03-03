@@ -34,20 +34,26 @@ to break.
 Installation and source code
 ----------------------------
 
-To install pypolymake you need polymake in version 3.0 or later together with
-its header files. You also need `Cython <http://cython.org/>`_.
+If you are using `SageMath <http://www.sagemath.org>`_ then just run the following
+two commands
 
-The simplest way to install the package is to use::
+    $ sage -i polymake
+    $ sage -pip install git+https://github.com/videlec/pypolymake
 
-    $ pip install pypolymake [--user] [--pre]
+In principle, pypolymake could be used with Python2, Python3 and within Sage. The
+prerequisites are
+
+- polymake in version 3.0 or later together with its header files
+- `Cython <http://cython.org/>`_
+- `cysignals <https://pypi.python.org/pypi/cysignals/>`_
+
+To install the package then use::
+
+    $ pip install git+https://github.com/videlec/pypolymake [--user] [--pre]
 
 (the `--pre` argument is needed on recent pip versions to allow installation
 of beta releases, the `--user` argument make the installation in your home
 directory and can be omitted if you have write access to your system). 
-Alternatively, you can download (or clone) the source repository at
-https://github.com/videlec/pypolymake and then run in that directory::
-
-    $ python setup.py install --user
 
 If polymake headers or libraries are installed in a non standard location you
 may need to set the environment variables CFLAGS, CXXFLAGS, LDFLAGS. For example,
