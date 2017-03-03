@@ -22,12 +22,12 @@ cdef extern from "polymake/Integer.h" namespace 'polymake':
     ctypedef pm_const_Integer "const Integer"
     cdef cppclass pm_Integer "Integer" :
         mpz_t get_rep()
-        pm_Integer set_mpz "set" (mpz_t)
         Py_ssize_t strsize(int)
         int compare(int)
         long to_long()   # FIXME: this is const
         double to_double()
-        pm_Integer& set(mpz_srcptr)
+        pm_Integer set_mpz_t "set" (mpz_t)
+        pm_Integer& set_mpz_srcptr "set" (mpz_srcptr)
 
         bool non_zero()
 
@@ -133,8 +133,17 @@ cdef extern from "polymake/Matrix.h" namespace 'polymake':
         Py_ssize_t rows()
         Py_ssize_t cols()
 
+    cdef cppclass pm_MatrixInteger "Matrix<Integer>":
+        pm_MatrixInteger()
+        pm_MatrixInteger(int nr, int nc)
+        void assign(int r, int c, pm_Integer val)
+        pm_MatrixInteger operator|(pm_MatrixInteger)
+        Py_ssize_t rows()
+        Py_ssize_t cols()
+
     # WRAP_CALL(t,i,j) -> t(i,j)
-    pm_Rational get_element "WRAP_CALL"(pm_MatrixRational, int i, int j)
+    pm_Rational mat_rat_get_element "WRAP_CALL"(pm_MatrixRational, int i, int j)
+    pm_Integer mat_int_get_element "WRAP_CALL"(pm_MatrixInteger, int i, int j)
 
 #cdef extern from "polymake/GenericVector.h" namespace 'polymake':
     pm_MatrixRational ones_vector_Rational "ones_vector<Rational>" ()
@@ -159,6 +168,7 @@ cdef extern from "polymake/Matrix.h" namespace 'polymake':
     void pm_get_Integer "WRAP_IN" (pm_PerlPropertyValue, pm_Integer) except +ValueError
     void pm_get_Rational "WRAP_IN" (pm_PerlPropertyValue, pm_Rational) except +ValueError
     void pm_get_MatrixRational "WRAP_IN" (pm_PerlPropertyValue, pm_MatrixRational) except +ValueError
+    void pm_get_MatrixInteger "WRAP_IN" (pm_PerlPropertyValue, pm_MatrixInteger) except +ValueError
     void pm_get_VectorInteger "WRAP_IN" (pm_PerlPropertyValue, pm_VectorInteger) except +ValueError
     void pm_get_PerlObject "WRAP_IN" (pm_PerlPropertyValue, pm_PerlObject) except +ValueError
 

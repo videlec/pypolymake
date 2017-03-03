@@ -8,11 +8,13 @@
 
 from libc.stdlib cimport malloc, free
 from cygmp.types cimport mpz_t, mpq_t
+from cygmp.mpz cimport *
 from cygmp.mpq cimport *
 
-from .defs cimport pm_MatrixRational, pm_Rational, pm_Integer, pm_VectorInteger, get_element
+from .defs cimport (pm_MatrixRational, pm_Rational,
+         pm_MatrixInteger, pm_Integer, pm_VectorInteger, mat_rat_get_element, mat_int_get_element)
 
-from .number cimport Rational
+from .number cimport Rational, Integer
 from .number import get_num_den
 
 cdef class MatrixRational:
@@ -25,7 +27,34 @@ cdef class MatrixRational:
             raise IndexError("matrix index out of range")
 
         cdef Rational ans = Rational.__new__(Rational)
-        ans.pm_obj.set_mpq_t(get_element(self.pm_obj, i, j).get_rep())
+        ans.pm_obj.set_mpq_t(mat_rat_get_element(self.pm_obj, i, j).get_rep())
+        return ans
+
+    def __repr__(self):
+        cdef Py_ssize_t nrows, ncols, i, j
+        nrows = self.pm_obj.rows()
+        ncols = self.pm_obj.cols()
+
+        rows = [[str(self[i,j]) for j in range(ncols)] for i in range(nrows)]
+        col_sizes = [max(len(rows[i][j]) for i in range(nrows)) for j in range(ncols)]
+
+        line_format = "[ " +  \
+                " ".join("{{:{width}}}".format(width=t) for t in col_sizes) + \
+                      "]"
+
+        return "\n".join(line_format.format(*row) for row in rows)
+
+cdef class MatrixInteger:
+    def __getitem__(self, elt):
+        cdef Py_ssize_t nrows, ncols, i,j 
+        nrows = self.pm_obj.rows()
+        ncols = self.pm_obj.cols()
+        i,j = elt
+        if not (0 <= i < nrows) or not (0 <= j < ncols):
+            raise IndexError("matrix index out of range")
+
+        cdef Integer ans = Integer.__new__(Integer)
+        ans.pm_obj.set_mpz_t(mat_int_get_element(self.pm_obj, i, j).get_rep())
         return ans
 
     def __repr__(self):
@@ -73,7 +102,7 @@ def clean_mat(mat):
 
     return (nr, nc, clean_mat)
 
-cdef pm_MatrixRational* mat_to_pm(int nr, int nc, list mat):
+cdef pm_MatrixRational* rat_mat_to_pm(int nr, int nc, list mat):
     """
     Create a polymake rational matrix from input so that:
 
@@ -95,7 +124,31 @@ cdef pm_MatrixRational* mat_to_pm(int nr, int nc, list mat):
         for j,elt in enumerate(row):
             num, den = get_num_den(elt)
             mpq_set_si(z, num, den)
-            get_element(pm_mat[0], i, j).set_mpq_t(z)
+            mat_rat_get_element(pm_mat[0], i, j).set_mpq_t(z)
     mpq_clear(z)
+
+    return pm_mat
+
+cdef pm_MatrixInteger* int_mat_to_pm(int nr, int nc, list mat):
+    """
+    Create a polymake integer matrix from input so that:
+
+    - there are methods ``nrows``, ``ncols`` giving the number of rows and cols
+    - accessing to the elements is done via ``mat[i,j]``
+    """
+    # create polymake matrix with dimensions of mat
+    cdef pm_MatrixInteger* pm_mat = new pm_MatrixInteger(nr, nc)
+
+    cdef mpz_t z
+    cdef Py_ssize_t i, j
+    cdef long num, den
+
+    # clean data
+    mpz_init(z)
+    for i,row in enumerate(mat):
+        for j,elt in enumerate(row):
+            mpz_set_si(z, elt)
+            mat_int_get_element(pm_mat[0], i, j).set_mpz_t(z)
+    mpz_clear(z)
 
     return pm_mat

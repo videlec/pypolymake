@@ -20,7 +20,7 @@ cdef class VectorInteger:
             raise IndexError("integer vector out of range")
 
         cdef Integer ans = Integer.__new__(Integer)
-        ans.pm_obj.set(self.pm_obj.get(i).get_rep())
+        ans.pm_obj.set_mpz_t(self.pm_obj.get(i).get_rep())
         return ans
 
     def __repr__(self):

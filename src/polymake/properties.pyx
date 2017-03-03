@@ -24,12 +24,13 @@ overriden (e.g. you might want integer properties to output integers from gmpy).
 ###############################################################################
 
 from .defs cimport (pm_PerlObject, new_PerlObject_from_PerlObject,
-        pm_get_PerlObject, pm_MatrixRational, pm_VectorInteger, pm_Integer,
+        pm_get_PerlObject, pm_MatrixRational, pm_MatrixInteger, pm_VectorInteger, pm_Integer,
         pm_get_float, pm_Rational, pm_get_Integer, pm_get_Rational, pm_get_MatrixRational,
+        pm_get_MatrixInteger,
         pm_get_VectorInteger, pm_get_PerlObject)
 
 from .perl_object cimport PerlObject, wrap_perl_object
-from .matrix cimport MatrixRational
+from .matrix cimport MatrixInteger, MatrixRational
 from .number cimport Integer, Rational
 from .vector cimport VectorInteger
 
@@ -376,6 +377,15 @@ def handler_matrix_rational(perl_object, bytes prop):
     sig_off()
     return ans
 
+def handler_matrix_integer(perl_object, bytes prop):
+    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
+    cdef MatrixInteger ans = MatrixInteger.__new__(MatrixInteger)
+    cdef char * cprop = prop
+    sig_on()
+    pm_get_MatrixInteger(po.give(cprop), ans.pm_obj)
+    sig_off()
+    return ans
+
 cdef dict handlers = {
     pm_type_unknown          : handler_generic,
 
@@ -395,7 +405,7 @@ cdef dict handlers = {
 
     # matrices
     pm_type_matrix_int             : handler_generic,
-    pm_type_matrix_integer         : handler_generic,
+    pm_type_matrix_integer         : handler_matrix_integer,
     pm_type_matrix_float           : handler_generic,
     pm_type_matrix_rational        : handler_matrix_rational,
     pm_type_sparse_matrix_rational : handler_matrix_rational,

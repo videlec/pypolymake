@@ -55,7 +55,7 @@ cdef class Integer:
         else:
             raise ValueError("Polymake integer can only be initialized from Python int and long")
 
-        self.pm_obj.set(z)
+        self.pm_obj.set_mpz_t(z)
         mpz_clear(z)
 
     def _integer_(self, R=None):
@@ -209,13 +209,13 @@ cdef class Rational:
     def numerator(self):
         cdef Integer ans = Integer.__new__(Integer)
         cdef mpq_srcptr z = self.pm_obj.get_rep()
-        ans.pm_obj.set(mpq_numref(z))
+        ans.pm_obj.set_mpz_t(mpq_numref(z))
         return ans
 
     def denominator(self):
         cdef Integer ans = Integer.__new__(Integer)
         cdef mpq_srcptr z = self.pm_obj.get_rep()
-        ans.pm_obj.set(mpq_denref(z))
+        ans.pm_obj.set_mpz_t(mpq_denref(z))
         return ans
 
     def __add__(self, other):

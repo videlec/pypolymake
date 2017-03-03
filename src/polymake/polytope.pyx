@@ -8,7 +8,7 @@
 
 from .defs cimport pm_MatrixRational, pm_assign_MatrixRational, pm_PerlObject
 from .perl_object cimport wrap_perl_object, pm
-from .matrix cimport mat_to_pm
+from .matrix cimport rat_mat_to_pm
 from .matrix import clean_mat
 
 def Polytope(prop_name, data):
@@ -26,7 +26,7 @@ def Polytope(prop_name, data):
     pm.set_application("polytope")
     cdef pm_PerlObject * pm_obj = new pm_PerlObject("Polytope<Rational>")
     nr, nc, mat = clean_mat(data)
-    cdef pm_MatrixRational* pm_mat = mat_to_pm(nr, nc, mat)
+    cdef pm_MatrixRational* pm_mat = rat_mat_to_pm(nr, nc, mat)
     pm_assign_MatrixRational(pm_obj.take(prop_name), pm_mat[0])
     del pm_mat
 
