@@ -56,6 +56,7 @@ cdef pm_type_matrix_float = 'Matrix<Float, NonSymmetric>'
 cdef pm_type_matrix_integer = 'Matrix<Integer, NonSymmetric>'
 cdef pm_type_matrix_rational = 'Matrix<Rational, NonSymmetric>'
 cdef pm_type_sparse_matrix_rational = 'SparseMatrix<Rational, NonSymmetric>'
+cdef pm_type_incidence_matrix = 'IncidenceMatrix<NonSymmetric>'
 
 cdef pm_type_polytope_rational = 'Polytope<Rational>'
 cdef pm_type_quadratic_extension = 'Polytope<QuadraticExtension<Rational>>'
@@ -68,54 +69,54 @@ cdef dict type_properties = {}
 type_properties[pm_type_polytope_rational] = {
     'AFFINE_HULL'                        : pm_type_matrix_rational,
     'ALTSHULER_DET'                      : pm_type_integer,
-    'AMBIENT_DIM'                        : pm_type_unknown,
+    'AMBIENT_DIM'                        : pm_type_unknown, # ValueError: unknown property
     'BALANCE'                            : pm_type_integer,
     'BALANCED'                           : pm_type_bool,
     'BOUNDARY_LATTICE_POINTS'            : pm_type_matrix_integer,
     'BOUNDED'                            : pm_type_bool,
-    'BOUNDED_COMPLEX'                    : pm_type_unknown,
-    'BOUNDED_DUAL_GRAPH'                 : pm_type_unknown,
-    'BOUNDED_FACETS'                     : pm_type_unknown,
-    'BOUNDED_GRAPH'                      : pm_type_unknown,
-    'BOUNDED_HASSE_DIAGRAM'              : pm_type_unknown,
-    'BOUNDED_VERTICES'                   : pm_type_unknown,
-    'CANONICAL'                          : pm_type_unknown,
-    'CD_INDEX'                           : pm_type_unknown,
-    'CD_INDEX_COEFFICIENTS'              : pm_type_unknown,
+    'BOUNDED_COMPLEX'                    : pm_type_unknown, # ValueError: unknown property
+    'BOUNDED_DUAL_GRAPH'                 : pm_type_unknown, # ValueError: unknown property
+    'BOUNDED_FACETS'                     : pm_type_unknown, # ValueError: unknown property
+    'BOUNDED_GRAPH'                      : pm_type_unknown, # ValueError: unknown property
+    'BOUNDED_HASSE_DIAGRAM'              : pm_type_unknown, # ValueError: unknown property
+    'BOUNDED_VERTICES'                   : pm_type_unknown, # ValueError: unknown property
+    'CANONICAL'                          : pm_type_unknown, # ValueError: invalid property
+    'CD_INDEX'                           : pm_type_unknown, # ValueError: unknown property
+    'CD_INDEX_COEFFICIENTS'              : pm_type_vector_integer,
     'CENTERED'                           : pm_type_bool,
-    'CENTERED_ZONOTOPE'                  : pm_type_unknown,
+    'CENTERED_ZONOTOPE'                  : pm_type_unknown, # ValueError: unexpected undefined value of an input property
     'CENTRALLY_SYMMETRIC'                : pm_type_bool,
-    'CENTROID'                           : pm_type_unknown,
-    'CHIROTOPE'                          : pm_type_unknown,
-    'COCIRCUIT_EQUATIONS'                : pm_type_unknown,
+    'CENTROID'                           : pm_type_vector_rational,
+    'CHIROTOPE'                          : pm_type_unknown, # ValueError: unexpected undefined value of an input property
+    'COCIRCUIT_EQUATIONS'                : pm_type_sparse_matrix_rational,
     'COCUBICAL'                          : pm_type_bool,
-    'COCUBICALITY'                       : pm_type_unknown,
+    'COCUBICALITY'                       : pm_type_unknown, # ValueError: invalid property
     'COMBINATORIAL_DIM'                  : pm_type_integer,
     'COMPLEXITY'                         : pm_type_float,
-    'COMPRESSED'                         : pm_type_unknown,
-    'CONE_AMBIENT_DIM'                   : pm_type_unknown,
-    'CONE_DIM'                           : pm_type_unknown,
-    'CONNECTIVITY'                       : pm_type_unknown,
-    'COORDINATE_LABELS'                  : pm_type_unknown,
+    'COMPRESSED'                         : pm_type_unknown, # ValueError: invalid property
+    'CONE_AMBIENT_DIM'                   : pm_type_unknown, # ValueError: invalid property
+    'CONE_DIM'                           : pm_type_unknown, # ValueError: invalid property
+    'CONNECTIVITY'                       : pm_type_unknown, # ValueError: unknown property
+    'COORDINATE_LABELS'                  : pm_type_unknown, # ValueError: unexpected undefined value of an input property
     'CS_PERMUTATION'                     : pm_type_array_int,
     'CUBICAL'                            : pm_type_bool,
     'CUBICAL_H_VECTOR'                   : pm_type_vector_integer,
     'CUBICALITY'                         : pm_type_integer,
     'DEGREE_ONE_GENERATORS'              : pm_type_matrix_integer,
-    'DIAMETER'                           : pm_type_unknown,
-    'DIM'                                : pm_type_unknown,
+    'DIAMETER'                           : pm_type_unknown, # ValueError: unknown property
+    'DIM'                                : pm_type_unknown, # ValueError: unknown property
     'DUAL_BOUNDED_H_VECTOR'              : pm_type_vector_integer,
-    'DUAL_CONNECTIVITY'                  : pm_type_unknown,
-    'DUAL_DIAMETER'                      : pm_type_unknown,
-    'DUAL_EVEN'                          : pm_type_unknown,
-    'DUAL_GRAPH'                         : pm_type_unknown,
-    'DUAL_GRAPH_SIGNATURE'               : pm_type_unknown,
-    'DUAL_H_VECTOR'                      : pm_type_vector_integer,
-    'DUAL_TRIANGLE_FREE'                 : pm_type_unknown,
+    'DUAL_CONNECTIVITY'                  : pm_type_unknown, # ValueError: unknown property
+    'DUAL_DIAMETER'                      : pm_type_unknown, # ValueError: unknown property
+    'DUAL_EVEN'                          : pm_type_unknown, # ValueError: unknown property
+    'DUAL_GRAPH'                         : pm_type_graph_undirected,
+    'DUAL_GRAPH_SIGNATURE'               : pm_type_unknown, # ValueError: unknown property 
+    'DUAL_H_VECTOR'                      : pm_type_vector_integer, # ValueError: unknown property
+    'DUAL_TRIANGLE_FREE'                 : pm_type_unknown, # ValueError: unknown property
     'EDGE_ORIENTABLE'                    : pm_type_bool,
     'EDGE_ORIENTATION'                   : pm_type_matrix_int,
     'EHRHART_POLYNOMIAL_COEFF'           : pm_type_vector_rational,
-    'EPSILON'                            : pm_type_unknown,
+    'EPSILON'                            : pm_type_unknown, # ValueError: unknown property
     'EQUATIONS'                          : pm_type_unknown,
     'ESSENTIALLY_GENERIC'                : pm_type_bool,
     'EVEN'                               : pm_type_unknown,
@@ -261,9 +262,9 @@ type_properties[pm_type_polytope_rational] = {
     'VERTEX_DEGREES'                     : pm_type_unknown,
     'VERTEX_LABELS'                      : pm_type_unknown,
     'VERTEX_NORMALS'                     : pm_type_unknown,
-    'VERTEX_SIZES'                       : pm_type_unknown,
+    'VERTEX_SIZES'                       : pm_type_array_int,
     'VERTICES'                           : pm_type_matrix_rational,
-    'VERTICES_IN_FACETS'                 : pm_type_unknown,
+    'VERTICES_IN_FACETS'                 : pm_type_incidence_matrix,
     'VERTICES_IN_INEQUALITIES'           : pm_type_unknown,
     'VERY_AMPLE'                         : pm_type_unknown,
     'VIF_CYCLIC_NORMAL'                  : pm_type_unknown,

@@ -67,6 +67,13 @@ class TestPolymakePolytope(unittest.TestCase):
         self.assertTrue(examples.p2().BOUNDED)
         self.assertTrue(examples.p3().BOUNDED)
 
+    def test_CD_INDEX_COEFFICIENTS(self):
+        # for now, jut checking that we do not get errors
+        examples.p1().CD_INDEX_COEFFICIENTS
+        examples.p2().CD_INDEX_COEFFICIENTS
+        examples.p3().CD_INDEX_COEFFICIENTS
+        polymake.cube(3).CD_INDEX_COEFFICIENTS
+
     def test_CENTERED(self):
         self.assertFalse(examples.p1().CENTERED)
         self.assertFalse(examples.p2().CENTERED)
@@ -77,10 +84,26 @@ class TestPolymakePolytope(unittest.TestCase):
         self.assertFalse(examples.p2().CENTRALLY_SYMMETRIC)
         self.assertFalse(examples.p3().CENTRALLY_SYMMETRIC)
 
+    def test_CENTROID(self):
+        # for now, just checking that we do not get errors
+        examples.p1().CENTROID
+        examples.p2().CENTROID
+        # got an error with p3
+        polymake.cube(3).CENTROID
+        polymake.cube(4).CENTROID
+
     def test_COCUBICAL(self):
         self.assertFalse(examples.p1().COCUBICAL)
         self.assertFalse(examples.p2().COCUBICAL)
         self.assertTrue(examples.p3().COCUBICAL)
+
+    def test_COCIRCUIT_EQUATIONS(self):
+        m = examples.p1().COCIRCUIT_EQUATIONS
+        self.assertEqual(m[0,0], 0)
+        self.assertEqual(m[0,2], 1)
+        self.assertEqual(m[0,8], -1)
+        examples.p2().COCIRCUIT_EQUATIONS
+        examples.p3().COCIRCUIT_EQUATIONS
 
     def test_COMBINATORIAL_DIM(self):
         self.assertEqual(examples.p1().COMBINATORIAL_DIM, 3)
@@ -96,10 +119,16 @@ class TestPolymakePolytope(unittest.TestCase):
         self.assertLess(comp, 3.14286)
         self.assertGreater(comp, 3.14285)
 
+    def test_CS_PERMUTATION(self):
+        with self.assertRaises(ValueError):
+            examples.p1().CS_PERMUTATION
+        polymake.cube(3).CS_PERMUTATION
+
     def test_CUBICAL(self):
         self.assertTrue(examples.p1().CUBICAL)
         self.assertFalse(examples.p2().CUBICAL)
         self.assertTrue(examples.p3().CUBICAL)
+        self.assertTrue(polymake.cube(3).CUBICAL)
 
     def test_CUBICAL_H_VECTOR(self):
         v = examples.p1().CUBICAL_H_VECTOR
@@ -118,6 +147,14 @@ class TestPolymakePolytope(unittest.TestCase):
         self.assertEqual(examples.p2().CUBICALITY, 1)
         self.assertEqual(examples.p3().CUBICALITY, 1)
 
+    def test_DEGREE_ONE_GENERATORS(self):
+        # for now, just checking that we do not get errors
+        examples.p1().DEGREE_ONE_GENERATORS
+        examples.p2().DEGREE_ONE_GENERATORS
+        examples.p3().DEGREE_ONE_GENERATORS
+        polymake.cube(3).DEGREE_ONE_GENERATORS
+        polymake.cube(4).DEGREE_ONE_GENERATORS
+
     def test_DUAL_BOUNDED_H_VECTOR(self):
         v = examples.p1().DUAL_BOUNDED_H_VECTOR
         self.assertEqual(v[0], 1)
@@ -129,6 +166,45 @@ class TestPolymakePolytope(unittest.TestCase):
         self.assertEqual(v[0], 1)
         self.assertEqual(v[1], 1)
         self.assertEqual(v[2], 1)
+
+    def test_DUAL_GRAPH(self):
+        for pol in [examples.p1(), examples.p2(), examples.p3(),
+                polymake.cube(3), polymake.cube(4)]:
+            g = pol.DUAL_GRAPH
+            self.assertEqual(g.type_name(), 'Graph<Undirected>')
+
+    def test_EDGE_ORIENTABLE(self):
+        self.assertEqual(examples.p1().EDGE_ORIENTABLE, True)
+        with self.assertRaises(ValueError):
+            examples.p2().EDGE_ORIENTABLE
+        with self.assertRaises(ValueError):
+            examples.p3().EDGE_ORIENTABLE
+        self.assertTrue(polymake.cube(3).EDGE_ORIENTABLE, True)
+        self.assertTrue(polymake.cube(4).EDGE_ORIENTABLE, True)
+
+    def test_EDGE_ORIENTATION(self):
+        m = examples.p1().EDGE_ORIENTATION
+        self.assertEqual(m.type_name(), 'Matrix<Int, NonSymmetric>')
+        with self.assertRaises(ValueError):
+            examples.p2().EDGE_ORIENTATION
+        with self.assertRaises(ValueError):
+            examples.p3().EDGE_ORIENTATION
+        m = polymake.cube(3).EDGE_ORIENTATION
+        self.assertEqual(m.type_name(), 'Matrix<Int, NonSymmetric>')
+        m = polymake.cube(4).EDGE_ORIENTATION
+        self.assertEqual(m.type_name(), 'Matrix<Int, NonSymmetric>')
+
+    def test_EHRHART_POLYNOMIAL_COEFF(self):
+        for pol in [examples.p1(), examples.p3(),
+                polymake.cube(3), polymake.cube(4)]:
+            self.assertEqual(pol.EHRHART_POLYNOMIAL_COEFF.type_name(), 'Vector<Rational>')
+
+    def test_ESSENTIALLY_GENERIC(self):
+        self.assertFalse(examples.p1().ESSENTIALLY_GENERIC)
+        self.assertFalse(examples.p2().ESSENTIALLY_GENERIC)
+        self.assertTrue(examples.p3().ESSENTIALLY_GENERIC)
+        self.assertFalse(polymake.cube(3).ESSENTIALLY_GENERIC)
+        self.assertFalse(polymake.cube(4).ESSENTIALLY_GENERIC)
 
     def test_N_FACETS(self):
         self.assertEqual(examples.p1().N_FACETS, 6)
