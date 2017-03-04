@@ -12,7 +12,8 @@ from cygmp.mpz cimport *
 from cygmp.mpq cimport *
 
 from .defs cimport (pm_MatrixRational, pm_Rational,
-         pm_MatrixInteger, pm_Integer, pm_VectorInteger, mat_rat_get_element, mat_int_get_element)
+         pm_MatrixInteger, pm_Integer, pm_VectorInteger,
+         mat_rat_get_element, mat_int_get_element, mat_i_get_element)
 
 from .number cimport Rational, Integer
 from .number import get_num_den
@@ -46,7 +47,7 @@ cdef class MatrixRational:
 
 cdef class MatrixInteger:
     def __getitem__(self, elt):
-        cdef Py_ssize_t nrows, ncols, i,j 
+        cdef Py_ssize_t nrows, ncols, i,j
         nrows = self.pm_obj.rows()
         ncols = self.pm_obj.cols()
         i,j = elt
@@ -70,6 +71,32 @@ cdef class MatrixInteger:
                       "]"
 
         return "\n".join(line_format.format(*row) for row in rows)
+
+cdef class MatrixInt:
+    def __getitem__(self, elt):
+        cdef Py_ssize_t nrows, ncols, i,j
+        nrows = self.pm_obj.rows()
+        ncols = self.pm_obj.cols()
+        i,j = elt
+        if not (0 <= i < nrows) or not (0 <= j < ncols):
+            raise IndexError("matrix index out of range")
+
+        return mat_i_get_element(self.pm_obj, i, j)
+
+    def __repr__(self):
+        cdef Py_ssize_t nrows, ncols, i, j
+        nrows = self.pm_obj.rows()
+        ncols = self.pm_obj.cols()
+
+        rows = [[str(self[i,j]) for j in range(ncols)] for i in range(nrows)]
+        col_sizes = [max(len(rows[i][j]) for i in range(nrows)) for j in range(ncols)]
+
+        line_format = "[ " +  \
+                " ".join("{{:{width}}}".format(width=t) for t in col_sizes) + \
+                      "]"
+
+        return "\n".join(line_format.format(*row) for row in rows)
+
 
 
 def clean_mat(mat):
@@ -141,7 +168,6 @@ cdef pm_MatrixInteger* int_mat_to_pm(int nr, int nc, list mat):
 
     cdef mpz_t z
     cdef Py_ssize_t i, j
-    cdef long num, den
 
     # clean data
     mpz_init(z)
@@ -152,3 +178,12 @@ cdef pm_MatrixInteger* int_mat_to_pm(int nr, int nc, list mat):
     mpz_clear(z)
 
     return pm_mat
+
+cdef pm_MatrixInt* i_mat_to_pm(int nr, int nc, list mat):
+    """
+    Create a polymake integer matrix from input so that:
+
+    - there are methods ``nrows``, ``ncols`` giving the number of rows and cols
+    - accessing to the elements is done via ``mat[i,j]``
+    """
+    raise NotImplementedError

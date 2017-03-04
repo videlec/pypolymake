@@ -6,7 +6,7 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-from .number cimport Integer
+from .number cimport Integer, Rational
 
 cdef class VectorInteger:
     def __len__(self):
@@ -26,4 +26,21 @@ cdef class VectorInteger:
     def __repr__(self):
         return "(" + ", ".join(str(x) for x in self) + ")"
 
+cdef class VectorRational:
+    def __len__(self):
+        return self.pm_obj.size()
+
+    def __getitem__(self, _i):
+        cdef Py_ssize_t size = self.pm_obj.size()
+        cdef Py_ssize_t i = <Py_ssize_t?> _i
+
+        if not (0 <= i < size):
+            raise IndexError("integer vector out of range")
+
+        cdef Rational ans = Rational.__new__(Rational)
+        ans.pm_obj.set_mpq_t(self.pm_obj.get(i).get_rep())
+        return ans
+
+    def __repr__(self):
+        return "(" + ", ".join(str(x) for x in self) + ")"
 

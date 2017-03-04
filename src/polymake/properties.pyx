@@ -24,14 +24,15 @@ overriden (e.g. you might want integer properties to output integers from gmpy).
 ###############################################################################
 
 from .defs cimport (pm_PerlObject, new_PerlObject_from_PerlObject,
-        pm_get_PerlObject, pm_MatrixRational, pm_MatrixInteger, pm_VectorInteger, pm_Integer,
+        pm_get_PerlObject, pm_ArrayInt, pm_MatrixRational, pm_MatrixInteger, pm_VectorInteger, pm_Integer,
         pm_get_float, pm_Rational, pm_get_Integer, pm_get_Rational, pm_get_MatrixRational,
-        pm_get_MatrixInteger,
+        pm_get_MatrixInt, pm_get_MatrixInteger, pm_get_ArrayInt,
         pm_get_VectorInteger, pm_get_PerlObject)
 
 from .perl_object cimport PerlObject, wrap_perl_object
-from .matrix cimport MatrixInteger, MatrixRational
+from .matrix cimport MatrixInt, MatrixInteger, MatrixRational
 from .number cimport Integer, Rational
+from .array cimport ArrayInt
 from .vector cimport VectorInteger
 
 include "cysignals/signals.pxi"
@@ -48,7 +49,9 @@ cdef pm_type_rational = 'Rational'
 
 cdef pm_type_array_int = 'Array<Int>'
 cdef pm_type_array_string = 'Array<String>'
+cdef pm_type_array_array_int = 'Array<Array<Int>>'
 cdef pm_type_set_int = 'Set<Int>'
+cdef pm_type_map_int_int = 'Map<Int, Int>'
 
 cdef pm_type_vector_integer = 'Vector<Integer>'
 cdef pm_type_vector_rational = 'Vector<Rational>'
@@ -62,6 +65,8 @@ cdef pm_type_incidence_matrix = 'IncidenceMatrix<NonSymmetric>'
 cdef pm_type_polytope_rational = 'Polytope<Rational>'
 cdef pm_type_quadratic_extension = 'Polytope<QuadraticExtension<Rational>>'
 cdef pm_type_graph_undirected = 'Graph<Undirected>'
+
+cdef pm_type_geometric_simplicial_complex_rational = 'GeometricSimplicialComplex<Rational>'
 
 cdef dict type_properties = {}
 
@@ -123,7 +128,7 @@ type_properties[pm_type_polytope_rational] = {
     'EVEN'                               : pm_type_unknown,
     'F2_VECTOR'                          : pm_type_matrix_integer,
     'FACE_SIMPLICITY'                    : pm_type_integer,
-    'FACET_DEGREES'                      : pm_type_unknown,
+    'FACET_DEGREES'                      : pm_type_unknown, # ValueError: unknown property
     'FACET_LABELS'                       : pm_type_array_string,
     'FACET_POINT_LATTICE_DISTANCES'      : pm_type_unknown,
     'FACETS'                             : pm_type_sparse_matrix_rational,
@@ -251,33 +256,33 @@ type_properties[pm_type_polytope_rational] = {
     'TERMINAL'                           : pm_type_unknown,
     'TILING_LATTICE'                     : pm_type_unknown,
     'TOWARDS_FAR_FACE'                   : pm_type_unknown,
-    'TRIANGLE_FREE'                      : pm_type_unknown,
-    'TRIANGULATION'                      : pm_type_unknown,
-    'TRIANGULATION_INT'                  : pm_type_unknown,
-    'TRIANGULATION_INT_SIGNS'            : pm_type_unknown,
-    'TRIANGULATION_SIGNS'                : pm_type_unknown,
-    'TWO_FACE_SIZES'                     : pm_type_unknown,
-    'UNBOUNDED_FACETS'                   : pm_type_unknown,
-    'VALID_POINT'                        : pm_type_unknown,
-    'VERTEX_BARYCENTER'                  : pm_type_unknown,
-    'VERTEX_DEGREES'                     : pm_type_unknown,
-    'VERTEX_LABELS'                      : pm_type_unknown,
-    'VERTEX_NORMALS'                     : pm_type_unknown,
+    'TRIANGLE_FREE'                      : pm_type_bool,
+    'TRIANGULATION'                      : pm_type_geometric_simplicial_complex_rational, 
+    'TRIANGULATION_INT'                  : pm_type_unknown, # ValueError: unexpected undefined value
+    'TRIANGULATION_INT_SIGNS'            : pm_type_unknown, # ValueError: unknown property 
+    'TRIANGULATION_SIGNS'                : pm_type_unknown, # ValueError: unknown property
+    'TWO_FACE_SIZES'                     : pm_type_map_int_int,
+    'UNBOUNDED_FACETS'                   : pm_type_set_int,
+    'VALID_POINT'                        : pm_type_vector_rational,
+    'VERTEX_BARYCENTER'                  : pm_type_vector_rational,
+    'VERTEX_DEGREES'                     : pm_type_unknown, # ValueError: unknown property
+    'VERTEX_LABELS'                      : pm_type_array_string,
+    'VERTEX_NORMALS'                     : pm_type_matrix_rational,
     'VERTEX_SIZES'                       : pm_type_array_int,
     'VERTICES'                           : pm_type_matrix_rational,
     'VERTICES_IN_FACETS'                 : pm_type_incidence_matrix,
-    'VERTICES_IN_INEQUALITIES'           : pm_type_unknown,
-    'VERY_AMPLE'                         : pm_type_unknown,
-    'VIF_CYCLIC_NORMAL'                  : pm_type_unknown,
-    'VISUAL'                             : pm_type_unknown,
-    'VISUAL_BOUNDED_GRAPH'               : pm_type_unknown,
-    'VISUAL_DUAL'                        : pm_type_unknown,
-    'VISUAL_DUAL_FACE_LATTICE'           : pm_type_unknown,
-    'VISUAL_DUAL_GRAPH'                  : pm_type_unknown,
-    'VISUAL_FACE_LATTICE'                : pm_type_unknown,
-    'VISUAL_GRAPH'                       : pm_type_unknown,
-    'VISUAL_TRIANGULATION_BOUNDARY'      : pm_type_unknown,
-    'VOLUME'                             : pm_type_unknown,
+    'VERTICES_IN_INEQUALITIES'           : pm_type_unknown, # ValueError: unexpected undefined value
+    'VERY_AMPLE'                         : pm_type_bool,
+    'VIF_CYCLIC_NORMAL'                  : pm_type_array_array_int,
+#    'VISUAL'                             : pm_type_unknown,
+#    'VISUAL_BOUNDED_GRAPH'               : pm_type_unknown,
+#    'VISUAL_DUAL'                        : pm_type_unknown,
+#    'VISUAL_DUAL_FACE_LATTICE'           : pm_type_unknown,
+#    'VISUAL_DUAL_GRAPH'                  : pm_type_unknown,
+#    'VISUAL_FACE_LATTICE'                : pm_type_unknown,
+#    'VISUAL_GRAPH'                       : pm_type_unknown,
+#    'VISUAL_TRIANGULATION_BOUNDARY'      : pm_type_unknown,  # ValueError: unknown property
+    'VOLUME'                             : pm_type_rational,
     'WEAKLY_CENTERED'                    : pm_type_bool,
     'ZONOTOPE_INPUT_POINTS'              : pm_type_unknown,
 }
@@ -310,6 +315,42 @@ type_properties[pm_type_graph_undirected]    = {
     'TRIANGLE_FREE'                   : pm_type_bool,
     'VISUAL'                          : pm_type_unknown,
 }
+
+type_properties[pm_type_geometric_simplicial_complex_rational] = {
+    'BALL'                            : pm_type_unknown,
+    'BIPARTITE'                       : pm_type_unknown,
+    'BOUNDARY'                        : pm_type_unknown,
+    'CLOSED_PSEUDO_MANIFOLD'          : pm_type_unknown,
+    'COCYCLES'                        : pm_type_unknown,
+    'COHOMOLOGY'                      : pm_type_unknown,
+    'COLORING'                        : pm_type_unknown,
+    'CONNECTED'                       : pm_type_unknown,
+    'CONNECTED_COMPONENTS'            : pm_type_unknown,
+    'CONNECTIVITY'                    : pm_type_unknown,
+    'COORDINATES'                     : pm_type_unknown,
+    'CYCLES'                          : pm_type_unknown,
+    'DIM'                             : pm_type_unknown,
+    'DUAL_BIPARTITE'                  : pm_type_unknown,
+    'DUAL_CONNECTED'                  : pm_type_unknown,
+    'DUAL_CONNECTED_COMPONENTS'       : pm_type_unknown,
+    'DUAL_CONNECTIVITY'               : pm_type_unknown,
+    'DUAL_GRAPH'                      : pm_type_unknown,
+    'DUAL_GRAPH_SIGNATURE'            : pm_type_unknown,
+    'DUAL_MAX_CLIQUES'                : pm_type_unknown,
+    'EULER_CHARACTERISTIC'            : pm_type_unknown,
+    'F2_VECTOR'                       : pm_type_unknown,
+    'FACETS'                          : pm_type_unknown,
+    'FOLDABLE'                        : pm_type_unknown,
+    'FUNDAMENTAL_GROUP'               : pm_type_unknown,
+    'FUNDAMENTAL_GROUP_G'             : pm_type_unknown,
+    'F_VECTOR'                        : pm_type_unknown,
+    'G_DIM'                           : pm_type_unknown,
+    'GENUS'                           : pm_type_unknown,
+    'GKZ_VECTOR'                      : pm_type_unknown,
+    'GRAPH'                           : pm_type_unknown,
+    'GRAPH_SIGNATURE'                 : pm_type_unknown
+}
+
 
 def handler_generic(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
@@ -368,6 +409,15 @@ def handler_vector_integer(perl_object, bytes prop):
     sig_off()
     return ans
 
+def handler_array_int(perl_object, bytes prop):
+    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
+    cdef ArrayInt ans = ArrayInt.__new__(ArrayInt)
+    cdef char * cprop = prop
+    sig_on()
+    pm_get_ArrayInt(po.give(cprop), ans.pm_obj)
+    sig_off()
+    return ans
+
 def handler_matrix_rational(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef MatrixRational ans = MatrixRational.__new__(MatrixRational)
@@ -386,6 +436,15 @@ def handler_matrix_integer(perl_object, bytes prop):
     sig_off()
     return ans
 
+def handler_matrix_int(perl_object, bytes prop):
+    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
+    cdef MatrixInt ans = MatrixInt.__new__(MatrixInt)
+    cdef char * cprop = prop
+    sig_on()
+    pm_get_MatrixInt(po.give(cprop), ans.pm_obj)
+    sig_off()
+    return ans
+
 cdef dict handlers = {
     pm_type_unknown          : handler_generic,
 
@@ -397,14 +456,18 @@ cdef dict handlers = {
     pm_type_rational : handler_rational,
 
     # array, set and vectors
-    pm_type_array_int       : handler_generic,
+    pm_type_array_int       : handler_array_int,
     pm_type_array_string    : handler_generic,
+    pm_type_array_array_int : handler_generic,
     pm_type_set_int         : handler_generic,
     pm_type_vector_integer  : handler_vector_integer,
     pm_type_vector_rational : handler_generic,
 
+    # maps
+    pm_type_map_int_int     : handler_generic,
+
     # matrices
-    pm_type_matrix_int             : handler_generic,
+    pm_type_matrix_int             : handler_matrix_int,
     pm_type_matrix_integer         : handler_matrix_integer,
     pm_type_matrix_float           : handler_generic,
     pm_type_matrix_rational        : handler_matrix_rational,

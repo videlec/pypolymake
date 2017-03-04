@@ -123,6 +123,16 @@ cdef extern from "polymake/client.h":
             (char*, int, int, int) except +ValueError
     pm_PerlObject* new_PerlObject_from_PerlObject "new perl::Object" (pm_PerlObject)
 
+cdef extern from "polymake/Array.h" namespace 'polymake':
+    cdef cppclass pm_ArrayInt "Array<long>":
+        pm_ArrayInt()
+        pm_ArrayInt(int)
+        int size()
+        bool empty()
+        void clear()
+        void resize(int)
+        void assign(int, long)
+        long get "operator[]" (int i)
 
 cdef extern from "polymake/Matrix.h" namespace 'polymake':
     cdef cppclass pm_MatrixRational "Matrix<Rational>":
@@ -141,9 +151,18 @@ cdef extern from "polymake/Matrix.h" namespace 'polymake':
         Py_ssize_t rows()
         Py_ssize_t cols()
 
+    cdef cppclass pm_MatrixInt "Matrix<long>":
+        pm_MatrixInt()
+        pm_MatrixInt(int nr, int nc)
+        void assign(int r, int c, long val)
+        pm_MatrixInt operator|(pm_MatrixInt)
+        Py_ssize_t rows()
+        Py_ssize_t cols()
+
     # WRAP_CALL(t,i,j) -> t(i,j)
     pm_Rational mat_rat_get_element "WRAP_CALL"(pm_MatrixRational, int i, int j)
     pm_Integer mat_int_get_element "WRAP_CALL"(pm_MatrixInteger, int i, int j)
+    int mat_i_get_element "WRAP_CALL" (pm_MatrixInt, int i, int j)
 
 #cdef extern from "polymake/GenericVector.h" namespace 'polymake':
     pm_MatrixRational ones_vector_Rational "ones_vector<Rational>" ()
@@ -164,9 +183,11 @@ cdef extern from "polymake/Matrix.h" namespace 'polymake':
     # pm_PerlPropertyValue doesn't have a default constructor.
 
     # WRAP_IN(x,y) x>>y
-    void pm_get_float "WRAP_IN" (pm_PerlPropertyValue, float)
+    void pm_get_float "WRAP_IN" (pm_PerlPropertyValue, float) except +ValueError
     void pm_get_Integer "WRAP_IN" (pm_PerlPropertyValue, pm_Integer) except +ValueError
     void pm_get_Rational "WRAP_IN" (pm_PerlPropertyValue, pm_Rational) except +ValueError
+    void pm_get_ArrayInt "WRAP_IN" (pm_PerlPropertyValue, pm_ArrayInt) except +ValueError
+    void pm_get_MatrixInt "WRAP_IN" (pm_PerlPropertyValue, pm_MatrixInt) except +ValueError
     void pm_get_MatrixRational "WRAP_IN" (pm_PerlPropertyValue, pm_MatrixRational) except +ValueError
     void pm_get_MatrixInteger "WRAP_IN" (pm_PerlPropertyValue, pm_MatrixInteger) except +ValueError
     void pm_get_VectorInteger "WRAP_IN" (pm_PerlPropertyValue, pm_VectorInteger) except +ValueError
@@ -176,7 +197,6 @@ cdef extern from "polymake/Vector.h" namespace 'polymake':
     cdef cppclass pm_VectorInteger "Vector<Integer>":
         pm_VectorInteger()
         pm_VectorInteger(int nr)
-        #void assign(int r, int val)
         pm_Integer get "operator[]" (int i)
         int size()
 

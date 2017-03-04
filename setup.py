@@ -31,6 +31,12 @@ extensions = [
         libraries = ["gmp", "polymake"],
         language = 'c++'),
 
+    Extension("polymake.array",
+        ["src/polymake/array.pyx"],
+        depends = ["src/polymake/defs.pxd"],
+        libraries = ["gmp", "polymake"],
+        language = 'c++'),
+
     Extension("polymake.vector",
         ["src/polymake/vector.pyx"],
         depends = ["src/polymake/defs.pxd"],

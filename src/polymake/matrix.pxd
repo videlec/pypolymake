@@ -5,12 +5,15 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-from defs cimport pm_MatrixRational, pm_MatrixInteger
+from defs cimport pm_MatrixRational, pm_MatrixInteger, pm_MatrixInt
 
 cdef class MatrixRational:
     cdef pm_MatrixRational pm_obj
 cdef class MatrixInteger:
     cdef pm_MatrixInteger pm_obj
+cdef class MatrixInt:
+    cdef pm_MatrixInt pm_obj
 
 cdef pm_MatrixRational* rat_mat_to_pm(int nr, int nc, list mat)
 cdef pm_MatrixInteger* int_mat_to_pm(int nr, int nc, list mat)
+cdef pm_MatrixInt* i_mat_to_pm(int nr, int nc, list mat)
