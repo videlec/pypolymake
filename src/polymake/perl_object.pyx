@@ -7,7 +7,7 @@
 ###############################################################################
 
 
-from .defs cimport (CallPolymakeFunction, CallPolymakeFunction1,
+from .defs cimport (CallPolymakeFunction, CallPolymakeHelp, CallPolymakeFunction1,
         CallPolymakeFunction2, CallPolymakeFunction3,
         new_PerlObject_from_PerlObject)
 
@@ -29,6 +29,12 @@ cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj):
             if pm_type.startswith(k):
                 ans.properties = v
     return ans
+
+def call_polymake_help(app, name):
+    pm.set_application(app)
+    cdef pm_PerlObject pm_obj
+    pm_obj = CallPolymakeHelp("help", name)
+    return wrap_perl_object(pm_obj)
 
 def call_polymake_function(app, name, *args):
     pm.set_application(app)

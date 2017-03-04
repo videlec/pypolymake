@@ -13,7 +13,26 @@ overriden (e.g. you might want integer properties to output integers from gmpy).
 .. TODO::
 
     Ideally the structure of polymake objects should be computed dynamically...
-    However, it is not easy to achieve.
+    However, it is not easy to achieve. In the interactive polymake shell one can
+    just run through the help system
+
+    polytope > help "objects/Cone/properties";
+    Categories of objects/Cone/properties:
+    Combinatorics, Geometry, Input property, Lattice points in cones, Symmetry, Triangulation and volume, Visualization
+
+    polytope> help "objects/Cone/properties/Combinatorics";
+     These properties capture combinatorial information of the object. 
+     Combinatorial properties only depend on combinatorial data of the object like, e.g., the face lattice.
+
+    -------------------
+    Subtopics of objects/Cone/properties/Combinatorics:
+    COCIRCUIT_EQUATIONS, COMBINATORIAL_DIM, DUAL_GRAPH, ESSENTIALLY_GENERIC, F2_VECTOR, FACETS_THRU_RAYS, FACET_SIZES, FLAG_VECTOR, FOLDABLE_COCIRCUIT_EQUATIONS, F_VECTOR, GRAPH, HASSE_DIAGRAM, INTERIOR_RIDGE_SIMPLICES, MAX_BOUNDARY_SIMPLICES, MAX_INTERIOR_SIMPLICES, N_RAYS, N_RAY_FACET_INC, RAYS_IN_FACETS, RAY_SIZES, SELF_DUAL, SIMPLE, SIMPLICIAL, SIMPLICIAL_CONE
+
+    polytope > help "objects/Cone/properties/Combinatorics/RAYS_IN_FACETS";
+    property RAYS_IN_FACETS : IncidenceMatrix<NonSymmetric>
+     Ray-facet incidence matrix, with rows corresponding to facets and columns
+     to rays. Rays and facets are numbered from 0 to N_RAYS-1 rsp.
+     N_FACETS-1, according to their order in RAYS rsp. FACETS.
 """
 ###############################################################################
 #       Copyright (C) 2016      Vincent Delecroix <vincent.delecroix@labri.fr>
@@ -24,16 +43,17 @@ overriden (e.g. you might want integer properties to output integers from gmpy).
 ###############################################################################
 
 from .defs cimport (pm_PerlObject, new_PerlObject_from_PerlObject,
-        pm_get_PerlObject, pm_ArrayInt, pm_MatrixRational, pm_MatrixInteger, pm_VectorInteger, pm_Integer,
+        pm_get_PerlObject, pm_ArrayInt, pm_MatrixRational, pm_MatrixInteger, pm_VectorInteger, pm_VectorRational,
+        pm_Integer,
         pm_get_float, pm_Rational, pm_get_Integer, pm_get_Rational, pm_get_MatrixRational,
         pm_get_MatrixInt, pm_get_MatrixInteger, pm_get_ArrayInt,
-        pm_get_VectorInteger, pm_get_PerlObject)
+        pm_get_VectorInteger, pm_get_VectorRational, pm_get_PerlObject)
 
 from .perl_object cimport PerlObject, wrap_perl_object
 from .matrix cimport MatrixInt, MatrixInteger, MatrixRational
 from .number cimport Integer, Rational
 from .array cimport ArrayInt
-from .vector cimport VectorInteger
+from .vector cimport VectorInteger, VectorRational
 
 include "cysignals/signals.pxi"
 include "cysignals/memory.pxi"
@@ -255,8 +275,8 @@ type_properties[pm_type_polytope_rational] = {
     'SUBRIDGE_SIZES'                     : pm_type_unknown,
     'TERMINAL'                           : pm_type_unknown,
     'TILING_LATTICE'                     : pm_type_unknown,
-    'TOWARDS_FAR_FACE'                   : pm_type_unknown,
-    'TRIANGLE_FREE'                      : pm_type_bool,
+    'TOWARDS_FAR_FACE'                   : pm_type_unknown, # only defined for unbounded polyhedra
+    'TRIANGLE_FREE'                      : pm_type_unknown, # ValueError: unknown property
     'TRIANGULATION'                      : pm_type_geometric_simplicial_complex_rational, 
     'TRIANGULATION_INT'                  : pm_type_unknown, # ValueError: unexpected undefined value
     'TRIANGULATION_INT_SIGNS'            : pm_type_unknown, # ValueError: unknown property 
@@ -360,7 +380,7 @@ def handler_generic(perl_object, bytes prop):
     pm_get_PerlObject(po.give(cprop), pm_ans)
     sig_off()
     if not pm_ans.valid():
-        raise ValueError("invalid property")
+        raise ValueError("invalid property {}".format(prop))
 
     return wrap_perl_object(pm_ans)
 
@@ -406,6 +426,15 @@ def handler_vector_integer(perl_object, bytes prop):
     cdef char * cprop = prop
     sig_on()
     pm_get_VectorInteger(po.give(cprop), ans.pm_obj)
+    sig_off()
+    return ans
+
+def handler_vector_rational(perl_object, bytes prop):
+    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
+    cdef VectorRational ans = VectorRational.__new__(VectorRational)
+    cdef char * cprop = prop
+    sig_on()
+    pm_get_VectorRational(po.give(cprop), ans.pm_obj)
     sig_off()
     return ans
 
@@ -461,7 +490,7 @@ cdef dict handlers = {
     pm_type_array_array_int : handler_generic,
     pm_type_set_int         : handler_generic,
     pm_type_vector_integer  : handler_vector_integer,
-    pm_type_vector_rational : handler_generic,
+    pm_type_vector_rational : handler_vector_rational,
 
     # maps
     pm_type_map_int_int     : handler_generic,

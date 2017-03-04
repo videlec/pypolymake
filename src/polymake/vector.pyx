@@ -8,6 +8,8 @@
 
 from .number cimport Integer, Rational
 
+from sage_conversion cimport pm_VectorInteger_to_sage, pm_VectorRational_to_sage
+
 cdef class VectorInteger:
     def __len__(self):
         return self.pm_obj.size()
@@ -25,6 +27,21 @@ cdef class VectorInteger:
 
     def __repr__(self):
         return "(" + ", ".join(str(x) for x in self) + ")"
+
+    def sage(self):
+        r"""
+        Convert to a Sage integer vector
+
+        >>> import polymake
+        >>> p = polymake.cube(3)
+        >>> v = p.CD_INDEX
+        >>> v = p.CD_INDEX_COEFFICIENTS
+        >>> v.sage()
+        (1, 4, 6)
+        >>> type(v.sage())
+        <type 'sage.modules.vector_integer_dense.Vector_integer_dense'>
+        """
+        return pm_VectorInteger_to_sage(self.pm_obj)
 
 cdef class VectorRational:
     def __len__(self):
@@ -44,3 +61,18 @@ cdef class VectorRational:
     def __repr__(self):
         return "(" + ", ".join(str(x) for x in self) + ")"
 
+    def sage(self):
+        r"""
+        Convert to a Sage rational vector
+
+        >>> import polymake
+        >>> p = polymake.cube(3)
+        >>> v = p.CENTROID
+        >>> v
+        (1, 0, 0, 0)
+        >>> v.sage()
+        (1, 0, 0, 0)
+        >>> type(v.sage())
+        <type 'sage.modules.vector_rational_dense.Vector_rational_dense'>
+        """
+        return pm_VectorRational_to_sage(self.pm_obj)

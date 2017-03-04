@@ -115,6 +115,8 @@ cdef extern from "polymake/client.h":
         string name()
 
     pm_PerlObject CallPolymakeFunction (char*) except +ValueError
+    pm_PerlObject CallPolymakeHelp "CallPolymakeFunction" \
+            (char *, char *) except +ValueError
     pm_PerlObject CallPolymakeFunction1 "CallPolymakeFunction" \
             (char*, int) except +ValueError
     pm_PerlObject CallPolymakeFunction2 "CallPolymakeFunction" \
@@ -123,7 +125,7 @@ cdef extern from "polymake/client.h":
             (char*, int, int, int) except +ValueError
     pm_PerlObject* new_PerlObject_from_PerlObject "new perl::Object" (pm_PerlObject)
 
-cdef extern from "polymake/Array.h" namespace 'polymake':
+cdef extern from "polymake/Array.h" namespace "polymake":
     cdef cppclass pm_ArrayInt "Array<long>":
         pm_ArrayInt()
         pm_ArrayInt(int)
@@ -133,8 +135,23 @@ cdef extern from "polymake/Array.h" namespace 'polymake':
         void resize(int)
         void assign(int, long)
         long get "operator[]" (int i)
+    cdef cppclass pm_ArrayString "Array<char *>":
+        pm_ArrayString()
+        pm_ArrayString(int)
+        int size()
+        bool empty()
+        void clear()
+        void resize(int)
+        void assign(int, char *)
+        char * get "operator[]" (int i)
 
-cdef extern from "polymake/Matrix.h" namespace 'polymake':
+cdef extern from "polymake/Set.h" namespace "polymake":
+    cdef cppclass pm_SetInt "Set<long>":
+        pm_SetInt()
+        void clear()
+        void resize(int)
+
+cdef extern from "polymake/Matrix.h" namespace "polymake":
     cdef cppclass pm_MatrixRational "Matrix<Rational>":
         pm_MatrixRational()
         pm_MatrixRational(int nr, int nc)
@@ -160,9 +177,9 @@ cdef extern from "polymake/Matrix.h" namespace 'polymake':
         Py_ssize_t cols()
 
     # WRAP_CALL(t,i,j) -> t(i,j)
-    pm_Rational mat_rat_get_element "WRAP_CALL"(pm_MatrixRational, int i, int j)
-    pm_Integer mat_int_get_element "WRAP_CALL"(pm_MatrixInteger, int i, int j)
-    int mat_i_get_element "WRAP_CALL" (pm_MatrixInt, int i, int j)
+    pm_Rational mat_rational_get_element "WRAP_CALL"(pm_MatrixRational, int i, int j)
+    pm_Integer mat_integer_get_element "WRAP_CALL"(pm_MatrixInteger, int i, int j)
+    long mat_int_get_element "WRAP_CALL" (pm_MatrixInt, int i, int j)
 
 #cdef extern from "polymake/GenericVector.h" namespace 'polymake':
     pm_MatrixRational ones_vector_Rational "ones_vector<Rational>" ()
@@ -187,10 +204,12 @@ cdef extern from "polymake/Matrix.h" namespace 'polymake':
     void pm_get_Integer "WRAP_IN" (pm_PerlPropertyValue, pm_Integer) except +ValueError
     void pm_get_Rational "WRAP_IN" (pm_PerlPropertyValue, pm_Rational) except +ValueError
     void pm_get_ArrayInt "WRAP_IN" (pm_PerlPropertyValue, pm_ArrayInt) except +ValueError
+    void pm_get_ArrayString "WRAP_IN" (pm_PerlPropertyValue, pm_ArrayString) except +ValueError
     void pm_get_MatrixInt "WRAP_IN" (pm_PerlPropertyValue, pm_MatrixInt) except +ValueError
     void pm_get_MatrixRational "WRAP_IN" (pm_PerlPropertyValue, pm_MatrixRational) except +ValueError
     void pm_get_MatrixInteger "WRAP_IN" (pm_PerlPropertyValue, pm_MatrixInteger) except +ValueError
     void pm_get_VectorInteger "WRAP_IN" (pm_PerlPropertyValue, pm_VectorInteger) except +ValueError
+    void pm_get_VectorRational "WRAP_IN" (pm_PerlPropertyValue, pm_VectorRational) except +ValueError
     void pm_get_PerlObject "WRAP_IN" (pm_PerlPropertyValue, pm_PerlObject) except +ValueError
 
 cdef extern from "polymake/Vector.h" namespace 'polymake':

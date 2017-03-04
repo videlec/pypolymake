@@ -14,6 +14,13 @@ from Cython.Build import cythonize
 
 import os
 
+#TODO: if include dirs not set we end up with the following error
+#
+#    gcc -fno-strict-aliasing -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wno-unused -fPIC -I/opt/sage/local/include/python2.7 -c src/polymake/sage_conversion.cpp -o build/temp.linux-x86_64-2.7/src/polymake/sage_conversion.o
+#    src/polymake/sage_conversion.cpp:480:35: erreur fatale : sage/libs/ntl/ntlwrap.h : Aucun fichier ou dossier de ce type
+#     #include "sage/libs/ntl/ntlwrap.h"
+import site
+
 extensions = [
     Extension("cygmp.utils",
         ["src/cygmp/utils.pyx"],
@@ -67,6 +74,12 @@ extensions = [
         libraries = ["gmp", "polymake"],
         language = 'c++'),
 
+    Extension("polymake.sage_conversion",
+        ["src/polymake/sage_conversion.pyx"],
+        depends = ["src/polymake/defs.pxd"],
+        include_dirs = site.getsitepackages(),
+        libraries = ["gmp", "polymake"],
+        language = 'c++'),
 ]
 
 class TestCommand(Command):

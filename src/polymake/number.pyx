@@ -18,6 +18,8 @@ from cygmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
 from cygmp.mpq cimport mpq_init, mpq_clear, mpq_numref, mpq_denref, mpq_canonicalize
 from cygmp.utils cimport mpz_set_pylong, mpz_get_bytes, mpq_get_bytes
 
+from sage_conversion cimport pm_Integer_to_sage, pm_Rational_to_sage
+
 def get_num_den(elt):
     num = None
     den = None
@@ -61,8 +63,15 @@ cdef class Integer:
     def _integer_(self, R=None):
         r"""Conversion to Sage integer
 
-        Overflow currently causes a segmentation fault!"""
-        return R(int(self))
+        Overflow currently causes a segmentation fault!
+        
+        >>> import polymake
+        >>> from sage.all import ZZ
+        >>> a = polymake.Integer(2r**100r)
+        >>> ZZ(a)
+        1267650600228229401496703205376
+        """
+        return R(self.sage())
 
     def __nonzero__(self):
         return self.pm_obj.non_zero()
@@ -70,8 +79,11 @@ cdef class Integer:
     def __repr__(self):
         return mpz_get_bytes(self.pm_obj.get_rep())
 
+    #TODO: overflow!!
     def __int__(self):
         return self.pm_obj.to_long()
+
+    python = __int__
 
     def __float__(self):
         return self.pm_obj.to_double()
@@ -146,6 +158,17 @@ cdef class Integer:
             return NotImplemented
         return ans
 
+    def sage(self):
+        r"""Converts to a Sage integer
+
+        >>> import polymake
+        >>> a = polymake.Integer(2)
+        >>> a.sage()
+        2
+        >>> type(a.sage())
+        """
+        return pm_Integer_to_sage(self.pm_obj)
+
 cdef class Rational:
     r"""Polymake rational
     """
@@ -173,9 +196,35 @@ cdef class Rational:
         self.pm_obj.set_mpq_t(z)
         mpq_clear(z)
 
-    def _rational_(self):
-        r"""Conversion to Sage rational"""
-        return self.numerator()._integer_() / self.denominator()._integer_()
+    def sage(self):
+        r"""Converts rational to Sage
+
+        >>> import polymake
+        >>> import polymake
+        >>> a = polymake.Rational(23, 55)
+        >>> a
+        23/55
+        >>> a.sage()
+        23/55
+        >>> type(a.sage())
+        <type 'sage.rings.rational.Rational'>
+
+        >>> a = polymake.Rational(2**100, 3**100)
+        >>> a.sage()
+        1267650600228229401496703205376/515377520732011331036461129765621272702107522001
+        """
+        return pm_Rational_to_sage(self.pm_obj)
+
+    _rational_ = sage
+
+    def python(self):
+        r"""Converts to a python fraction
+
+        >>> import polymake
+        >>> c = polymake.Rational(12, 5)
+        """
+        from fractions import Fraction
+        return Fraction(self.numerator().python(), self.denominator().python())
 
     def __nonzero__(self):
         return self.pm_obj.non_zero()
@@ -285,3 +334,5 @@ cdef class Rational:
                     pass
             return NotImplemented
         return ans
+
+
