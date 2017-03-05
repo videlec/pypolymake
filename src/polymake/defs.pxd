@@ -16,6 +16,7 @@ cdef extern from "wrap.h" namespace "polymake":
 # new in beta
 cdef extern from "polymake/AnyString.h" namespace "polymake":
     cdef cppclass pm_AnyString "AnyString":
+        pm_AnyString()
         pm_AnyString(string)
         pm_AnyString(char *, size_t)
 
@@ -118,12 +119,13 @@ cdef extern from "polymake/client.h":
 
     cdef cppclass pm_PerlObject "perl::Object":
         pm_PerlObject()
-        pm_PerlObject(char*) except +ValueError
+        pm_PerlObject(pm_AnyString) except +ValueError
         bool valid()
         void VoidCallPolymakeMethod(char*) except +ValueError
         void save(char*)
-        pm_PerlPropertyValue take(char*)
-        pm_PerlPropertyValue give(char*) # do not add except here, see pm_get for why
+#
+        pm_PerlPropertyValue take(pm_AnyString&)
+        pm_PerlPropertyValue give(pm_AnyString&) # do not add except here, see pm_get for why
         pm_PerlObjectType type()
         int exists(const string& name)
         string name()

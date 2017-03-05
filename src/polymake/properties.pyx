@@ -42,7 +42,7 @@ overriden (e.g. you might want integer properties to output integers from gmpy).
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-from .defs cimport (pm_PerlObject, new_PerlObject_from_PerlObject,
+from .defs cimport (pm_PerlObject, new_PerlObject_from_PerlObject, pm_AnyString,
         pm_get_PerlObject, pm_ArrayInt, pm_MatrixRational, pm_MatrixInteger, pm_VectorInteger, pm_VectorRational,
         pm_Integer,
         pm_get_float, pm_Rational, pm_get_Integer, pm_get_Rational, pm_get_MatrixRational,
@@ -376,9 +376,9 @@ type_properties[pm_type_geometric_simplicial_complex_rational] = {
 def handler_generic(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef pm_PerlObject pm_ans
-    cdef char * cprop = prop
+    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     sig_on()
-    pm_get_PerlObject(po.give(cprop), pm_ans)
+    pm_get_PerlObject(po.give(cprop[0]), pm_ans)
     sig_off()
     if not pm_ans.valid():
         raise ValueError("invalid property {}".format(prop))
@@ -388,90 +388,90 @@ def handler_generic(perl_object, bytes prop):
 def handler_bool(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef pm_Integer pm_ans
-    cdef char * cprop = prop
+    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     sig_on()
-    pm_get_Integer(po.give(cprop), pm_ans)
+    pm_get_Integer(po.give(cprop[0]), pm_ans)
     sig_off()
     return bool(pm_ans.compare(0))
 
 def handler_integer(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef Integer ans = Integer.__new__(Integer)
-    cdef char * cprop = prop
+    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     sig_on()
-    pm_get_Integer(po.give(cprop), ans.pm_obj)
+    pm_get_Integer(po.give(cprop[0]), ans.pm_obj)
     sig_off()
     return ans
 
 def handler_float(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef float ans
-    cdef char * cprop = prop
+    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     sig_on()
-    pm_get_float(po.give(cprop), ans)
+    pm_get_float(po.give(cprop[0]), ans)
     sig_off()
     return ans
 
 def handler_rational(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef Rational ans = Rational.__new__(Rational)
-    cdef char * cprop = prop
+    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     sig_on()
-    pm_get_Rational(po.give(cprop), ans.pm_obj)
+    pm_get_Rational(po.give(cprop[0]), ans.pm_obj)
     sig_off()
     return ans
 
 def handler_vector_integer(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef VectorInteger ans = VectorInteger.__new__(VectorInteger)
-    cdef char * cprop = prop
+    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     sig_on()
-    pm_get_VectorInteger(po.give(cprop), ans.pm_obj)
+    pm_get_VectorInteger(po.give(cprop[0]), ans.pm_obj)
     sig_off()
     return ans
 
 def handler_vector_rational(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef VectorRational ans = VectorRational.__new__(VectorRational)
-    cdef char * cprop = prop
+    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     sig_on()
-    pm_get_VectorRational(po.give(cprop), ans.pm_obj)
+    pm_get_VectorRational(po.give(cprop[0]), ans.pm_obj)
     sig_off()
     return ans
 
 def handler_array_int(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef ArrayInt ans = ArrayInt.__new__(ArrayInt)
-    cdef char * cprop = prop
+    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     sig_on()
-    pm_get_ArrayInt(po.give(cprop), ans.pm_obj)
+    pm_get_ArrayInt(po.give(cprop[0]), ans.pm_obj)
     sig_off()
     return ans
 
 def handler_matrix_rational(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef MatrixRational ans = MatrixRational.__new__(MatrixRational)
-    cdef char * cprop = prop
+    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     sig_on()
-    pm_get_MatrixRational(po.give(cprop), ans.pm_obj)
+    pm_get_MatrixRational(po.give(cprop[0]), ans.pm_obj)
     sig_off()
     return ans
 
 def handler_matrix_integer(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef MatrixInteger ans = MatrixInteger.__new__(MatrixInteger)
-    cdef char * cprop = prop
+    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     sig_on()
-    pm_get_MatrixInteger(po.give(cprop), ans.pm_obj)
+    pm_get_MatrixInteger(po.give(cprop[0]), ans.pm_obj)
     sig_off()
     return ans
 
 def handler_matrix_int(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
     cdef MatrixInt ans = MatrixInt.__new__(MatrixInt)
-    cdef char * cprop = prop
+    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     sig_on()
-    pm_get_MatrixInt(po.give(cprop), ans.pm_obj)
+    pm_get_MatrixInt(po.give(cprop[0]), ans.pm_obj)
     sig_off()
     return ans
 

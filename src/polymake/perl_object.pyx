@@ -32,17 +32,17 @@ cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj):
     return ans
 
 def call_polymake_function(app, str name, *args):
-    cdef pm_AnyString pm_name = pm_AnyString_from_string(name)
+    cdef pm_AnyString * pm_name = new pm_AnyString(name)
     pm.set_application(app)
     cdef pm_PerlObject pm_obj
     if len(args) == 0:
-        pm_obj = call_function(pm_name)
+        pm_obj = call_function(pm_name[0])
     elif len(args) == 1:
-        pm_obj = call_function1(pm_name, args[0])
+        pm_obj = call_function1(pm_name[0], args[0])
     elif len(args) == 2:
-        pm_obj = call_function2(pm_name, args[0], args[1])
+        pm_obj = call_function2(pm_name[0], args[0], args[1])
     elif len(args) == 3:
-        pm_obj = call_function3(pm_name, args[0], args[1], args[2])
+        pm_obj = call_function3(pm_name[0], args[0], args[1], args[2])
     else:
         raise NotImplementedError("can only handle 0-3 arguments")
 
