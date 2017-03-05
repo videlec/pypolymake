@@ -24,7 +24,9 @@ cdef pm_type_rational
 
 cdef pm_type_array_int
 cdef pm_type_array_string
+cdef pm_type_array_array_int
 cdef pm_type_set_int
+cdef pm_type_map_int_int
 
 cdef pm_type_vector_integer
 cdef pm_type_vector_rational
@@ -33,10 +35,13 @@ cdef pm_type_matrix_float
 cdef pm_type_matrix_integer
 cdef pm_type_matrix_rational
 cdef pm_type_sparse_matrix_rational
+cdef pm_type_incidence_matrix
 
 cdef pm_type_polytope_rational
 cdef pm_type_quadratic_extension
 cdef pm_type_graph_undirected
+
+cdef pm_type_geometric_simplicial_complex_rational
 
 cdef dict type_properties
 

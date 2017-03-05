@@ -12,7 +12,9 @@ from .defs cimport (CallPolymakeFunction, CallPolymakeHelp, CallPolymakeFunction
         new_PerlObject_from_PerlObject)
 
 
-from .properties cimport handlers, pm_type_unknown, type_properties
+from .properties cimport (handlers, pm_type_unknown, type_properties,
+        pm_type_polytope_rational)
+
 cdef int DEBUG = 0
 
 # this is a bug in Cython!
@@ -124,4 +126,21 @@ cdef class PerlObject:
     def __repr__(self):
         return "{}<{}>".format(self.type_name(), hex(id(self)))
 
+    def sage(self):
+        r"""Converts to a Sage object
+
+        >>> import polymake
+        >>> P = polymake.Polytope("POINTS", [(1,1,0),(1,2,1)])
+        >>> Q = P.sage()
+        >>> Q.vertices_list()
+        [[2, 1], [1, 0]]
+        >>> P = polymake.Polytope("FACETS", [(0,1,0),(1,-1,0),(0,0,1)])
+        >>> P.sage()
+        A 2-dimensional polyhedron in QQ^2 defined as the convex hull of 2 vertices and 1 ray
+        """
+        if self.type_name() == pm_type_polytope_rational:
+            from sage.geometry.polyhedron.constructor import Polyhedron
+            return Polyhedron(ieqs=self.FACETS.sage(), eqns=self.AFFINE_HULL.sage())
+
+        raise NotImplementedError("Sage conversion not implemented for {}".format(self.type_name()))
 
