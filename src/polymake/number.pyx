@@ -13,7 +13,7 @@ from operator import add as op_add,\
                      div as op_div,\
                      pow as op_pow
 
-from cygmp.types cimport mpz_t, mpq_t, mpq_srcptr
+from cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
 from cygmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
 from cygmp.mpq cimport mpq_init, mpq_clear, mpq_numref, mpq_denref, mpq_canonicalize
 from cygmp.utils cimport mpz_set_pylong, mpz_get_bytes, mpq_get_bytes
@@ -57,7 +57,7 @@ cdef class Integer:
         else:
             raise ValueError("Polymake integer can only be initialized from Python int and long")
 
-        self.pm_obj.set_mpz_t(z)
+        self.pm_obj.set_mpz_srcptr(<mpz_srcptr>z)
         mpz_clear(z)
 
     def _integer_(self, R=None):
@@ -74,19 +74,19 @@ cdef class Integer:
         return R(self.sage())
 
     def __nonzero__(self):
-        return self.pm_obj.non_zero()
+        return not self.pm_obj.is_zero()
 
     def __repr__(self):
         return mpz_get_bytes(self.pm_obj.get_rep())
 
     #TODO: overflow!!
     def __int__(self):
-        return self.pm_obj.to_long()
+        return <int> self.pm_obj
 
     python = __int__
 
     def __float__(self):
-        return self.pm_obj.to_double()
+        return <double> self.pm_obj
 
     def __richcmp__(self, other, op):
         cdef int c
@@ -193,7 +193,7 @@ cdef class Rational:
             mpz_set_pylong(mpq_denref(z), den)
 
         mpq_canonicalize(z)
-        self.pm_obj.set_mpq_t(z)
+        self.pm_obj.set_mpq_srcptr(<mpq_srcptr>z)
         mpq_clear(z)
 
     def sage(self):
@@ -227,7 +227,7 @@ cdef class Rational:
         return Fraction(self.numerator().python(), self.denominator().python())
 
     def __nonzero__(self):
-        return self.pm_obj.non_zero()
+        return not self.pm_obj.is_zero()
 
     def __richcmp__(self, other, op):
         cdef int c
@@ -258,13 +258,13 @@ cdef class Rational:
     def numerator(self):
         cdef Integer ans = Integer.__new__(Integer)
         cdef mpq_srcptr z = self.pm_obj.get_rep()
-        ans.pm_obj.set_mpz_t(mpq_numref(z))
+        ans.pm_obj.set_mpz_srcptr(mpq_numref(z))
         return ans
 
     def denominator(self):
         cdef Integer ans = Integer.__new__(Integer)
         cdef mpq_srcptr z = self.pm_obj.get_rep()
-        ans.pm_obj.set_mpz_t(mpq_denref(z))
+        ans.pm_obj.set_mpz_srcptr(mpq_denref(z))
         return ans
 
     def __add__(self, other):

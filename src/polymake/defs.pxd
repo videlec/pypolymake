@@ -13,6 +13,15 @@ from cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
 cdef extern from "wrap.h" namespace "polymake":
     pass
 
+# new in beta
+cdef extern from "polymake/AnyString.h" namespace "polymake":
+    cdef cppclass pm_AnyString "AnyString":
+        pm_AnyString(string)
+        pm_AnyString(char *, size_t)
+
+    cdef pm_AnyString pm_AnyString_from_char "AnyString" (char *)
+    cdef pm_AnyString pm_AnyString_from_string "AnyString" (string)
+
 cdef extern from "polymake/Main.h" namespace "polymake":
     cdef cppclass Main:
         void set_application(char*)
@@ -24,12 +33,19 @@ cdef extern from "polymake/Integer.h" namespace 'polymake':
         mpz_t get_rep()
         Py_ssize_t strsize(int)
         int compare(int)
-        long to_long()   # FIXME: this is const
-        double to_double()
-        pm_Integer set_mpz_t "set" (mpz_t)
-        pm_Integer& set_mpz_srcptr "set" (mpz_srcptr)
 
-        bool non_zero()
+
+# in beta, explicit casts defined
+#       long to_long()   # FIXME: this is const
+#       double to_double()
+
+# in beta, set gets renamed into copy_from
+        pm_Integer set_mpz_t "copy_from" (mpz_t)
+        pm_Integer& set_mpz_srcptr "copy_from" (mpz_srcptr)
+
+# in beta, non_zero replaced by is_zero
+#        bool non_zero()
+        bool is_zero()
 
         bool operator== (pm_Integer)
         bool operator== (long)
@@ -56,12 +72,16 @@ cdef extern from "polymake/Rational.h" namespace 'polymake':
     ctypedef pm_const_Rational "const Rational"
     cdef cppclass pm_Rational "Rational":
         mpq_srcptr get_rep()
-        pm_Rational set_mpq_t "set" (mpq_t)
-        pm_Rational& set_mpq_srcptr "set" (mpq_srcptr)
+# in beta, set replaced by copy_from
+        pm_Rational set_mpq_t "copy_from" (mpq_t)
+        pm_Rational& set_mpq_srcptr "copy_from" (mpq_srcptr)
+        pm_Rational& set_long "set" (long, long)
 
         pm_Rational abs()
 
-        bool non_zero()
+# in beta, non_zero replaced by is_zero
+#        bool non_zero()
+        bool is_zero()
 
         bool operator== (pm_Rational)
         bool operator== (pm_Integer)
@@ -114,15 +134,22 @@ cdef extern from "polymake/client.h":
     cdef cppclass pm_PerlObjectType "perl::ObjectType":
         string name()
 
-    pm_PerlObject CallPolymakeFunction (char*) except +ValueError
-    pm_PerlObject CallPolymakeHelp "CallPolymakeFunction" \
-            (char *, char *) except +ValueError
-    pm_PerlObject CallPolymakeFunction1 "CallPolymakeFunction" \
-            (char*, int) except +ValueError
-    pm_PerlObject CallPolymakeFunction2 "CallPolymakeFunction" \
-            (char*, int, int) except +ValueError
-    pm_PerlObject CallPolymakeFunction3 "CallPolymakeFunction" \
-            (char*, int, int, int) except +ValueError
+# in beta, CallPolymakeFunction is deprecated in favor of
+#   call_method and call_function
+#    pm_PerlObject CallPolymakeFunction (char*) except +ValueError
+#    pm_PerlObject CallPolymakeHelp "CallPolymakeFunction" \
+#            (char *, char *) except +ValueError
+#    pm_PerlObject CallPolymakeFunction1 "CallPolymakeFunction" \
+#            (char*, int) except +ValueError
+#    pm_PerlObject CallPolymakeFunction2 "CallPolymakeFunction" \
+#            (char*, int, int) except +ValueError
+#    pm_PerlObject CallPolymakeFunction3 "CallPolymakeFunction" \
+#            (char*, int, int, int) except +ValueError
+    pm_PerlObject call_function(pm_AnyString) except +ValueError
+    pm_PerlObject call_function1 "call_function" (pm_AnyString, int) except +ValueError
+    pm_PerlObject call_function2 "call_function" (pm_AnyString, int, int) except +ValueError
+    pm_PerlObject call_function3 "call_function" (pm_AnyString, int, int, int) except +ValueError
+
     pm_PerlObject* new_PerlObject_from_PerlObject "new perl::Object" (pm_PerlObject)
 
 cdef extern from "polymake/Array.h" namespace "polymake":

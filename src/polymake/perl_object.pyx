@@ -7,8 +7,7 @@
 ###############################################################################
 
 
-from .defs cimport (CallPolymakeFunction, CallPolymakeHelp, CallPolymakeFunction1,
-        CallPolymakeFunction2, CallPolymakeFunction3,
+from .defs cimport (pm_AnyString, pm_AnyString_from_string, call_function, call_function1, call_function2, call_function3,
         new_PerlObject_from_PerlObject)
 
 
@@ -32,23 +31,18 @@ cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj):
                 ans.properties = v
     return ans
 
-def call_polymake_help(app, name):
-    pm.set_application(app)
-    cdef pm_PerlObject pm_obj
-    pm_obj = CallPolymakeHelp("help", name)
-    return wrap_perl_object(pm_obj)
-
-def call_polymake_function(app, name, *args):
+def call_polymake_function(app, str name, *args):
+    cdef pm_AnyString pm_name = pm_AnyString_from_string(name)
     pm.set_application(app)
     cdef pm_PerlObject pm_obj
     if len(args) == 0:
-        pm_obj = CallPolymakeFunction(name)
+        pm_obj = call_function(pm_name)
     elif len(args) == 1:
-        pm_obj = CallPolymakeFunction1(name, args[0])
+        pm_obj = call_function1(pm_name, args[0])
     elif len(args) == 2:
-        pm_obj = CallPolymakeFunction2(name, args[0], args[1])
+        pm_obj = call_function2(pm_name, args[0], args[1])
     elif len(args) == 3:
-        pm_obj = CallPolymakeFunction3(name, args[0], args[1], args[2])
+        pm_obj = call_function3(pm_name, args[0], args[1], args[2])
     else:
         raise NotImplementedError("can only handle 0-3 arguments")
 

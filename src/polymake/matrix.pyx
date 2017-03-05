@@ -7,7 +7,7 @@
 ###############################################################################
 
 from libc.stdlib cimport malloc, free
-from cygmp.types cimport mpz_t, mpq_t
+from cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
 from cygmp.mpz cimport *
 from cygmp.mpq cimport *
 
@@ -30,7 +30,7 @@ cdef class MatrixRational:
             raise IndexError("matrix index out of range")
 
         cdef Rational ans = Rational.__new__(Rational)
-        ans.pm_obj.set_mpq_t(mat_rational_get_element(self.pm_obj, i, j).get_rep())
+        ans.pm_obj.set_mpq_srcptr(mat_rational_get_element(self.pm_obj, i, j).get_rep())
         return ans
 
     def __repr__(self):
@@ -93,7 +93,7 @@ cdef class MatrixInteger:
             raise IndexError("matrix index out of range")
 
         cdef Integer ans = Integer.__new__(Integer)
-        ans.pm_obj.set_mpz_t(mat_integer_get_element(self.pm_obj, i, j).get_rep())
+        ans.pm_obj.set_mpz_srcptr(mat_integer_get_element(self.pm_obj, i, j).get_rep())
         return ans
 
     def __repr__(self):
@@ -274,9 +274,7 @@ cdef pm_MatrixRational* rat_mat_to_pm(int nr, int nc, list mat):
     mpq_init(z)
     for i,row in enumerate(mat):
         for j,elt in enumerate(row):
-            num, den = get_num_den(elt)
-            mpq_set_si(z, num, den)
-            mat_rational_get_element(pm_mat[0], i, j).set_mpq_t(z)
+            mat_rational_get_element(pm_mat[0], i, j).set_long(num, den)
     mpq_clear(z)
 
     return pm_mat
@@ -299,7 +297,7 @@ cdef pm_MatrixInteger* int_mat_to_pm(int nr, int nc, list mat):
     for i,row in enumerate(mat):
         for j,elt in enumerate(row):
             mpz_set_si(z, elt)
-            mat_integer_get_element(pm_mat[0], i, j).set_mpz_t(z)
+            mat_integer_get_element(pm_mat[0], i, j).set_mpz_srcptr(z)
     mpz_clear(z)
 
     return pm_mat

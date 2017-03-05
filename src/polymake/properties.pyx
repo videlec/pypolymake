@@ -71,6 +71,7 @@ cdef pm_type_array_int = 'Array<Int>'
 cdef pm_type_array_string = 'Array<String>'
 cdef pm_type_array_array_int = 'Array<Array<Int>>'
 cdef pm_type_set_int = 'Set<Int>'
+cdef pm_type_array_set_int = ''
 cdef pm_type_map_int_int = 'Map<Int, Int>'
 
 cdef pm_type_vector_integer = 'Vector<Integer>'
@@ -318,7 +319,7 @@ type_properties[pm_type_graph_undirected]    = {
     'DEGREE_SEQUENCE'                 : pm_type_unknown,
     'DIAMETER'                        : pm_type_integer,
     'EDGE_DIRECTIONS'                 : pm_type_unknown,
-    'EDGES'                           : pm_type_unknown,
+    'EDGES'                           : pm_type_array_set_int,
     'LATTICE_ACCUMULATED_EDGE_LENGTHS': pm_type_unknown,
     'LATTICE_EDGE_LENGTHS'            : pm_type_unknown,
     'MAX_CLIQUES'                     : pm_type_unknown,
