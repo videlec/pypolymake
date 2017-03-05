@@ -38,7 +38,7 @@ If you are using `SageMath <http://www.sagemath.org>`_ then just run the followi
 two commands
 
     $ sage -i polymake
-    $ sage -pip install git+https://github.com/videlec/pypolymake
+    $ sage -pip install git+https://github.com/videlec/pypolymake@beta
 
 In principle, pypolymake could be used with Python2, Python3 and within Sage. The
 prerequisites are
@@ -49,7 +49,7 @@ prerequisites are
 
 To install the package then use::
 
-    $ pip install git+https://github.com/videlec/pypolymake [--user] [--pre]
+    $ pip install git+https://github.com/videlec/pypolymake@beta [--user] [--pre]
 
 (the `--pre` argument is needed on recent pip versions to allow installation
 of beta releases, the `--user` argument make the installation in your home
