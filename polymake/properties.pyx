@@ -377,10 +377,9 @@ type_properties[pm_type_geometric_simplicial_complex_rational] = {
 
 def handler_generic(PerlObject perl_object, bytes prop):
     cdef pm_PerlObject pm_ans
-    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     print("  pypolymake debug WARNING: generic handler")
     sig_on()
-    pm_ans = perl_object.pm_obj.give_PerlObject(cprop[0])
+    pm_ans = perl_object.pm_obj.give_PerlObject(prop)
     sig_off()
     if not pm_ans.valid():
         raise ValueError("invalid property {}".format(prop))
@@ -392,27 +391,25 @@ def handler_bool(PerlObject perl_object, bytes prop):
 
 def handler_int(PerlObject perl_object, bytes prop):
     cdef int ans
-    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     try:
         sig_on()
-        ans = perl_object.pm_obj.give_int(cprop[0])
+        ans = perl_object.pm_obj.give_int(prop)
         sig_off()
     except ValueError:
         sig_on()
-        ans = perl_object.pm_obj.call_method_int(cprop[0])
+        ans = perl_object.pm_obj.call_method_int(prop)
         sig_off()
     return ans
 
 def handler_float(PerlObject perl_object, bytes prop):
     cdef float ans
-    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     try:
         sig_on()
-        ans = perl_object.pm_obj.give_float(cprop[0])
+        ans = perl_object.pm_obj.give_float(prop)
         sig_off()
     except ValueError:
         sig_on()
-        ans = perl_object.pm_obj.call_method_float(cprop[0])
+        ans = perl_object.pm_obj.call_method_float(prop)
         sig_off()
     return ans
 

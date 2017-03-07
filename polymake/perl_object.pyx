@@ -12,7 +12,7 @@ include "cysignals/signals.pxi"
 include "cysignals/memory.pxi"
 
 
-from .defs cimport (pm_AnyString, pm_AnyString_from_string, call_function, call_function1, call_function2, call_function3,
+from .defs cimport (call_function, call_function1, call_function2, call_function3,
         new_PerlObject_from_PerlObject)
 
 

@@ -85,16 +85,6 @@ from .cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
 cdef extern from "wrap.h" namespace "polymake":
     pass
 
-# new in beta
-cdef extern from "polymake/AnyString.h" namespace "polymake":
-    cdef cppclass pm_AnyString "AnyString":
-        pm_AnyString()
-        pm_AnyString(string)
-        pm_AnyString(char *, size_t)
-
-    cdef pm_AnyString pm_AnyString_from_char "AnyString" (char *)
-    cdef pm_AnyString pm_AnyString_from_string "AnyString" (string)
-
 cdef extern from "polymake/Main.h" namespace "polymake":
     cdef cppclass Main:
         void set_application(string)
@@ -194,51 +184,51 @@ cdef extern from "polymake/client.h":
 
     cdef cppclass pm_PerlObject "perl::Object":
         pm_PerlObject()
-        pm_PerlObject(pm_AnyString) except +ValueError
+        pm_PerlObject(string) except +ValueError
         bool valid()
         void VoidCallPolymakeMethod(char*) except +ValueError
         void save(char*)
 
-        int give_int "give" (pm_AnyString&) except +ValueError
-        int call_method_int "call_method" (pm_AnyString&) except +ValueError
+        int give_int "give" (string&) except +ValueError
+        int call_method_int "call_method" (string&) except +ValueError
 
-        float give_float "give" (pm_AnyString&) except +ValueError
-        float call_method_float "call_method" (pm_AnyString&) except +ValueError
+        float give_float "give" (string&) except +ValueError
+        float call_method_float "call_method" (string&) except +ValueError
 
         # only this one should not be declared as a reference
-        pm_PerlObject give_PerlObject "give" (pm_AnyString&) except +ValueError
-        pm_PerlObject call_method_PerlObject "give" (pm_AnyString&) except +ValueError
+        pm_PerlObject give_PerlObject "give" (string&) except +ValueError
+        pm_PerlObject call_method_PerlObject "give" (string&) except +ValueError
 
-        pm_Integer& give_Integer "give" (pm_AnyString&) except +ValueError
-        pm_Integer& call_method_Integer "call_method" (pm_AnyString&) except +ValueError
+        pm_Integer& give_Integer "give" (string&) except +ValueError
+        pm_Integer& call_method_Integer "call_method" (string&) except +ValueError
 
-        pm_Rational& give_Rational "give" (pm_AnyString&) except +ValueError
-        pm_Rational& call_method_Rational "call_method" (pm_AnyString&) except +ValueError
+        pm_Rational& give_Rational "give" (string&) except +ValueError
+        pm_Rational& call_method_Rational "call_method" (string&) except +ValueError
 
-        pm_VectorInteger& give_VectorInteger "give" (pm_AnyString&) except +ValueError
-        pm_VectorInteger& call_method_VectorInteger "call_method" (pm_AnyString&) except +ValueError
+        pm_VectorInteger& give_VectorInteger "give" (string&) except +ValueError
+        pm_VectorInteger& call_method_VectorInteger "call_method" (string&) except +ValueError
 
-        pm_ArrayInt& call_method_ArrayInt "call_method" (pm_AnyString&) except +ValueError
-        pm_ArrayInt& give_ArrayInt "give" (pm_AnyString&) except +ValueError
+        pm_ArrayInt& call_method_ArrayInt "call_method" (string&) except +ValueError
+        pm_ArrayInt& give_ArrayInt "give" (string&) except +ValueError
 
-        pm_VectorRational& call_method_VectorRational "call_method" (pm_AnyString&) except +ValueError
-        pm_VectorRational& give_VectorRational "give" (pm_AnyString&) except +ValueError
+        pm_VectorRational& call_method_VectorRational "call_method" (string&) except +ValueError
+        pm_VectorRational& give_VectorRational "give" (string&) except +ValueError
 
-        pm_MatrixInt& call_method_MatrixInt "call_method" (pm_AnyString&) except +ValueError
-        pm_MatrixInt& give_MatrixInt "give" (pm_AnyString&) except +ValueError
+        pm_MatrixInt& call_method_MatrixInt "call_method" (string&) except +ValueError
+        pm_MatrixInt& give_MatrixInt "give" (string&) except +ValueError
 
-        pm_MatrixInteger& call_method_MatrixInteger "call_method" (pm_AnyString&) except +ValueError
-        pm_MatrixInteger& give_MatrixInteger "give" (pm_AnyString&) except +ValueError
+        pm_MatrixInteger& call_method_MatrixInteger "call_method" (string&) except +ValueError
+        pm_MatrixInteger& give_MatrixInteger "give" (string&) except +ValueError
 
-        pm_MatrixRational& call_method_MatrixRational "call_method" (pm_AnyString&) except +ValueError
-        pm_MatrixRational& give_MatrixRational "give" (pm_AnyString&) except +ValueError
+        pm_MatrixRational& call_method_MatrixRational "call_method" (string&) except +ValueError
+        pm_MatrixRational& give_MatrixRational "give" (string&) except +ValueError
 
 # HOW DO WE ACCESS ELEMENTS OF ARRAYS, ETC?
 #        long get_long_from_int "operator[]" (int i)
 #        pm_PerlObject get_PerlObject_from_int "operator[]" (int i)
 
-        pm_PerlPropertyValue take(pm_AnyString&)
-        pm_PerlPropertyValue give(pm_AnyString&) # do not add except here, see pm_get for why
+        pm_PerlPropertyValue take(string&)
+        pm_PerlPropertyValue give(string&) # do not add except here, see pm_get for why
         pm_PerlObjectType type()
         int exists(const string& name)
         string name()
