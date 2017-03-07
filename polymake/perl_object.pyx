@@ -38,18 +38,17 @@ cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj):
 
     return ans
 
-def call_polymake_function(app, str name, *args):
-    cdef pm_AnyString * pm_name = new pm_AnyString(name)
+def call_polymake_function(bytes app, bytes name, *args):
     pm.set_application(app)
     cdef pm_PerlObject pm_obj
     if len(args) == 0:
-        pm_obj = call_function(pm_name[0])
+        pm_obj = call_function(name)
     elif len(args) == 1:
-        pm_obj = call_function1(pm_name[0], args[0])
+        pm_obj = call_function1(name, args[0])
     elif len(args) == 2:
-        pm_obj = call_function2(pm_name[0], args[0], args[1])
+        pm_obj = call_function2(name, args[0], args[1])
     elif len(args) == 3:
-        pm_obj = call_function3(pm_name[0], args[0], args[1], args[2])
+        pm_obj = call_function3(name, args[0], args[1], args[2])
     else:
         raise NotImplementedError("can only handle 0-3 arguments")
 
@@ -60,10 +59,10 @@ cdef class PerlObject:
         del self.pm_obj
 
     def __getattr__(self, name):
-        if DEBUG:
-            print("__getattr__:\n  self = {}\n  name = {}".format(type(self), name))
+        cdef bytes bname = name.encode('utf-8')
+        print("  pypolymake debug WARNING: __getattr__:\n  self = {}\n  name = {}".format(type(self), bname))
         try:
-            pm_type = self.properties[name]
+            pm_type = self.properties[bname]
         except KeyError:
             print("  pypolymake debug WARNING: unregistered property...")
             handler = handlers[pm_type_unknown]
@@ -73,7 +72,8 @@ cdef class PerlObject:
                 handler = handlers[pm_type]
             except KeyError:
                 handler = handlers[pm_type_unknown]
-        return handler(self, name)
+        print("  pypolymake debug WARNING: using {} with arg {} (of type {})".format(handler, bname, type(bname)))
+        return handler(self, bname)
 
 
 #    def _getitem_long(self, int i):
@@ -89,7 +89,7 @@ cdef class PerlObject:
         if self.properties is None:
             return dir(self.__class__)
         else:
-            return dir(self.__class__) + self.properties.keys()
+            return dir(self.__class__) + list(self.properties.keys())
 
     def _save(self, filename):
         """
@@ -119,6 +119,7 @@ cdef class PerlObject:
         r"""
         Return the name of the type of this object
         """
+        print("  pypolymake debug WARNING: calling type_name")
         return <bytes> self.pm_obj.type().name()
 
     def name(self):

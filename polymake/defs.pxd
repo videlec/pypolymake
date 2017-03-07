@@ -97,8 +97,8 @@ cdef extern from "polymake/AnyString.h" namespace "polymake":
 
 cdef extern from "polymake/Main.h" namespace "polymake":
     cdef cppclass Main:
-        void set_application(char*)
-        void set_preference(char*)
+        void set_application(string)
+        void set_preference(string)
 
 cdef extern from "polymake/Integer.h" namespace 'polymake':
     ctypedef pm_const_Integer "const Integer"
@@ -262,10 +262,10 @@ cdef extern from "polymake/client.h":
 #            (char*, int, int) except +ValueError
 #    pm_PerlObject CallPolymakeFunction3 "CallPolymakeFunction" \
 #            (char*, int, int, int) except +ValueError
-    pm_PerlObject call_function(pm_AnyString) except +ValueError
-    pm_PerlObject call_function1 "call_function" (pm_AnyString, int) except +ValueError
-    pm_PerlObject call_function2 "call_function" (pm_AnyString, int, int) except +ValueError
-    pm_PerlObject call_function3 "call_function" (pm_AnyString, int, int, int) except +ValueError
+    pm_PerlObject call_function(string) except +ValueError
+    pm_PerlObject call_function1 "call_function" (string, int) except +ValueError
+    pm_PerlObject call_function2 "call_function" (string, int, int) except +ValueError
+    pm_PerlObject call_function3 "call_function" (string, int, int, int) except +ValueError
 
     pm_PerlObject* new_PerlObject_from_PerlObject "new perl::Object" (pm_PerlObject)
 

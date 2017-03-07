@@ -1,4 +1,4 @@
-from perl_object import call_polymake_function
+from .perl_object import call_polymake_function
 
 def associahedron(d):
     r"""Produce a d-dimensional associahedron (or Stasheff polytope)
@@ -8,7 +8,7 @@ def associahedron(d):
     >>> a.N_VERTICES
     14
     """
-    return call_polymake_function("polytope", "associahedron", d)
+    return call_polymake_function(b"polytope", b"associahedron", d)
 
 def birkhoff(n, even=False):
     """Constructs the Birkhoff polytope of dimension `n^2`.
@@ -35,7 +35,7 @@ def cross(d):
     Regular polytope corresponding to the Coxeter group of type B<sub>d-1</sub>
     = C<sub>d-1</sub>.
     """
-    return call_polymake_function("polytope", "cross", d)
+    return call_polymake_function(b"polytope", b"cross", d)
 
 def cube(d, x_up=1, x_low=-1):
     r"""Produce a d-dimensional cube
@@ -62,7 +62,7 @@ def cube(d, x_up=1, x_low=-1):
     [ 1 0 2]
     [ 1 2 2]
     """
-    return call_polymake_function("polytope", "cube", d, x_up, x_low)
+    return call_polymake_function(b"polytope", b"cube", d, x_up, x_low)
 
 def cuboctahedron():
     r"""Create cuboctahedron.  An Archimedean solid.
@@ -82,7 +82,7 @@ def cuboctahedron():
     [ 1 -1 0  -1]
     [ 1 -1 -1 0 ]
     """
-    return call_polymake_function("polytope","cuboctahedron")
+    return call_polymake_function(b"polytope", b"cuboctahedron")
 
 def cycle_graph(n):
     r"""Constructs a cycle graph on n nodes.
@@ -96,7 +96,7 @@ def cycle_graph(n):
     >>> g.N_EDGES
     7
     """
-    return call_polymake_function("polytope", "cycle_graph", n)
+    return call_polymake_function(b"polytope", b"cycle_graph", n)
 
 def cyclic(d, n):
     r"""Produce a d-dimensional cyclic polytope with n points.
@@ -120,7 +120,7 @@ def cyclic(d, n):
     ValueError: cyclic: d >= 2 and n > d required
     <BLANKLINE>
     """
-    return call_polymake_function("polytope",'cyclic', d, n)
+    return call_polymake_function(b"polytope", b"cyclic", d, n)
 
 def cyclic_caratheodory(d, n):
     r"""Produce a d-dimensional cyclic polytope with n points.
@@ -129,7 +129,7 @@ def cyclic_caratheodory(d, n):
     due to Gale's evenness criterion. Coordinates are chosen on the trigonometric
     moment curve. For cyclic polytopes from other curves, see :func:`cyclic`.
     """
-    return call_polymake_function("polytope", 'cyclic_caratheodory', d, n)
+    return call_polymake_function(b"polytope", b"cyclic_caratheodory", d, n)
 
 def delpezzo(d, scale=1):
     r"""
@@ -152,7 +152,7 @@ def delpezzo(d, scale=1):
     [ 1 1  1 ]
     [ 1 -1 -1]
     """
-    return call_polymake_function("polytope", "delpezzo", d, scale)
+    return call_polymake_function(b"polytope", b"delpezzo", d, scale)
 
 def dodecahedron():
     r"""
@@ -163,7 +163,7 @@ def dodecahedron():
     >>> dod
     Polytope<QuadraticExtension<Rational>><...>
     """
-    return call_polymake_function("polytope", "dodecahedron")
+    return call_polymake_function(b"polytope", b"dodecahedron")
 
 def dwarfed_cube(d):
     r"""Produce a d-dimensional dwarfed cube.
@@ -176,7 +176,7 @@ def dwarfed_cube(d):
     >>> polymake.dwarfed_cube(2).N_VERTICES
     5
     """
-    return call_polymake_function("polytope", "dwarfed_cube", d)
+    return call_polymake_function(b"polytope", b"dwarfed_cube", d)
 
 def icosahedron():
     r"""
@@ -187,7 +187,7 @@ def icosahedron():
     >>> ico
     Polytope<QuadraticExtension<Rational>><...>
     """
-    return call_polymake_function("polytope", "icosahedron")
+    return call_polymake_function(b"polytope", b"icosahedron")
 
 def johnson_graph(n, k):
     r"""Create the Johnson graph on parameters (n,k).
@@ -205,7 +205,7 @@ def johnson_graph(n, k):
     >>> g.N_EDGES
     30
     """
-    return call_polymake_function("polytope", "johnson_graph", n, k)
+    return call_polymake_function(b"polytope", b"johnson_graph", n, k)
 
 def kneser_graph(n, k):
     r"""Create the Kneser graph on parameters (n,k).
@@ -223,7 +223,7 @@ def kneser_graph(n, k):
     >>> g.N_EDGES
     10
     """
-    return call_polymake_function("polytope", "kneser_graph", n, k)
+    return call_polymake_function(b"polytope", b"kneser_graph", n, k)
 
 def neighborly_cubical(d, n):
     r""" Produce the combinatorial description of a neighborly cubical polytope.
