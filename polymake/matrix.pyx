@@ -1,3 +1,5 @@
+# distutils: language = c++
+# distutils: libraries = gmp polymake
 ###############################################################################
 #       Copyright (C) 2011-2012 Burcin Erocal <burcin@erocal.org>
 #                     2016      Vincent Delecroix <vincent.delecroix@labri.fr>
@@ -7,9 +9,9 @@
 ###############################################################################
 
 from libc.stdlib cimport malloc, free
-from cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
-from cygmp.mpz cimport *
-from cygmp.mpq cimport *
+from .cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
+from .cygmp.mpz cimport *
+from .cygmp.mpq cimport *
 
 from .defs cimport (pm_MatrixRational, pm_Rational,
          pm_MatrixInteger, pm_Integer, pm_VectorInteger,

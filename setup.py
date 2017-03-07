@@ -7,10 +7,11 @@ It depends on distutils
 
 from __future__ import print_function
 
+from setuptools import setup
 from distutils.cmd import Command
-from distutils.core import setup
-from distutils.extension import Extension
-from Cython.Build import cythonize
+from distutils.command.build_ext import build_ext as _build_ext
+from setuptools.extension import Extension
+
 
 import os
 
@@ -22,64 +23,33 @@ import os
 import site
 
 extensions = [
-    Extension("cygmp.utils",
-        ["src/cygmp/utils.pyx"],
-        depends = ["src/cygmp/all.pxd", "src/cygmp/mpq.pxd",
-            "src/cygmp/random.pxd", "src/cygmp/utils.pyx",
-            "src/cygmp/misc.pxd", "src/cygmp/mpn.pxd",
-            "src/cygmp/mpz.pxd", "src/cygmp/python_extra.h",
-            "src/cygmp/types.pxd", "src/cygmp/utils.pxd"],
-        libraries = ["gmp"],
-        language = 'c'),
+    Extension("polymake.cygmp.utils", ["polymake/cygmp/utils.pyx"],
+        depends = ["polymake/cygmp/*.pxd", "polymake/cygmp/*h"]),
 
-    Extension("polymake.number",
-        ["src/polymake/number.pyx"],
-        depends = ["src/polymake/defs.pxd"],
-        libraries = ["gmp", "polymake"],
-        language = 'c++'),
+    Extension("polymake.number", ["polymake/number.pyx"],
+        depends = ["polymake/defs.pxd"]),
 
-    Extension("polymake.array",
-        ["src/polymake/array.pyx"],
-        depends = ["src/polymake/defs.pxd"],
-        libraries = ["gmp", "polymake"],
-        language = 'c++'),
+    Extension("polymake.array", ["polymake/array.pyx"],
+        depends = ["polymake/*.pxd"]),
 
-    Extension("polymake.vector",
-        ["src/polymake/vector.pyx"],
-        depends = ["src/polymake/defs.pxd"],
-        libraries = ["gmp", "polymake"],
-        language = 'c++'),
+    Extension("polymake.vector", ["polymake/vector.pyx"],
+        depends = ["polymake/defs.pxd"]),
 
-    Extension("polymake.matrix",
-        ["src/polymake/matrix.pyx"],
-        depends = ["src/polymake/defs.pxd"],
-        libraries = ["gmp", "polymake"],
-        language = 'c++'),
+    Extension("polymake.matrix", ["polymake/matrix.pyx"],
+        depends = ["polymake/defs.pxd"]),
 
-    Extension("polymake.perl_object",
-        ["src/polymake/perl_object.pyx"],
-        depends = ["src/polymake/defs.pxd"],
-        libraries = ["gmp", "polymake"],
-        language = 'c++'),
+    Extension("polymake.perl_object", ["polymake/perl_object.pyx"],
+        depends = ["polymake/defs.pxd"]),
 
-    Extension("polymake.properties",
-        ["src/polymake/properties.pyx"],
-        depends = ["src/polymake/defs.pxd"],
-        libraries = ["gmp", "polymake"],
-        language = 'c++'),
+    Extension("polymake.properties", ["polymake/properties.pyx"],
+        depends = ["polymake/defs.pxd"]),
 
-    Extension("polymake.polytope",
-        ["src/polymake/polytope.pyx"],
-        depends = ["src/polymake/defs.pxd"],
-        libraries = ["gmp", "polymake"],
-        language = 'c++'),
+    Extension("polymake.polytope", ["polymake/polytope.pyx"],
+        depends = ["polymake/defs.pxd"]),
 
-    Extension("polymake.sage_conversion",
-        ["src/polymake/sage_conversion.pyx"],
-        depends = ["src/polymake/defs.pxd"],
-        include_dirs = site.getsitepackages(),
-        libraries = ["gmp", "polymake"],
-        language = 'c++'),
+    Extension("polymake.sage_conversion", ["polymake/sage_conversion.pyx"],
+        depends = ["polymake/defs.pxd"],
+        include_dirs = site.getsitepackages()),
 ]
 
 class TestCommand(Command):
@@ -109,6 +79,32 @@ class TestCommand(Command):
                 if call(["python", f]):
                     raise RuntimeError("some tests failed in {}".format(f))
 
+# Adapted from Cython's new_build_ext
+class build_ext(_build_ext):
+    def finalize_options(self):
+        import sys
+
+        # Check dependencies
+        try:
+            from Cython.Build.Dependencies import cythonize
+        except ImportError as E:
+            sys.stderr.write("Error: {0}\n".format(E))
+            sys.stderr.write("The installation of ppl requires Cython\n")
+            sys.exit(1)
+
+        try:
+            # We need the header files for cysignals at compile-time
+            import cysignals
+        except ImportError as E:
+            sys.stderr.write("Error: {0}\n".format(E))
+            sys.stderr.write("The installation of ppl requires cysignals\n")
+            sys.exit(1)
+
+        self.distribution.ext_modules[:] = cythonize(
+            self.distribution.ext_modules, include_path=sys.path)
+        _build_ext.finalize_options(self)
+
+
 setup(
   name = "pypolymake",
   author ="Vincent Delecroix, Burcin Erocal",
@@ -117,11 +113,11 @@ setup(
   description = "Python wrapper for polymake",
   long_description = open("README").read(),
   license = "GNU General Public License, version 3 or later",
-  ext_modules = cythonize(extensions),
-  packages = ["polymake", "cygmp"],
-  package_dir = {"polymake": os.path.join("src", "polymake"),
-                 "cygmp": os.path.join("src", "cygmp")},
+  ext_modules = extensions,
+  packages = ["polymake", "polymake.cygmp"],
+  package_dir = {"polymake": "polymake",
+                 "polymake.cygmp": os.path.join("polymake", "cygmp")},
   package_data = {"polymake": ["*.pxd", "*.pyx", "*.h"],
-                  "cygmp": ["*.pxd", "*.pyx", "*.h"]},
-  cmdclass = {'test': TestCommand}
+                  "polymake.cygmp": ["*.pxd", "*.pyx", "*.h"]},
+  cmdclass = {'build_ext': build_ext, 'test': TestCommand}
 )

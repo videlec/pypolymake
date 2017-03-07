@@ -1,3 +1,5 @@
+# distutils: language = c++
+# distutils: libraries = gmp polymake
 ###############################################################################
 #       Copyright (C) 2016 Vincent Delecroix <vincent.delecroix@labri.fr> 
 #
@@ -13,10 +15,10 @@ from operator import add as op_add,\
                      div as op_div,\
                      pow as op_pow
 
-from cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
-from cygmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
-from cygmp.mpq cimport mpq_init, mpq_clear, mpq_numref, mpq_denref, mpq_canonicalize
-from cygmp.utils cimport mpz_set_pylong, mpz_get_bytes, mpq_get_bytes
+from .cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
+from .cygmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
+from .cygmp.mpq cimport mpq_init, mpq_clear, mpq_numref, mpq_denref, mpq_canonicalize
+from .cygmp.utils cimport mpz_set_pylong, mpz_get_bytes, mpq_get_bytes
 
 from sage_conversion cimport pm_Integer_to_sage, pm_Rational_to_sage
 

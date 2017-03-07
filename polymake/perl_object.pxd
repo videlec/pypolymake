@@ -16,5 +16,5 @@ cdef Main pm
 cdef class PerlObject:
     cdef pm_PerlObject * pm_obj  # underlying perl object
     cdef ref                     # reference to other perl object
-    cdef dict properties        # dictionary of polymake properties
+    cdef dict properties         # dictionary of polymake properties
 

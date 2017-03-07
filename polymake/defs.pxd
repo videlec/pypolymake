@@ -6,9 +6,81 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
+# header files in include/core/polymake
+# (should corresponds to "small objects" in polymake)
+# the perl bindings
+# GREP declare property_type  and   c++
+#
+#     AccurateFloat.h
+#     AnyString.h
+#     Array.h
+#     Bitset.h
+#     CascadedContainer.h
+#     ContainerChain.h
+#     ContainerUnion.h
+#     EmbeddedList.h
+#     EquivalenceRelation.h
+#     FaceMap.h
+#     FacetList.h
+#     Fibonacci.h
+#     GenericGraph.h
+#     GenericIncidenceMatrix.h
+#     GenericIO.h
+#     GenericMatrix.h
+#     GenericSet.h
+#     GenericStruct.h
+#     GenericVector.h
+#     Graph.h
+#     Heap.h
+#     IncidenceMatrix.h
+#     IndexedSubgraph.h
+#     IndexedSubset.h
+#     Integer.h
+#     ListMatrix.h
+#     Map.h
+#     Matrix.h
+#     MultiDimCounter.h
+#     Plucker.h
+#     Polynomial.h
+#     PowerSet.h
+#     PuiseuxFraction.h
+#     QuadraticExtension.h
+#     RandomGenerators.h
+#     RandomSpherePoints.h
+#     RandomSubset.h
+#     RationalFunction.h
+#     Rational.h
+#     Ring.h
+#     SelectedSubset.h
+#     Series.h
+#     Set.h
+#     Smith_normal_form.h
+#     socketstream.h
+#     SparseMatrix.h
+#     SparseVector.h
+#     TransformedContainer.h
+#     TropicalNumber.h
+#     Vector.h
+#
+#     client.h
+#     color.h
+#     integer_linalg.h
+#     linalg.h
+#     meta_function.h
+#     meta_list.h
+#     node_edge_incidences.h
+#     numerical_functions.h
+#     pair.h
+#     permutations.h
+#     totally_unimodular.h
+#     type_utils.h
+#
+# lib/core/include/client.h
+# lib/callable/include/Main.h
+
 from libcpp cimport bool
 from libcpp.string cimport string
-from cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
+from .cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
 
 cdef extern from "wrap.h" namespace "polymake":
     pass
@@ -34,6 +106,7 @@ cdef extern from "polymake/Integer.h" namespace 'polymake':
         mpz_t get_rep()
         Py_ssize_t strsize(int)
         int compare(int)
+
 
 
 # in beta, explicit casts defined
@@ -69,6 +142,8 @@ cdef extern from "polymake/Integer.h" namespace 'polymake':
         pm_Integer operator/ (long)
         pm_Integer negate()
 
+# header in source
+#    include/core/polymake/Rational.h
 cdef extern from "polymake/Rational.h" namespace 'polymake':
     ctypedef pm_const_Rational "const Rational"
     cdef cppclass pm_Rational "Rational":
@@ -123,13 +198,44 @@ cdef extern from "polymake/client.h":
         bool valid()
         void VoidCallPolymakeMethod(char*) except +ValueError
         void save(char*)
-#
 
         int give_int "give" (pm_AnyString&) except +ValueError
         int call_method_int "call_method" (pm_AnyString&) except +ValueError
 
         float give_float "give" (pm_AnyString&) except +ValueError
         float call_method_float "call_method" (pm_AnyString&) except +ValueError
+
+        # only this one should not be declared as a reference
+        pm_PerlObject give_PerlObject "give" (pm_AnyString&) except +ValueError
+        pm_PerlObject call_method_PerlObject "give" (pm_AnyString&) except +ValueError
+
+        pm_Integer& give_Integer "give" (pm_AnyString&) except +ValueError
+        pm_Integer& call_method_Integer "call_method" (pm_AnyString&) except +ValueError
+
+        pm_Rational& give_Rational "give" (pm_AnyString&) except +ValueError
+        pm_Rational& call_method_Rational "call_method" (pm_AnyString&) except +ValueError
+
+        pm_VectorInteger& give_VectorInteger "give" (pm_AnyString&) except +ValueError
+        pm_VectorInteger& call_method_VectorInteger "call_method" (pm_AnyString&) except +ValueError
+
+        pm_ArrayInt& call_method_ArrayInt "call_method" (pm_AnyString&) except +ValueError
+        pm_ArrayInt& give_ArrayInt "give" (pm_AnyString&) except +ValueError
+
+        pm_VectorRational& call_method_VectorRational "call_method" (pm_AnyString&) except +ValueError
+        pm_VectorRational& give_VectorRational "give" (pm_AnyString&) except +ValueError
+
+        pm_MatrixInt& call_method_MatrixInt "call_method" (pm_AnyString&) except +ValueError
+        pm_MatrixInt& give_MatrixInt "give" (pm_AnyString&) except +ValueError
+
+        pm_MatrixInteger& call_method_MatrixInteger "call_method" (pm_AnyString&) except +ValueError
+        pm_MatrixInteger& give_MatrixInteger "give" (pm_AnyString&) except +ValueError
+
+        pm_MatrixRational& call_method_MatrixRational "call_method" (pm_AnyString&) except +ValueError
+        pm_MatrixRational& give_MatrixRational "give" (pm_AnyString&) except +ValueError
+
+# HOW DO WE ACCESS ELEMENTS OF ARRAYS, ETC?
+#        long get_long_from_int "operator[]" (int i)
+#        pm_PerlObject get_PerlObject_from_int "operator[]" (int i)
 
         pm_PerlPropertyValue take(pm_AnyString&)
         pm_PerlPropertyValue give(pm_AnyString&) # do not add except here, see pm_get for why
@@ -141,7 +247,9 @@ cdef extern from "polymake/client.h":
         pm_PerlObject parent()
 
     cdef cppclass pm_PerlObjectType "perl::ObjectType":
+#        pm_PerlObjectType(AnyString&)
         string name()
+#        bool isa "isa" (AnyString&)
 
 # in beta, CallPolymakeFunction is deprecated in favor of
 #   call_method and call_function
@@ -186,6 +294,18 @@ cdef extern from "polymake/Set.h" namespace "polymake":
         pm_SetInt()
         void clear()
         void resize(int)
+        int size()
+        bool empty()
+        # iterator begin() const
+        # iterator end() const
+        # reverse_iterator rbegin()
+        # reverse_iterator rend()
+
+cdef extern from "polymake/Map.h" namespace "polymake":
+    pass
+
+cdef extern from "polymake/Polynomial.h" namespace "polymake":
+    pass
 
 cdef extern from "polymake/Matrix.h" namespace "polymake":
     cdef cppclass pm_MatrixRational "Matrix<Rational>":
@@ -248,6 +368,9 @@ cdef extern from "polymake/Matrix.h" namespace "polymake":
     void pm_get_VectorRational "WRAP_IN" (pm_PerlPropertyValue, pm_VectorRational) except +ValueError
     void pm_get_PerlObject "WRAP_IN" (pm_PerlPropertyValue, pm_PerlObject) except +ValueError
 
+cdef extern from "polymake/SparseMatrix.h" namespace "polymake":
+    pass
+
 cdef extern from "polymake/Vector.h" namespace 'polymake':
     cdef cppclass pm_VectorInteger "Vector<Integer>":
         pm_VectorInteger()
@@ -260,3 +383,6 @@ cdef extern from "polymake/Vector.h" namespace 'polymake':
         pm_VectorRational(int nr)
         pm_Rational get "operator []" (int i)
         int size()
+
+cdef extern from "polymake/SparseVector.h" namespace "polymake":
+    pass

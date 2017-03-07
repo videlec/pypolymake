@@ -1,3 +1,5 @@
+# distutils: language = c++
+# distutils: libraries = gmp polymake
 ###############################################################################
 #       Copyright (C) 2011-2012 Burcin Erocal <burcin@erocal.org>
 #                     2016      Vincent Delecroix <vincent.delecroix@labri.fr>
@@ -5,6 +7,9 @@
 #  version 3 or any later version.  The full text of the GPL is available at:
 #                  http://www.gnu.org/licenses/
 ###############################################################################
+
+include "cysignals/signals.pxi"
+include "cysignals/memory.pxi"
 
 
 from .defs cimport (pm_AnyString, pm_AnyString_from_string, call_function, call_function1, call_function2, call_function3,
@@ -20,15 +25,17 @@ cdef int DEBUG = 0
 def _NOT_TO_BE_USED_():
     raise ValueError
 
+# TODO: needs something stronger to deal with type detection
 cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj):
     cdef PerlObject ans = PerlObject.__new__(PerlObject)
     ans.pm_obj = new_PerlObject_from_PerlObject(pm_obj)
     pm_type = pm_obj.type().name()
-    ans.properties = type_properties.get(pm_type)
-    if ans.properties is None:
-        for k,v in type_properties.items():
-            if pm_type.startswith(k):
-                ans.properties = v
+    try:
+        ans.properties = type_properties.get(pm_type)
+    except KeyError:
+        print("  pypolymake debug WARNING: properties not found for {}".format(pm_type))
+        ans.properties = {}
+
     return ans
 
 def call_polymake_function(app, str name, *args):
@@ -58,14 +65,25 @@ cdef class PerlObject:
         try:
             pm_type = self.properties[name]
         except KeyError:
-            if DEBUG:
-                print("  unregistered property...")
+            print("  pypolymake debug WARNING: unregistered property...")
             handler = handlers[pm_type_unknown]
         else:
-            if DEBUG:
-                print("  pm_type = {}".format(pm_type))
-            handler = handlers[pm_type]
+            print("  pypolymake debug WARNING: pm_type = {}".format(pm_type))
+            try:
+                handler = handlers[pm_type]
+            except KeyError:
+                handler = handlers[pm_type_unknown]
         return handler(self, name)
+
+
+#    def _getitem_long(self, int i):
+#        return self.pm_obj.get_long_from_int(i)
+#    def _getitem_object(self, int i):
+#        cdef pm_PerlObject pm_obj
+#        sig_on()
+#        pm_obj = self.pm_obj.get_PerlObject_from_int(i)
+#        sig_off()
+#        return wrap_perl_object(pm_obj)
 
     def __dir__(self):
         if self.properties is None:
@@ -106,13 +124,13 @@ cdef class PerlObject:
     def name(self):
         return <bytes> self.pm_obj.name()
 
-    def description(self):
-        r"""
-        .. WARNING::
-
-            Sometimes this gives a Segmentation fault!
-        """
-        return <bytes> self.pm_obj.description()
+#    def description(self):
+#        r"""
+#        .. WARNING::
+#
+#            Sometimes this gives a Segmentation fault!
+#        """
+#        return <bytes> self.pm_obj.description()
 
     def __str__(self):
         return "{}<{}>".format(self.type_name(), hex(id(self)))

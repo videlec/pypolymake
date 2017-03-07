@@ -1,3 +1,5 @@
+# distutils: language = c++
+# distutils: libraries = gmp polymake
 
 cdef class ArrayInt:
     def __len__(self):

@@ -1,3 +1,5 @@
+# distutils: language = c++
+# distutils: libraries = gmp polymake
 ###############################################################################
 #       Copyright (C) 2011-2012 Burcin Erocal <burcin@erocal.org>
 #                     2016      Vincent Delecroix <vincent.delecroix@labri.fr>

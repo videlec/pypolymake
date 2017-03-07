@@ -1,3 +1,5 @@
+# distutils: language = c++
+# distutils: libraries = gmp polymake
 r"""
 Conversion of low level base types to Sage
 """
@@ -10,9 +12,9 @@ Conversion of low level base types to Sage
 
 from __future__ import absolute_import
 
-from cygmp.types cimport mpz_t, mpq_t
-from cygmp.mpz cimport mpz_set
-from cygmp.mpq cimport mpq_set
+from .cygmp.types cimport mpz_t, mpq_t
+from .cygmp.mpz cimport mpz_set
+from .cygmp.mpq cimport mpq_set
 
 from .defs cimport mat_int_get_element, mat_integer_get_element, mat_rational_get_element
 

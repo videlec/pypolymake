@@ -1,3 +1,5 @@
+# distutils: language = c++
+# distutils: libraries = gmp polymake
 r"""
 Structure of polymake objects and mapping to Python objects
 
@@ -42,24 +44,24 @@ overriden (e.g. you might want integer properties to output integers from gmpy).
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-from .defs cimport (pm_PerlObject, new_PerlObject_from_PerlObject, pm_AnyString,
-        pm_get_PerlObject, pm_ArrayInt, pm_MatrixRational, pm_MatrixInteger, pm_VectorInteger, pm_VectorRational,
-        pm_Integer,
-        pm_get_float, pm_Rational, pm_get_Integer, pm_get_Rational, pm_get_MatrixRational,
-        pm_get_MatrixInt, pm_get_MatrixInteger, pm_get_ArrayInt,
-        pm_get_VectorInteger, pm_get_VectorRational, pm_get_PerlObject)
 
-from .perl_object cimport PerlObject, wrap_perl_object
-from .matrix cimport MatrixInt, MatrixInteger, MatrixRational
-from .number cimport Integer, Rational
-from .array cimport ArrayInt
-from .vector cimport VectorInteger, VectorRational
+from libcpp cimport bool
+
+from .defs cimport *
+from .perl_object cimport *
+from .matrix cimport *
+from .number cimport *
+from .array cimport *
+from .vector cimport *
+
 
 include "cysignals/signals.pxi"
 include "cysignals/memory.pxi"
 
 # The names used below are the exact output of "PerlObject.type_name()". They
 # also correspond to C++ types.
+# Though, it does not always work (e.g. DUAL_GRAPH gets
+# 'Graph<Undirected> as Polytope<Rational>::DUAL_GRAPH')
 cdef pm_type_unknown = 'unknown'
 cdef pm_type_bool = 'bool'
 cdef pm_type_int = 'int'
@@ -96,7 +98,7 @@ cdef dict type_properties = {}
 type_properties[pm_type_polytope_rational] = {
     'AFFINE_HULL'                        : pm_type_matrix_rational,
     'ALTSHULER_DET'                      : pm_type_integer,
-    'AMBIENT_DIM'                        : pm_type_unknown, # ValueError: unknown property
+    'AMBIENT_DIM'                        : pm_type_int,
     'BALANCE'                            : pm_type_integer,
     'BALANCED'                           : pm_type_bool,
     'BOUNDARY_LATTICE_POINTS'            : pm_type_matrix_integer,
@@ -130,8 +132,8 @@ type_properties[pm_type_polytope_rational] = {
     'CUBICAL_H_VECTOR'                   : pm_type_vector_integer,
     'CUBICALITY'                         : pm_type_integer,
     'DEGREE_ONE_GENERATORS'              : pm_type_matrix_integer,
-    'DIAMETER'                           : pm_type_unknown, # ValueError: unknown property
-    'DIM'                                : pm_type_unknown, # ValueError: unknown property
+    'DIAMETER'                           : pm_type_int,
+    'DIM'                                : pm_type_int,
     'DUAL_BOUNDED_H_VECTOR'              : pm_type_vector_integer,
     'DUAL_CONNECTIVITY'                  : pm_type_unknown, # ValueError: unknown property
     'DUAL_DIAMETER'                      : pm_type_unknown, # ValueError: unknown property
@@ -373,150 +375,56 @@ type_properties[pm_type_geometric_simplicial_complex_rational] = {
 }
 
 
-def handler_generic(perl_object, bytes prop):
-    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
+def handler_generic(PerlObject perl_object, bytes prop):
     cdef pm_PerlObject pm_ans
     cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
+    print("  pypolymake debug WARNING: generic handler")
     sig_on()
-    pm_get_PerlObject(po.give(cprop[0]), pm_ans)
+    pm_ans = perl_object.pm_obj.give_PerlObject(cprop[0])
     sig_off()
     if not pm_ans.valid():
         raise ValueError("invalid property {}".format(prop))
 
     return wrap_perl_object(pm_ans)
 
-def handler_bool(perl_object, bytes prop):
-    return bool(handler_int(perl_object, prop))
+def handler_bool(PerlObject perl_object, bytes prop):
+    return handler_int(perl_object, prop)
 
-def handler_int(perl_object, bytes prop):
-    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
+def handler_int(PerlObject perl_object, bytes prop):
     cdef int ans
     cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     try:
         sig_on()
-        ans = po.give_int(cprop[0])
+        ans = perl_object.pm_obj.give_int(cprop[0])
         sig_off()
     except ValueError:
         sig_on()
-        ans = po.call_method_int(cprop[0])
+        ans = perl_object.pm_obj.call_method_int(cprop[0])
         sig_off()
     return ans
 
-def handler_float(perl_object, bytes prop):
-    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
+def handler_float(PerlObject perl_object, bytes prop):
     cdef float ans
     cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     try:
         sig_on()
-        ans = po.give_float(cprop[0])
+        ans = perl_object.pm_obj.give_float(cprop[0])
         sig_off()
     except ValueError:
         sig_on()
-        ans = po.call_method_float(cprop[0])
+        ans = perl_object.pm_obj.call_method_float(cprop[0])
         sig_off()
     return ans
 
-def handler_integer(perl_object, bytes prop):
-    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
-    cdef Integer ans = Integer.__new__(Integer)
-    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
-    sig_on()
-    pm_get_Integer(po.give(cprop[0]), ans.pm_obj)
-    sig_off()
-    return ans
-
-def handler_rational(perl_object, bytes prop):
-    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
-    cdef Rational ans = Rational.__new__(Rational)
-    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
-    sig_on()
-    pm_get_Rational(po.give(cprop[0]), ans.pm_obj)
-    sig_off()
-    return ans
-
-def handler_vector_integer(perl_object, bytes prop):
-    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
-    cdef VectorInteger ans = VectorInteger.__new__(VectorInteger)
-    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
-    sig_on()
-    pm_get_VectorInteger(po.give(cprop[0]), ans.pm_obj)
-    sig_off()
-    return ans
-
-def handler_vector_rational(perl_object, bytes prop):
-    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
-    cdef VectorRational ans = VectorRational.__new__(VectorRational)
-    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
-    sig_on()
-    pm_get_VectorRational(po.give(cprop[0]), ans.pm_obj)
-    sig_off()
-    return ans
-
-def handler_array_int(perl_object, bytes prop):
-    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
-    cdef ArrayInt ans = ArrayInt.__new__(ArrayInt)
-    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
-    sig_on()
-    pm_get_ArrayInt(po.give(cprop[0]), ans.pm_obj)
-    sig_off()
-    return ans
-
-def handler_matrix_rational(perl_object, bytes prop):
-    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
-    cdef MatrixRational ans = MatrixRational.__new__(MatrixRational)
-    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
-    sig_on()
-    pm_get_MatrixRational(po.give(cprop[0]), ans.pm_obj)
-    sig_off()
-    return ans
-
-def handler_matrix_integer(perl_object, bytes prop):
-    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
-    cdef MatrixInteger ans = MatrixInteger.__new__(MatrixInteger)
-    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
-    sig_on()
-    pm_get_MatrixInteger(po.give(cprop[0]), ans.pm_obj)
-    sig_off()
-    return ans
-
-def handler_matrix_int(perl_object, bytes prop):
-    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
-    cdef MatrixInt ans = MatrixInt.__new__(MatrixInt)
-    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
-    sig_on()
-    pm_get_MatrixInt(po.give(cprop[0]), ans.pm_obj)
-    sig_off()
-    return ans
+include "handlers.pxi"
 
 cdef dict handlers = {
-    pm_type_unknown          : handler_generic,
+    pm_type_unknown  : handler_generic,
 
     # numbers
     pm_type_bool     : handler_bool,
     pm_type_int      : handler_int,
     pm_type_float    : handler_float,
-    pm_type_integer  : handler_integer,
-    pm_type_rational : handler_rational,
-
-    # array, set and vectors
-    pm_type_array_int       : handler_array_int,
-    pm_type_array_string    : handler_generic,
-    pm_type_array_array_int : handler_generic,
-    pm_type_set_int         : handler_generic,
-    pm_type_vector_integer  : handler_vector_integer,
-    pm_type_vector_rational : handler_vector_rational,
-
-    # maps
-    pm_type_map_int_int     : handler_generic,
-
-    # matrices
-    pm_type_matrix_int             : handler_matrix_int,
-    pm_type_matrix_integer         : handler_matrix_integer,
-    pm_type_matrix_float           : handler_generic,
-    pm_type_matrix_rational        : handler_matrix_rational,
-    pm_type_sparse_matrix_rational : handler_matrix_rational,
-
-    # others
-    pm_type_polytope_rational: handler_generic,
-    pm_type_graph_undirected : handler_generic,
 }
+include "auto_mappings.pxi"
+handlers.update(auto_handlers)
