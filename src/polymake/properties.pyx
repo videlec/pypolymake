@@ -221,7 +221,7 @@ type_properties[pm_type_polytope_rational] = {
     'N_01POINTS'                         : pm_type_unknown,
     'N_BOUNDARY_LATTICE_POINTS'          : pm_type_unknown,
     'N_BOUNDED_VERTICES'                 : pm_type_unknown,
-    'N_EDGES'                            : pm_type_unknown,
+    'N_EDGES'                            : pm_type_int,
     'NEIGHBOR_FACETS_CYCLIC_NORMAL'      : pm_type_unknown,
     'NEIGHBORLINESS'                     : pm_type_unknown,
     'NEIGHBORLY'                         : pm_type_unknown,
@@ -324,7 +324,7 @@ type_properties[pm_type_graph_undirected]    = {
     'LATTICE_EDGE_LENGTHS'            : pm_type_unknown,
     'MAX_CLIQUES'                     : pm_type_unknown,
     'N_CONNECTED_COMPONENTS'          : pm_type_integer,
-    'N_EDGES'                         : pm_type_integer,
+    'N_EDGES'                         : pm_type_int,
     'N_NODES'                         : pm_type_integer,
     'NODE_DEGREES'                    : pm_type_unknown,
     'NODE_IN_DEGREES'                 : pm_type_unknown,
@@ -393,6 +393,20 @@ def handler_bool(perl_object, bytes prop):
     pm_get_Integer(po.give(cprop[0]), pm_ans)
     sig_off()
     return bool(pm_ans.compare(0))
+
+def handler_int(perl_object, bytes prop):
+    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
+    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
+    cdef int i
+    try:
+        sig_on()
+        i = po.give_int(cprop[0])
+        sig_off()
+    except ValueError:
+        sig_on()
+        i = po.call_method_int(cprop[0])
+        sig_off()
+    return i
 
 def handler_integer(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
@@ -480,7 +494,7 @@ cdef dict handlers = {
 
     # numbers
     pm_type_bool     : handler_bool,
-    pm_type_int      : handler_integer,
+    pm_type_int      : handler_int,
     pm_type_float    : handler_float,
     pm_type_integer  : handler_integer,
     pm_type_rational : handler_rational,
