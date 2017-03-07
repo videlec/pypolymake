@@ -128,6 +128,9 @@ cdef extern from "polymake/client.h":
         int give_int "give" (pm_AnyString&) except +ValueError
         int call_method_int "call_method" (pm_AnyString&) except +ValueError
 
+        float give_float "give" (pm_AnyString&) except +ValueError
+        float call_method_float "call_method" (pm_AnyString&) except +ValueError
+
         pm_PerlPropertyValue take(pm_AnyString&)
         pm_PerlPropertyValue give(pm_AnyString&) # do not add except here, see pm_get for why
         pm_PerlObjectType type()

@@ -386,27 +386,35 @@ def handler_generic(perl_object, bytes prop):
     return wrap_perl_object(pm_ans)
 
 def handler_bool(perl_object, bytes prop):
-    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
-    cdef pm_Integer pm_ans
-    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
-    sig_on()
-    pm_get_Integer(po.give(cprop[0]), pm_ans)
-    sig_off()
-    return bool(pm_ans.compare(0))
+    return bool(handler_int(perl_object, prop))
 
 def handler_int(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
+    cdef int ans
     cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
-    cdef int i
     try:
         sig_on()
-        i = po.give_int(cprop[0])
+        ans = po.give_int(cprop[0])
         sig_off()
     except ValueError:
         sig_on()
-        i = po.call_method_int(cprop[0])
+        ans = po.call_method_int(cprop[0])
         sig_off()
-    return i
+    return ans
+
+def handler_float(perl_object, bytes prop):
+    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
+    cdef float ans
+    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
+    try:
+        sig_on()
+        ans = po.give_float(cprop[0])
+        sig_off()
+    except ValueError:
+        sig_on()
+        ans = po.call_method_float(cprop[0])
+        sig_off()
+    return ans
 
 def handler_integer(perl_object, bytes prop):
     cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
@@ -414,15 +422,6 @@ def handler_integer(perl_object, bytes prop):
     cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
     sig_on()
     pm_get_Integer(po.give(cprop[0]), ans.pm_obj)
-    sig_off()
-    return ans
-
-def handler_float(perl_object, bytes prop):
-    cdef pm_PerlObject * po = (<PerlObject?> perl_object).pm_obj
-    cdef float ans
-    cdef pm_AnyString * cprop = new pm_AnyString(prop, len(prop))
-    sig_on()
-    pm_get_float(po.give(cprop[0]), ans)
     sig_off()
     return ans
 
