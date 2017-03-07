@@ -20,7 +20,6 @@ from .cygmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
 from .cygmp.mpq cimport mpq_init, mpq_clear, mpq_numref, mpq_denref, mpq_canonicalize
 from .cygmp.utils cimport mpz_set_pylong, mpz_get_bytes, mpq_get_bytes
 
-from sage_conversion cimport pm_Integer_to_sage, pm_Rational_to_sage
 
 def get_num_den(elt):
     num = None
@@ -169,7 +168,8 @@ cdef class Integer:
         2
         >>> type(a.sage())
         """
-        return pm_Integer_to_sage(self.pm_obj)
+        from .sage_conversion import Integer_to_sage
+        return Integer_to_sage(self)
 
 cdef class Rational:
     r"""Polymake rational
@@ -215,7 +215,8 @@ cdef class Rational:
         >>> a.sage()
         1267650600228229401496703205376/515377520732011331036461129765621272702107522001
         """
-        return pm_Rational_to_sage(self.pm_obj)
+        from .sage_conversion import Rational_to_sage
+        return Rational_to_sage(self)
 
     _rational_ = sage
 

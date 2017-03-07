@@ -10,8 +10,6 @@
 
 from .number cimport Integer, Rational
 
-from sage_conversion cimport pm_VectorInteger_to_sage, pm_VectorRational_to_sage
-
 cdef class VectorInteger:
     def __len__(self):
         return self.pm_obj.size()
@@ -43,7 +41,8 @@ cdef class VectorInteger:
         >>> type(v.sage())
         <type 'sage.modules.vector_integer_dense.Vector_integer_dense'>
         """
-        return pm_VectorInteger_to_sage(self.pm_obj)
+        from .sage_conversion import VectorInteger_to_sage
+        return VectorInteger_to_sage(self)
 
 cdef class VectorRational:
     def __len__(self):
@@ -77,4 +76,5 @@ cdef class VectorRational:
         >>> type(v.sage())
         <type 'sage.modules.vector_rational_dense.Vector_rational_dense'>
         """
-        return pm_VectorRational_to_sage(self.pm_obj)
+        from .sage_conversion import VectorRational_to_sage
+        return VectorRational_to_sage(self)

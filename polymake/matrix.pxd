@@ -5,7 +5,7 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-from defs cimport pm_MatrixRational, pm_MatrixInteger, pm_MatrixInt
+from .defs cimport pm_MatrixRational, pm_MatrixInteger, pm_MatrixInt
 
 cdef class MatrixRational:
     cdef pm_MatrixRational pm_obj

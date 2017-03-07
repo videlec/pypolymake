@@ -5,7 +5,7 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-from defs cimport pm_VectorInteger, pm_VectorRational
+from .defs cimport pm_VectorInteger, pm_VectorRational
 
 cdef class VectorInteger:
     cdef pm_VectorInteger pm_obj

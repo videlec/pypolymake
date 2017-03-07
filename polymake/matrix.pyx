@@ -20,8 +20,6 @@ from .defs cimport (pm_MatrixRational, pm_Rational,
 from .number cimport Rational, Integer
 from .number import get_num_den
 
-from sage_conversion cimport pm_MatrixInt_to_sage, pm_MatrixInteger_to_sage, pm_MatrixRational_to_sage
-
 cdef class MatrixRational:
     def __getitem__(self, elt):
         cdef Py_ssize_t nrows, ncols, i, j
@@ -83,7 +81,8 @@ cdef class MatrixRational:
         >>> type(m)
         <type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'>
         """
-        return pm_MatrixRational_to_sage(self.pm_obj)
+        from .sage_conversion import MatrixRational_to_sage
+        return MatrixRational_to_sage(self)
 
 cdef class MatrixInteger:
     def __getitem__(self, elt):
@@ -161,7 +160,8 @@ cdef class MatrixInteger:
         >>> type(s)
         <type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'>
         """
-        return pm_MatrixInteger_to_sage(self.pm_obj)
+        from .sage_conversion import MatrixInteger_to_sage
+        return MatrixInteger_to_sage(self)
 
 cdef class MatrixInt:
     def __getitem__(self, elt):
@@ -224,7 +224,8 @@ cdef class MatrixInt:
         >>> type(m.sage())
         <type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'>
         """
-        return pm_MatrixInt_to_sage(self.pm_obj)
+        from .sage_conversion import MatrixInt_to_sage
+        return MatrixInt_to_sage(self)
 
 def clean_mat(mat):
     r"Return a triple (nr, nc, entries)"

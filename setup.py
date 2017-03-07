@@ -15,13 +15,6 @@ from setuptools.extension import Extension
 
 import os
 
-#TODO: if include dirs not set we end up with the following error
-#
-#    gcc -fno-strict-aliasing -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wno-unused -fPIC -I/opt/sage/local/include/python2.7 -c src/polymake/sage_conversion.cpp -o build/temp.linux-x86_64-2.7/src/polymake/sage_conversion.o
-#    src/polymake/sage_conversion.cpp:480:35: erreur fatale : sage/libs/ntl/ntlwrap.h : Aucun fichier ou dossier de ce type
-#     #include "sage/libs/ntl/ntlwrap.h"
-import site
-
 extensions = [
     Extension("polymake.cygmp.utils", ["polymake/cygmp/utils.pyx"],
         depends = ["polymake/cygmp/*.pxd", "polymake/cygmp/*h"]),
@@ -46,11 +39,23 @@ extensions = [
 
     Extension("polymake.polytope", ["polymake/polytope.pyx"],
         depends = ["polymake/defs.pxd"]),
-
-    Extension("polymake.sage_conversion", ["polymake/sage_conversion.pyx"],
-        depends = ["polymake/defs.pxd"],
-        include_dirs = site.getsitepackages()),
 ]
+
+try:
+    import sage
+    import site
+    extensions.append(
+        Extension("polymake.sage_conversion", ["polymake/sage_conversion.pyx"],
+        depends = ["polymake/defs.pxd"],
+        include_dirs = site.getsitepackages())
+    )
+    #TODO: if include dirs not set we end up with the following error
+    #
+    #    gcc -fno-strict-aliasing -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wno-unused -fPIC -I/opt/sage/local/include/python2.7 -c src/polymake/sage_conversion.cpp -o build/temp.linux-x86_64-2.7/src/polymake/sage_conversion.o
+    #    src/polymake/sage_conversion.cpp:480:35: erreur fatale : sage/libs/ntl/ntlwrap.h : Aucun fichier ou dossier de ce type
+    #     #include "sage/libs/ntl/ntlwrap.h"
+except ImportError:
+    pass
 
 class TestCommand(Command):
     user_options = []

@@ -5,7 +5,7 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-from defs cimport pm_Integer, pm_Rational
+from .defs cimport pm_Integer, pm_Rational
 
 cdef class Integer:
     cdef pm_Integer pm_obj
