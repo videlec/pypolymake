@@ -45,7 +45,6 @@ prerequisites are
 
 - polymake in version 3.0 or later together with its header files
 - `Cython <http://cython.org/>`_
-- `cysignals <https://pypi.python.org/pypi/cysignals/>`_
 
 To install the package then use::
 

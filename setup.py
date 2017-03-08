@@ -102,13 +102,14 @@ class build_ext(_build_ext):
             sys.stderr.write("The installation of ppl requires Cython\n")
             sys.exit(1)
 
-        try:
-            # We need the header files for cysignals at compile-time
-            import cysignals
-        except ImportError as E:
-            sys.stderr.write("Error: {0}\n".format(E))
-            sys.stderr.write("The installation of ppl requires cysignals\n")
-            sys.exit(1)
+# cysignals not needed right now
+#        try:
+#            # We need the header files for cysignals at compile-time
+#            import cysignals
+#        except ImportError as E:
+#            sys.stderr.write("Error: {0}\n".format(E))
+#            sys.stderr.write("The installation of ppl requires cysignals\n")
+#            sys.exit(1)
 
         self.distribution.ext_modules[:] = cythonize(
             self.distribution.ext_modules, include_path=sys.path)
