@@ -87,7 +87,7 @@ class TestCommand(Command):
 # Adapted from Cython's new_build_ext
 class build_ext(_build_ext):
     def finalize_options(self):
-        # Generte files
+        # Generate files
         from autogen import rebuild
         rebuild()
 

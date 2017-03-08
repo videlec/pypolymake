@@ -13,14 +13,25 @@ from .cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
 from .cygmp.mpz cimport *
 from .cygmp.mpq cimport *
 
-from .defs cimport (
-    pm_MatrixInt_get,
-    pm_MatrixFloat_get,
-    pm_MatrixRational_get,
-    pm_MatrixInteger_get)
-
 from .number cimport Rational, Integer
 from .number import get_num_den
+
+from .defs cimport pm_Integer, pm_Rational
+
+cdef extern from "polymake/Matrix.h" namespace "polymake":
+    # WRAP_CALL(t,i,j) -> t(i,j)
+    long pm_MatrixInt_get "WRAP_CALL" (pm_MatrixInt, int i, int j)
+    float pm_MatrixFloat_get "WRAP_CALL" (pm_MatrixFloat, int i, int j)
+    pm_Rational pm_MatrixRational_get "WRAP_CALL" (pm_MatrixRational, int i, int j)
+    pm_Integer pm_MatrixInteger_get "WRAP_CALL" (pm_MatrixInteger, int i, int j)
+
+cdef extern from "polymake/SparseMatrix.h" namespace "polymake":
+    # WRAP_CALL(t,i,j) -> t(i,j)
+    long pm_SparseMatrixIntNonSymmetric_get "WRAP_CALL" (pm_SparseMatrixIntNonSymmetric, int i, int j)
+    pm_Rational pm_SparseMatrixRationalNonSymmetric_get "WRAP_CALL" (pm_SparseMatrixRationalNonSymmetric, int i, int j)
+
+cdef extern from "polymake/IncidenceMatrix.h" namespace "polymake":
+    bint pm_IncidenceMatrixNonSymmetric_get "WRAP_CALL" (pm_IncidenceMatrixNonSymmetric, int i, int j)
 
 cdef class MatrixGeneric(object):
     cpdef Py_ssize_t rows(self): return -1
@@ -95,7 +106,8 @@ cdef class MatrixRational(MatrixGeneric):
             raise IndexError("matrix index out of range")
 
         cdef Rational ans = Rational.__new__(Rational)
-        ans.pm_obj.set_mpq_srcptr(pm_MatrixRational_get(self.pm_obj, i, j).get_rep())
+        cdef mpq_srcptr q = pm_MatrixRational_get(self.pm_obj, i, j).get_rep()
+        ans.pm_obj.set_mpq_srcptr(q)
         return ans
 
     cpdef Py_ssize_t rows(self):
@@ -205,22 +217,58 @@ cdef class MatrixInt(MatrixGeneric):
         from .sage_conversion import MatrixInt_to_sage
         return MatrixInt_to_sage(self)
 
-#cdef class SparseMatrixRational(MatrixGeneric):
-#    def __getitem__(self, elt):
-#        cdef Py_ssize_t nrows, ncols, i,j
-#        nrows = self.pm_obj.rows()
-#        ncols = self.pm_obj.cols()
-#        i,j = elt
-#        if not (0 <= i < nrows) or not (0 <= j < ncols):
-#            raise IndexError("matrix index out of range")
-#
-#        return 1
-#        return pm_SparseMatrixRational_get(self.pm_obj, i, j)
-#
-#    cpdef Py_ssize_t rows(self):
-#        return self.pm_obj.rows()
-#    cpdef Py_ssize_t cols(self):
-#        return self.pm_obj.cols()
+cdef class SparseMatrixIntNonSymmetric(MatrixGeneric):
+    def __getitem__(self, elt):
+        cdef Py_ssize_t nrows, ncols, i,j
+        nrows = self.pm_obj.rows()
+        ncols = self.pm_obj.cols()
+        i,j = elt
+        if not (0 <= i < nrows) or not (0 <= j < ncols):
+            raise IndexError("matrix index out of range")
+
+        return pm_SparseMatrixIntNonSymmetric_get(self.pm_obj, i, j)
+
+    cpdef Py_ssize_t rows(self):
+        return self.pm_obj.rows()
+    cpdef Py_ssize_t cols(self):
+        return self.pm_obj.cols()
+
+cdef class SparseMatrixRationalNonSymmetric(MatrixGeneric):
+    def __getitem__(self, elt):
+        cdef Py_ssize_t nrows, ncols, i,j
+        nrows = self.pm_obj.rows()
+        ncols = self.pm_obj.cols()
+        i,j = elt
+        if not (0 <= i < nrows) or not (0 <= j < ncols):
+            raise IndexError("matrix index out of range")
+
+
+        cdef Rational ans = Rational.__new__(Rational)
+        cdef pm_Rational q = pm_SparseMatrixRationalNonSymmetric_get(self.pm_obj, i, j)
+        ans.pm_obj.set_mpq_srcptr(q.get_rep())
+        return ans
+
+    cpdef Py_ssize_t rows(self):
+        return self.pm_obj.rows()
+    cpdef Py_ssize_t cols(self):
+        return self.pm_obj.cols()
+
+cdef class IncidenceMatrixNonSymmetric(MatrixGeneric):
+    def __getitem__(self, elt):
+        cdef Py_ssize_t nrows, ncols, i,j
+        nrows = self.pm_obj.rows()
+        ncols = self.pm_obj.cols()
+        i,j = elt
+        if not (0 <= i < nrows) or not (0 <= j < ncols):
+            raise IndexError("matrix index out of range")
+
+        return pm_IncidenceMatrixNonSymmetric_get(self.pm_obj, i, j)
+
+    cpdef Py_ssize_t rows(self):
+        return self.pm_obj.rows()
+    cpdef Py_ssize_t cols(self):
+        return self.pm_obj.cols()
+
 
 
 def clean_mat(mat):

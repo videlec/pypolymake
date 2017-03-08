@@ -10,7 +10,9 @@ from .defs cimport (
         pm_MatrixFloat,
         pm_MatrixInteger,
         pm_MatrixRational,
-        pm_SparseMatrixRational)
+        pm_SparseMatrixIntNonSymmetric,
+        pm_SparseMatrixRationalNonSymmetric,
+        pm_IncidenceMatrixNonSymmetric)
 
 cdef class MatrixGeneric(object):
     cpdef Py_ssize_t rows(self)
@@ -26,8 +28,13 @@ cdef class MatrixInteger(MatrixGeneric):
 cdef class MatrixRational(MatrixGeneric):
     cdef pm_MatrixRational pm_obj
 
-#cdef class SparseMatrixRational(MatrixGeneric):
-#    cdef pm_SparseMatrixRational pm_obj
+cdef class SparseMatrixIntNonSymmetric(MatrixGeneric):
+    cdef pm_SparseMatrixIntNonSymmetric pm_obj
+cdef class SparseMatrixRationalNonSymmetric(MatrixGeneric):
+    cdef pm_SparseMatrixRationalNonSymmetric pm_obj
+
+cdef class IncidenceMatrixNonSymmetric(MatrixGeneric):
+    cdef pm_IncidenceMatrixNonSymmetric pm_obj
 
 cdef pm_MatrixRational* rat_mat_to_pm(int nr, int nc, list mat)
 cdef pm_MatrixInteger* int_mat_to_pm(int nr, int nc, list mat)

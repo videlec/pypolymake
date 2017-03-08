@@ -265,25 +265,33 @@ cdef extern from "polymake/Polynomial.h" namespace "polymake":
 
 #     IncidenceMatrix.h
 # IncidenceMatrix<>
+cdef extern from "polymake/IncidenceMatrix.h" namespace "polymake":
+    cdef cppclass pm_IncidenceMatrixNonSymmetric "IncidenceMatrix<NonSymmetric>":
+        pm_IncidenceMatrixNonSymmetric()
+        pm_IncidenceMatrixNonSymmetric(int nr, int nc)
+        Py_ssize_t rows()
+        Py_ssize_t cols()
 
-# SparseMatrix<Rational, >"
+# SparseMatrix<Rational, NonSymmetric>"
 # SparseMatrix<Rational, Symmetric>"
-
 cdef extern from "polymake/SparseMatrix.h" namespace "polymake":
-    cdef cppclass pm_SparseMatrixRational "SparseMatrix<Rational, >":
+    cdef cppclass pm_SparseMatrixIntNonSymmetric "SparseMatrix<long, NonSymmetric>":
+        pm_SparseMatrixInt ()
+        pm_SparseMatrixInt (int nr, int nc)
+        Py_ssize_t rows()
+        Py_ssize_t cols()
+
+
+    cdef cppclass pm_SparseMatrixRationalNonSymmetric "SparseMatrix<Rational, NonSymmetric>":
         pm_SparseMatrixRational ()
         pm_SparseMatrixRational (int nr, int nc)
         Py_ssize_t rows()
         Py_ssize_t cols()
 
-    pm_Rational pm_SparseMatrixRational_get "WRAP_CALL" (pm_SparseMatrixRational, int i, int j)
 
 
 # NOTE: for Matrix the C++ type does not match the perl type
 # namely, the "" part is fake
-# Matrix<Int, >
-# Matrix<Integer, >
-# Matrix<Rational, >
 cdef extern from "polymake/Matrix.h" namespace "polymake":
     cdef cppclass pm_MatrixInt "Matrix<long>":
         pm_MatrixInt()
@@ -313,11 +321,6 @@ cdef extern from "polymake/Matrix.h" namespace "polymake":
         Py_ssize_t rows()
         Py_ssize_t cols()
 
-    # WRAP_CALL(t,i,j) -> t(i,j)
-    long pm_MatrixInt_get "WRAP_CALL" (pm_MatrixInt, int i, int j)
-    float pm_MatrixFloat_get "WRAP_CALL" (pm_MatrixFloat, int i, int j)
-    pm_Rational pm_MatrixRational_get "WRAP_CALL" (pm_MatrixRational, int i, int j)
-    pm_Integer pm_MatrixInteger_get "WRAP_CALL" (pm_MatrixInteger, int i, int j)
 
 #cdef extern from "polymake/GenericVector.h" namespace 'polymake':
 #    pm_MatrixRational ones_vector_Rational "ones_vector<Rational>" ()
