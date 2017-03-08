@@ -34,25 +34,44 @@ to break.
 Installation and source code
 ----------------------------
 
+In principle, pypolymake could be used with Python2, Python3 and within Sage.
+
+### Installation of against current stable version of polymake inside Sage
+
 If you are using `SageMath <http://www.sagemath.org>`_ then just run the following
 two commands
 
     $ sage -i polymake
-    $ sage -pip install git+https://github.com/videlec/pypolymake
+    $ sage -pip install git+https://github.com/videlec/pypolymake [--user] [--upgrade]
 
-In principle, pypolymake could be used with Python2, Python3 and within Sage. The
-prerequisites are
+Note that this uses the stable version of polymake and is not further developed.
 
-- polymake in version 3.0 or later together with its header files
-- `Cython <http://cython.org/>`_
+### Installation against the beta version of polymake inside Sage
 
-To install the package then use::
+1. Clone the branch `u/vdelecroix/lrslib+polymakebeta` from the trac Sage server
 
-    $ pip install git+https://github.com/videlec/pypolymake [--user] [--pre]
+2. Install the beta version of polymake inside Sage
 
-(the `--pre` argument is needed on recent pip versions to allow installation
-of beta releases, the `--user` argument make the installation in your home
-directory and can be omitted if you have write access to your system). 
+    $ sage -f lrslib
+    $ sage -f polymake
+
+(several perl libraries are required for the compilation of polymake)
+
+3. Install pypolymake beta
+
+    $ sage -pip install git+https://github.com/videlec/pypolymake@beta [--user] [--upgrade]
+
+
+### Installation against the beta version of polymake in Python2 or Python3
+
+1. Clone, compile and install the last beta of polymake from https://github.com/polymake/polymake
+
+2. Install pypolymake
+
+    $ pip install  git+https://github.com/videlec/pypolymake@beta [--user] [--upgrade]
+
+
+### Extra notes
 
 If polymake headers or libraries are installed in a non standard location you
 may need to set the environment variables CFLAGS, CXXFLAGS, LDFLAGS. For example,
@@ -62,7 +81,9 @@ on OS X, you need to update LDFLAGS as::
     $ python setup.py install --user
 
 You might also need to set LD_LIBRARY_PATH before starting Python if the shared
-library of polymake (libpolymake.so) is not in a standard directory.
+library of polymake (libpolymake.so) is not in a standard directory. For example
+
+    $ LD_LIBRARY_PATH=/my/path/to/lib/ ipython
 
 License
 -------
