@@ -167,7 +167,7 @@ type_properties[b"Polytope<Rational>"] = {
     b"VIF_CYCLIC_NORMAL" : b"Array<Array<Int>>",
     b"WEAKLY_CENTERED" : b"Bool",
 }
-type_properties[b"Graph<Undirected> as Polytope<Rational>::GRAPH"] = {
+type_properties[b"Graph<Undirected>"] = {
     b"ADJACENCY" : b"Graph<Undirected>",
     b"AVERAGE_DEGREE" : b"Rational",
     b"BICONNECTED_COMPONENTS" : b"IncidenceMatrix<NonSymmetric>",
@@ -191,7 +191,7 @@ type_properties[b"Graph<Undirected> as Polytope<Rational>::GRAPH"] = {
     b"SIGNED_INCIDENCE_MATRIX" : b"SparseMatrix<Int, NonSymmetric>",
     b"TRIANGLE_FREE" : b"Bool",
 }
-type_properties[b"GeometricSimplicialComplex<Rational> as Polytope<Rational>::TRIANGULATION"] = {
+type_properties[b"GeometricSimplicialComplex<Rational>"] = {
     b"BALL" : b"Bool",
     b"BOUNDARY" : b"SimplicialComplex",
     b"CLOSED_PSEUDO_MANIFOLD" : b"Bool",
@@ -266,7 +266,7 @@ type_properties[b"EdgeWeightedGraph"] = {
     b"SIGNED_INCIDENCE_MATRIX" : b"SparseMatrix<Int, NonSymmetric>",
     b"TRIANGLE_FREE" : b"Bool",
 }
-type_properties[b"Lattice<BasicDecoration, Sequential> as Cone<Rational>::HASSE_DIAGRAM"] = {
+type_properties[b"Lattice<BasicDecoration, Sequential>"] = {
     b"ADJACENCY" : b"Graph<Directed>",
     b"BOTTOM_NODE" : b"Int",
     b"CHARACTERISTIC_POLYNOMIAL" : b"UniPolynomial<Rational, Int>",
