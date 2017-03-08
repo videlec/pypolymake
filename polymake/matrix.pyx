@@ -200,6 +200,23 @@ cdef class MatrixInt(MatrixGeneric):
         from .sage_conversion import MatrixInt_to_sage
         return MatrixInt_to_sage(self)
 
+cdef class MatrixFloat(MatrixGeneric):
+    def __getitem__(self, elt):
+        cdef Py_ssize_t nrows, ncols, i,j
+        nrows = self.pm_obj.rows()
+        ncols = self.pm_obj.cols()
+        i,j = elt
+        if not (0 <= i < nrows) or not (0 <= j < ncols):
+            raise IndexError("matrix index out of range")
+
+        return pm_MatrixFloat_get(self.pm_obj, i, j)
+
+    cpdef Py_ssize_t rows(self):
+        return self.pm_obj.rows()
+    cpdef Py_ssize_t cols(self):
+        return self.pm_obj.cols()
+
+ 
 cdef class SparseMatrixIntNonSymmetric(MatrixGeneric):
     def __getitem__(self, elt):
         cdef Py_ssize_t nrows, ncols, i,j

@@ -16,7 +16,8 @@ types = [
     ("VectorInteger", "Vector<Integer>"),
     ("VectorRational", "Vector<Rational>"),
 
-    ("MatrixInt", "Matrix<Int>"),
+    ("MatrixInt", "Matrix<Int, NonSymmetric>"),
+    ("MatrixFloat", "Matrix<Float, NonSymmetric>"),
     ("MatrixInteger", "Matrix<Integer, NonSymmetric>"),
     ("MatrixRational", "Matrix<Rational, NonSymmetric>"),
 
