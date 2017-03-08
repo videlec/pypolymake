@@ -73,7 +73,7 @@ cdef class Integer:
         return not self.pm_obj.is_zero()
 
     def __repr__(self):
-        return mpz_get_bytes(self.pm_obj.get_rep())
+        return (<bytes> mpz_get_bytes(self.pm_obj.get_rep())).decode('ascii')
 
     #TODO: overflow!!
     def __int__(self):
@@ -251,7 +251,7 @@ cdef class Rational:
             return op in (Py_GE, Py_GT, Py_NE)
 
     def __repr__(self):
-        return mpq_get_bytes(self.pm_obj.get_rep())
+        return (<bytes> mpq_get_bytes(self.pm_obj.get_rep())).decode('ascii')
 
     def numerator(self):
         cdef Integer ans = Integer.__new__(Integer)

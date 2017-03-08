@@ -20,25 +20,25 @@ extensions = [
         depends = ["polymake/cygmp/*.pxd", "polymake/cygmp/*h"]),
 
     Extension("polymake.number", ["polymake/number.pyx"],
-        depends = ["polymake/defs.pxd"]),
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
     Extension("polymake.array", ["polymake/array.pyx"],
-        depends = ["polymake/*.pxd"]),
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
     Extension("polymake.vector", ["polymake/vector.pyx"],
-        depends = ["polymake/defs.pxd"]),
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
     Extension("polymake.matrix", ["polymake/matrix.pyx"],
-        depends = ["polymake/defs.pxd"]),
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
     Extension("polymake.perl_object", ["polymake/perl_object.pyx"],
-        depends = ["polymake/defs.pxd"]),
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
     Extension("polymake.properties", ["polymake/properties.pyx"],
-        depends = ["polymake/defs.pxd"]),
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
     Extension("polymake.polytope", ["polymake/polytope.pyx"],
-        depends = ["polymake/defs.pxd"]),
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 ]
 
 try:
@@ -49,7 +49,7 @@ try:
         depends = ["polymake/defs.pxd"],
         include_dirs = site.getsitepackages())
     )
-    #TODO: if include dirs not set we end up with the following error
+    #TODO: if include_dirs not set we end up with the following error
     #
     #    gcc -fno-strict-aliasing -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wno-unused -fPIC -I/opt/sage/local/include/python2.7 -c src/polymake/sage_conversion.cpp -o build/temp.linux-x86_64-2.7/src/polymake/sage_conversion.o
     #    src/polymake/sage_conversion.cpp:480:35: erreur fatale : sage/libs/ntl/ntlwrap.h : Aucun fichier ou dossier de ce type
@@ -87,6 +87,11 @@ class TestCommand(Command):
 # Adapted from Cython's new_build_ext
 class build_ext(_build_ext):
     def finalize_options(self):
+        # Generte files
+        from autogen import rebuild
+        rebuild()
+
+
         import sys
 
         # Check dependencies

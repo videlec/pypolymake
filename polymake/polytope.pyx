@@ -28,9 +28,9 @@ def Polytope(bytes prop_name, data):
     pm.set_application("polytope")
     cdef pm_PerlObject * pm_obj = new pm_PerlObject(b"Polytope<Rational>")
     nr, nc, mat = clean_mat(data)
-    cdef pm_MatrixRational* pm_mat = rat_mat_to_pm(nr, nc, mat)
-    pm_assign_MatrixRational(pm_obj.take(prop_name), pm_mat[0])
-    del pm_mat
+#    cdef pm_MatrixRational* pm_mat = rat_mat_to_pm(nr, nc, mat)
+#    pm_assign_MatrixRational(pm_obj.take(prop_name), pm_mat[0])
+#    del pm_mat
 
-    return wrap_perl_object(pm_obj[0])
+#    return wrap_perl_object(pm_obj[0])
 

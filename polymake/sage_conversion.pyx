@@ -14,13 +14,13 @@ from __future__ import absolute_import
 
 from .number cimport Integer, Rational
 from .vector cimport VectorInteger, VectorRational
-from .matrix cimport MatrixInt, MatrixInteger, MatrixRational
+from .matrix cimport MatrixIntNonSymmetric, MatrixIntegerNonSymmetric, MatrixRationalNonSymmetric
 
 from .cygmp.types cimport mpz_t, mpq_t
 from .cygmp.mpz cimport mpz_set
 from .cygmp.mpq cimport mpq_set
 
-from .defs cimport mat_int_get_element, mat_integer_get_element, mat_rational_get_element
+from .defs cimport pm_MatrixIntNonSymmetric_get, pm_MatrixIntegerNonSymmetric_get, pm_MatrixRationalNonSymmetric_get
 
 from sage.ext.stdsage cimport PY_NEW
 
@@ -67,7 +67,7 @@ def VectorRational_to_sage(VectorRational v):
         mpq_set(ans._entries[i], v.pm_obj.get(i).get_rep())
     return ans
 
-def MatrixInt_to_sage(MatrixInt m):
+def MatrixIntNonSymmetric_to_sage(MatrixIntNonSymmetric m):
     cdef Py_ssize_t i, j
     cdef Py_ssize_t nrows = m.pm_obj.rows()
     cdef Py_ssize_t ncols = m.pm_obj.cols()
@@ -75,10 +75,10 @@ def MatrixInt_to_sage(MatrixInt m):
     cdef sage_Matrix_integer_dense ans = M.zero().__copy__()
     for i in range(nrows):
         for j in range(ncols):
-            ans.set_unsafe_si(i, j, mat_int_get_element(m.pm_obj, i, j))
+            ans.set_unsafe_si(i, j, pm_MatrixIntNonSymmetric_get(m.pm_obj, i, j))
     return ans
 
-def MatrixInteger_to_sage(MatrixInteger m):
+def MatrixIntegerNonSymmetric_to_sage(MatrixIntegerNonSymmetric m):
     cdef Py_ssize_t i, j
     cdef Py_ssize_t nrows = m.pm_obj.rows()
     cdef Py_ssize_t ncols = m.pm_obj.cols()
@@ -86,10 +86,10 @@ def MatrixInteger_to_sage(MatrixInteger m):
     cdef sage_Matrix_integer_dense ans = M.zero().__copy__()
     for i in range(nrows):
         for j in range(ncols):
-            ans.set_unsafe_mpz(i, j, <mpz_t> mat_integer_get_element(m.pm_obj, i, j).get_rep())
+            ans.set_unsafe_mpz(i, j, <mpz_t> pm_MatrixIntegerNonSymmetric_get(m.pm_obj, i, j).get_rep())
     return ans
 
-def MatrixRational_to_sage(MatrixRational m):
+def MatrixRationalNonSymmetric_to_sage(MatrixRationalNonSymmetric m):
     cdef Py_ssize_t i, j
     cdef Py_ssize_t nrows = m.pm_obj.rows()
     cdef Py_ssize_t ncols = m.pm_obj.cols()
@@ -97,5 +97,5 @@ def MatrixRational_to_sage(MatrixRational m):
     cdef sage_Matrix_rational_dense ans = M.zero().__copy__()
     for i in range(nrows):
         for j in range(ncols):
-            mpq_set(ans._matrix[i][j], <mpq_t> mat_rational_get_element(m.pm_obj, i, j).get_rep())
+            mpq_set(ans._matrix[i][j], <mpq_t> pm_MatrixRationalNonSymmetric_get(m.pm_obj, i, j).get_rep())
     return ans

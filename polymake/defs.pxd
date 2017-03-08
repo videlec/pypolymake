@@ -82,7 +82,7 @@ from libcpp cimport bool
 from libcpp.string cimport string
 from .cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
 
-cdef extern from "wrap.h" namespace "polymake":
+cdef extern from "wrap.h":
     pass
 
 cdef extern from "polymake/Main.h" namespace "polymake":
@@ -90,14 +90,12 @@ cdef extern from "polymake/Main.h" namespace "polymake":
         void set_application(string)
         void set_preference(string)
 
-cdef extern from "polymake/Integer.h" namespace 'polymake':
+cdef extern from "polymake/Integer.h" namespace "polymake":
     ctypedef pm_const_Integer "const Integer"
-    cdef cppclass pm_Integer "Integer" :
+    cdef cppclass pm_Integer "Integer":
         mpz_t get_rep()
         Py_ssize_t strsize(int)
         int compare(int)
-
-
 
 # in beta, explicit casts defined
 #       long to_long()   # FIXME: this is const
@@ -189,39 +187,6 @@ cdef extern from "polymake/client.h":
         void VoidCallPolymakeMethod(char*) except +ValueError
         void save(char*)
 
-        int give_int "give" (string&) except +ValueError
-        int call_method_int "call_method" (string&) except +ValueError
-
-        float give_float "give" (string&) except +ValueError
-        float call_method_float "call_method" (string&) except +ValueError
-
-        # only this one should not be declared as a reference
-        pm_PerlObject give_PerlObject "give" (string&) except +ValueError
-        pm_PerlObject call_method_PerlObject "give" (string&) except +ValueError
-
-        pm_Integer& give_Integer "give" (string&) except +ValueError
-        pm_Integer& call_method_Integer "call_method" (string&) except +ValueError
-
-        pm_Rational& give_Rational "give" (string&) except +ValueError
-        pm_Rational& call_method_Rational "call_method" (string&) except +ValueError
-
-        pm_VectorInteger& give_VectorInteger "give" (string&) except +ValueError
-        pm_VectorInteger& call_method_VectorInteger "call_method" (string&) except +ValueError
-
-        pm_ArrayInt& call_method_ArrayInt "call_method" (string&) except +ValueError
-        pm_ArrayInt& give_ArrayInt "give" (string&) except +ValueError
-
-        pm_VectorRational& call_method_VectorRational "call_method" (string&) except +ValueError
-        pm_VectorRational& give_VectorRational "give" (string&) except +ValueError
-
-        pm_MatrixInt& call_method_MatrixInt "call_method" (string&) except +ValueError
-        pm_MatrixInt& give_MatrixInt "give" (string&) except +ValueError
-
-        pm_MatrixInteger& call_method_MatrixInteger "call_method" (string&) except +ValueError
-        pm_MatrixInteger& give_MatrixInteger "give" (string&) except +ValueError
-
-        pm_MatrixRational& call_method_MatrixRational "call_method" (string&) except +ValueError
-        pm_MatrixRational& give_MatrixRational "give" (string&) except +ValueError
 
 # HOW DO WE ACCESS ELEMENTS OF ARRAYS, ETC?
 #        long get_long_from_int "operator[]" (int i)
@@ -297,12 +262,47 @@ cdef extern from "polymake/Map.h" namespace "polymake":
 cdef extern from "polymake/Polynomial.h" namespace "polymake":
     pass
 
+
+#     IncidenceMatrix.h
+# IncidenceMatrix<>
+
+# SparseMatrix<Rational, >"
+# SparseMatrix<Rational, Symmetric>"
+
+cdef extern from "polymake/SparseMatrix.h" namespace "polymake":
+    cdef cppclass pm_SparseMatrixRational "SparseMatrix<Rational, >":
+        pm_SparseMatrixRational ()
+        pm_SparseMatrixRational (int nr, int nc)
+        Py_ssize_t rows()
+        Py_ssize_t cols()
+
+    pm_Rational pm_SparseMatrixRational_get "WRAP_CALL" (pm_SparseMatrixRational, int i, int j)
+
+
+# NOTE: for Matrix the C++ type does not match the perl type
+# namely, the "" part is fake
+# Matrix<Int, >
+# Matrix<Integer, >
+# Matrix<Rational, >
 cdef extern from "polymake/Matrix.h" namespace "polymake":
+    cdef cppclass pm_MatrixInt "Matrix<long>":
+        pm_MatrixInt()
+        pm_MatrixInt(int nr, int nc)
+        void assign(int r, int c, long val)
+        Py_ssize_t rows()
+        Py_ssize_t cols()
+
+    cdef cppclass pm_MatrixFloat "Matrix<float>":
+        pm_MatrixFloat()
+        pm_MatrixFloat(int nr, int nc)
+        void assign(int r, int c, float val)
+        Py_ssize_t rows()
+        Py_ssize_t cols()
+
     cdef cppclass pm_MatrixRational "Matrix<Rational>":
         pm_MatrixRational()
         pm_MatrixRational(int nr, int nc)
         void assign(int r, int c, pm_Rational val)
-        pm_MatrixRational operator|(pm_MatrixRational)
         Py_ssize_t rows()
         Py_ssize_t cols()
 
@@ -310,28 +310,20 @@ cdef extern from "polymake/Matrix.h" namespace "polymake":
         pm_MatrixInteger()
         pm_MatrixInteger(int nr, int nc)
         void assign(int r, int c, pm_Integer val)
-        pm_MatrixInteger operator|(pm_MatrixInteger)
-        Py_ssize_t rows()
-        Py_ssize_t cols()
-
-    cdef cppclass pm_MatrixInt "Matrix<long>":
-        pm_MatrixInt()
-        pm_MatrixInt(int nr, int nc)
-        void assign(int r, int c, long val)
-        pm_MatrixInt operator|(pm_MatrixInt)
         Py_ssize_t rows()
         Py_ssize_t cols()
 
     # WRAP_CALL(t,i,j) -> t(i,j)
-    pm_Rational mat_rational_get_element "WRAP_CALL"(pm_MatrixRational, int i, int j)
-    pm_Integer mat_integer_get_element "WRAP_CALL"(pm_MatrixInteger, int i, int j)
-    long mat_int_get_element "WRAP_CALL" (pm_MatrixInt, int i, int j)
+    long pm_MatrixInt_get "WRAP_CALL" (pm_MatrixInt, int i, int j)
+    float pm_MatrixFloat_get "WRAP_CALL" (pm_MatrixFloat, int i, int j)
+    pm_Rational pm_MatrixRational_get "WRAP_CALL" (pm_MatrixRational, int i, int j)
+    pm_Integer pm_MatrixInteger_get "WRAP_CALL" (pm_MatrixInteger, int i, int j)
 
 #cdef extern from "polymake/GenericVector.h" namespace 'polymake':
-    pm_MatrixRational ones_vector_Rational "ones_vector<Rational>" ()
+#    pm_MatrixRational ones_vector_Rational "ones_vector<Rational>" ()
 
 #cdef extern from "polymake/GenericMatrix.h" namespace 'polymake':
-    pm_MatrixRational unit_matrix_Rational "unit_matrix<Rational>" (int dim)
+#    pm_MatrixRational unit_matrix_Rational "unit_matrix<Rational>" (int dim)
 
 
     # WRAP_OUT(x,y) x<<y
@@ -346,21 +338,16 @@ cdef extern from "polymake/Matrix.h" namespace "polymake":
     # pm_PerlPropertyValue doesn't have a default constructor.
 
     # WRAP_IN(x,y) x>>y
-    void pm_get_float "WRAP_IN" (pm_PerlPropertyValue, float) except +ValueError
-    void pm_get_Integer "WRAP_IN" (pm_PerlPropertyValue, pm_Integer) except +ValueError
-    void pm_get_Rational "WRAP_IN" (pm_PerlPropertyValue, pm_Rational) except +ValueError
-    void pm_get_ArrayInt "WRAP_IN" (pm_PerlPropertyValue, pm_ArrayInt) except +ValueError
-    void pm_get_ArrayString "WRAP_IN" (pm_PerlPropertyValue, pm_ArrayString) except +ValueError
-    void pm_get_MatrixInt "WRAP_IN" (pm_PerlPropertyValue, pm_MatrixInt) except +ValueError
-    void pm_get_MatrixRational "WRAP_IN" (pm_PerlPropertyValue, pm_MatrixRational) except +ValueError
-    void pm_get_MatrixInteger "WRAP_IN" (pm_PerlPropertyValue, pm_MatrixInteger) except +ValueError
-    void pm_get_VectorInteger "WRAP_IN" (pm_PerlPropertyValue, pm_VectorInteger) except +ValueError
-    void pm_get_VectorRational "WRAP_IN" (pm_PerlPropertyValue, pm_VectorRational) except +ValueError
-    void pm_get_PerlObject "WRAP_IN" (pm_PerlPropertyValue, pm_PerlObject) except +ValueError
+#    void pm_get_float "WRAP_IN" (pm_PerlPropertyValue, float) except +ValueError
+
 
 cdef extern from "polymake/SparseMatrix.h" namespace "polymake":
     pass
 
+# Vector<Int>
+# Vector<Float>
+# Vector<Integer>
+# Vector<Rational>
 cdef extern from "polymake/Vector.h" namespace 'polymake':
     cdef cppclass pm_VectorInteger "Vector<Integer>":
         pm_VectorInteger()
@@ -376,3 +363,6 @@ cdef extern from "polymake/Vector.h" namespace 'polymake':
 
 cdef extern from "polymake/SparseVector.h" namespace "polymake":
     pass
+
+
+

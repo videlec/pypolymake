@@ -16,8 +16,8 @@ from .defs cimport (call_function, call_function1, call_function2, call_function
         new_PerlObject_from_PerlObject)
 
 
-from .properties cimport (handlers, pm_type_unknown, type_properties,
-        pm_type_polytope_rational)
+from .properties cimport handlers, get_properties, get_handler
+        
 
 cdef int DEBUG = 0
 
@@ -30,12 +30,7 @@ cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj):
     cdef PerlObject ans = PerlObject.__new__(PerlObject)
     ans.pm_obj = new_PerlObject_from_PerlObject(pm_obj)
     pm_type = pm_obj.type().name()
-    try:
-        ans.properties = type_properties.get(pm_type)
-    except KeyError:
-        print("  pypolymake debug WARNING: properties not found for {}".format(pm_type))
-        ans.properties = {}
-
+    ans.properties = get_properties(pm_type)
     return ans
 
 def call_polymake_function(bytes app, bytes name, *args):
@@ -64,15 +59,10 @@ cdef class PerlObject:
         try:
             pm_type = self.properties[bname]
         except KeyError:
-            print("  pypolymake debug WARNING: unregistered property...")
-            handler = handlers[pm_type_unknown]
-        else:
-            print("  pypolymake debug WARNING: pm_type = {}".format(pm_type))
-            try:
-                handler = handlers[pm_type]
-            except KeyError:
-                handler = handlers[pm_type_unknown]
-        print("  pypolymake debug WARNING: using {} with arg {} (of type {})".format(handler, bname, type(bname)))
+            raise AttributeError("{} not a registered attribute".format(name))
+
+        handler = get_handler(pm_type)
+        print("  pypolymake debug WARNING: using {} with arg {}".format(handler, bname))
         return handler(self, bname)
 
 
@@ -89,7 +79,7 @@ cdef class PerlObject:
         if self.properties is None:
             return dir(self.__class__)
         else:
-            return dir(self.__class__) + list(self.properties.keys())
+            return dir(self.__class__) + [x.decode('ascii') for x in self.properties]
 
     def _save(self, filename):
         """
@@ -97,7 +87,7 @@ cdef class PerlObject:
         """
         self.pm_obj.save(filename)
 
-    def _get_property(self, prop, pm_type=None):
+    def _get_property(self, bytes prop, bytes pm_type=None):
         r"""
         Generic method to get a property of the object
 
@@ -112,7 +102,7 @@ cdef class PerlObject:
         12
         """
         if pm_type is None:
-            pm_type = pm_type_unknown
+            pm_type = b"Unknown"
         return handlers[pm_type](self, prop)
 
     def type_name(self):
@@ -151,7 +141,7 @@ cdef class PerlObject:
         >>> P.sage()
         A 2-dimensional polyhedron in QQ^2 defined as the convex hull of 2 vertices and 1 ray
         """
-        if self.type_name() == pm_type_polytope_rational:
+        if self.type_name() == b"Polytope<Rational>":
             from sage.geometry.polyhedron.constructor import Polyhedron
             return Polyhedron(ieqs=self.FACETS.sage(), eqns=self.AFFINE_HULL.sage())
 

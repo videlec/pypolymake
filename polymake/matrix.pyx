@@ -13,30 +13,22 @@ from .cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
 from .cygmp.mpz cimport *
 from .cygmp.mpq cimport *
 
-from .defs cimport (pm_MatrixRational, pm_Rational,
-         pm_MatrixInteger, pm_Integer, pm_VectorInteger,
-         mat_rational_get_element, mat_integer_get_element, mat_int_get_element)
+from .defs cimport (
+    pm_MatrixInt_get,
+    pm_MatrixFloat_get,
+    pm_MatrixRational_get,
+    pm_MatrixInteger_get)
 
 from .number cimport Rational, Integer
 from .number import get_num_den
 
-cdef class MatrixRational:
-    def __getitem__(self, elt):
-        cdef Py_ssize_t nrows, ncols, i, j
-        nrows = self.pm_obj.rows()
-        ncols = self.pm_obj.cols()
-        i,j = elt
-        if not (0 <= i < nrows) or not (0 <= j < ncols):
-            raise IndexError("matrix index out of range")
-
-        cdef Rational ans = Rational.__new__(Rational)
-        ans.pm_obj.set_mpq_srcptr(mat_rational_get_element(self.pm_obj, i, j).get_rep())
-        return ans
-
+cdef class MatrixGeneric(object):
+    cpdef Py_ssize_t rows(self): return -1
+    cpdef Py_ssize_t cols(self): return -1
     def __repr__(self):
         cdef Py_ssize_t nrows, ncols, i, j
-        nrows = self.pm_obj.rows()
-        ncols = self.pm_obj.cols()
+        nrows = self.rows()
+        ncols = self.cols()
 
         rows = [[str(self[i,j]) for j in range(ncols)] for i in range(nrows)]
         col_sizes = [max(len(rows[i][j]) for i in range(nrows)) for j in range(ncols)]
@@ -51,6 +43,19 @@ cdef class MatrixRational:
         r"""Converts to a list of list of fractions
 
         >>> import polymake
+
+        >>> c = polymake.cube(3)
+        >>> m = c.DEGREE_ONE_GENERATORS.python()
+        >>> m
+        [[1, -1, -1, -1],
+         [1, -1, -1, 0],
+         [1, -1, -1, 1],
+        ...
+         [1, 1, 1, 0],
+         [1, 1, 1, 1]]
+        >>> type(m), type(m[0]), type(m[0][0])
+        (<type 'list'>, <type 'list'>, <type 'int'>)
+
         >>> c = polymake.cube(3)
         >>> m = c.VERTEX_NORMALS.python()
         >>> m
@@ -60,11 +65,43 @@ cdef class MatrixRational:
         ...
          [Fraction(1, 2), Fraction(1, 2), Fraction(-1, 2), Fraction(-1, 2)],
          [Fraction(1, 2), Fraction(-1, 2), Fraction(-1, 2), Fraction(-1, 2)]]
+
+        >>> c = polymake.cube(3)
+        >>> m = c.EDGE_ORIENTATION.python()
+        [[0, 4],
+         [2, 6],
+         [0, 2],
+         ...
+         [2, 3],
+         [6, 7]]
+        >>> type(m), type(m[0]), type(m[0][0])
+        (<type 'list'>, <type 'list'>, <type 'int'>)
         """
         cdef Py_ssize_t i, j, nrows, ncols
         nrows = self.pm_obj.rows()
         ncols = self.pm_obj.cols()
-        return [[self[i,j].python() for j in range(ncols)] for i in range(nrows)]
+        try:
+            return [[self[i,j].python() for j in range(ncols)] for i in range(nrows)]
+        except AttributeError:
+            return [[self[i,j] for j in range(ncols)] for i in range(nrows)]
+
+cdef class MatrixRational(MatrixGeneric):
+    def __getitem__(self, elt):
+        cdef Py_ssize_t nrows, ncols, i, j
+        nrows = self.pm_obj.rows()
+        ncols = self.pm_obj.cols()
+        i,j = elt
+        if not (0 <= i < nrows) or not (0 <= j < ncols):
+            raise IndexError("matrix index out of range")
+
+        cdef Rational ans = Rational.__new__(Rational)
+        ans.pm_obj.set_mpq_srcptr(pm_MatrixRational_get(self.pm_obj, i, j).get_rep())
+        return ans
+
+    cpdef Py_ssize_t rows(self):
+        return self.pm_obj.rows()
+    cpdef Py_ssize_t cols(self):
+        return self.pm_obj.cols()
 
     def sage(self):
         r"""Converts into a Sage matrix
@@ -94,43 +131,13 @@ cdef class MatrixInteger:
             raise IndexError("matrix index out of range")
 
         cdef Integer ans = Integer.__new__(Integer)
-        ans.pm_obj.set_mpz_srcptr(mat_integer_get_element(self.pm_obj, i, j).get_rep())
+        ans.pm_obj.set_mpz_srcptr(pm_MatrixInteger_get(self.pm_obj, i, j).get_rep())
         return ans
 
-    def __repr__(self):
-        cdef Py_ssize_t nrows, ncols, i, j
-        nrows = self.pm_obj.rows()
-        ncols = self.pm_obj.cols()
-
-        rows = [[str(self[i,j]) for j in range(ncols)] for i in range(nrows)]
-        col_sizes = [max(len(rows[i][j]) for i in range(nrows)) for j in range(ncols)]
-
-        line_format = "[ " +  \
-                " ".join("{{:{width}}}".format(width=t) for t in col_sizes) + \
-                      "]"
-
-        return "\n".join(line_format.format(*row) for row in rows)
-
-    def python(self):
-        r"""Converts to a list of list of integers
-
-        >>> import polymake
-        >>> c = polymake.cube(3)
-        >>> m = c.DEGREE_ONE_GENERATORS.python()
-        >>> m
-        [[1, -1, -1, -1],
-         [1, -1, -1, 0],
-         [1, -1, -1, 1],
-        ...
-         [1, 1, 1, 0],
-         [1, 1, 1, 1]]
-        >>> type(m), type(m[0]), type(m[0][0])
-        (<type 'list'>, <type 'list'>, <type 'int'>)
-        """
-        cdef Py_ssize_t i, j, nrows, ncols
-        nrows = self.pm_obj.rows()
-        ncols = self.pm_obj.cols()
-        return [[self[i,j].python() for j in range(ncols)] for i in range(nrows)]
+    cpdef Py_ssize_t rows(self):
+        return self.pm_obj.rows()
+    cpdef Py_ssize_t cols(self):
+        return self.pm_obj.cols()
 
     def sage(self):
         r"""Converts to a Sage integer matrix
@@ -163,7 +170,7 @@ cdef class MatrixInteger:
         from .sage_conversion import MatrixInteger_to_sage
         return MatrixInteger_to_sage(self)
 
-cdef class MatrixInt:
+cdef class MatrixInt(MatrixGeneric):
     def __getitem__(self, elt):
         cdef Py_ssize_t nrows, ncols, i,j
         nrows = self.pm_obj.rows()
@@ -172,41 +179,12 @@ cdef class MatrixInt:
         if not (0 <= i < nrows) or not (0 <= j < ncols):
             raise IndexError("matrix index out of range")
 
-        return mat_int_get_element(self.pm_obj, i, j)
+        return pm_MatrixInt_get(self.pm_obj, i, j)
 
-    def __repr__(self):
-        cdef Py_ssize_t nrows, ncols, i, j
-        nrows = self.pm_obj.rows()
-        ncols = self.pm_obj.cols()
-
-        rows = [[str(self[i,j]) for j in range(ncols)] for i in range(nrows)]
-        col_sizes = [max(len(rows[i][j]) for i in range(nrows)) for j in range(ncols)]
-
-        line_format = "[ " +  \
-                " ".join("{{:{width}}}".format(width=t) for t in col_sizes) + \
-                      "]"
-
-        return "\n".join(line_format.format(*row) for row in rows)
-
-    def python(self):
-        r"""Converts into a list of lists of integers
-
-        >>> import polymake
-        >>> c = polymake.cube(3)
-        >>> m = c.EDGE_ORIENTATION.python()
-        [[0, 4],
-         [2, 6],
-         [0, 2],
-         ...
-         [2, 3],
-         [6, 7]]
-        >>> type(m), type(m[0]), type(m[0][0])
-        (<type 'list'>, <type 'list'>, <type 'int'>)
-        """
-        cdef Py_ssize_t i, j, nrows, ncols
-        nrows = self.pm_obj.rows()
-        ncols = self.pm_obj.cols()
-        return [[self[i,j] for j in range(ncols)] for i in range(nrows)]
+    cpdef Py_ssize_t rows(self):
+        return self.pm_obj.rows()
+    cpdef Py_ssize_t cols(self):
+        return self.pm_obj.cols()
 
     def sage(self):
         r"""Converts into a Sage matrix
@@ -226,6 +204,24 @@ cdef class MatrixInt:
         """
         from .sage_conversion import MatrixInt_to_sage
         return MatrixInt_to_sage(self)
+
+#cdef class SparseMatrixRational(MatrixGeneric):
+#    def __getitem__(self, elt):
+#        cdef Py_ssize_t nrows, ncols, i,j
+#        nrows = self.pm_obj.rows()
+#        ncols = self.pm_obj.cols()
+#        i,j = elt
+#        if not (0 <= i < nrows) or not (0 <= j < ncols):
+#            raise IndexError("matrix index out of range")
+#
+#        return 1
+#        return pm_SparseMatrixRational_get(self.pm_obj, i, j)
+#
+#    cpdef Py_ssize_t rows(self):
+#        return self.pm_obj.rows()
+#    cpdef Py_ssize_t cols(self):
+#        return self.pm_obj.cols()
+
 
 def clean_mat(mat):
     r"Return a triple (nr, nc, entries)"
@@ -277,7 +273,7 @@ cdef pm_MatrixRational* rat_mat_to_pm(int nr, int nc, list mat):
     mpq_init(z)
     for i,row in enumerate(mat):
         for j,elt in enumerate(row):
-            mat_rational_get_element(pm_mat[0], i, j).set_long(num, den)
+            pm_MatrixRational_get(pm_mat[0], i, j).set_long(num, den)
     mpq_clear(z)
 
     return pm_mat
@@ -300,16 +296,7 @@ cdef pm_MatrixInteger* int_mat_to_pm(int nr, int nc, list mat):
     for i,row in enumerate(mat):
         for j,elt in enumerate(row):
             mpz_set_si(z, elt)
-            mat_integer_get_element(pm_mat[0], i, j).set_mpz_srcptr(z)
+            pm_MatrixInteger_get(pm_mat[0], i, j).set_mpz_srcptr(z)
     mpz_clear(z)
 
     return pm_mat
-
-cdef pm_MatrixInt* i_mat_to_pm(int nr, int nc, list mat):
-    """
-    Create a polymake integer matrix from input so that:
-
-    - there are methods ``nrows``, ``ncols`` giving the number of rows and cols
-    - accessing to the elements is done via ``mat[i,j]``
-    """
-    raise NotImplementedError
