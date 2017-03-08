@@ -4,6 +4,12 @@
 
 
 #define WRAP_OUT(x,y) x << y
+#define WRAP_IN(x,y) x >> y
+
+/* note: polymake objects can not write directly in c++ stream */
+/* we need this magic wrap function */
+#define WRAP_wrap_OUT(x,y) wrap(x) << y
+
 #define GIVE(ans, obj, prop)  (obj)->give(prop) >> ans
 #define CALL_METHOD(ans, obj, prop) (obj)->call_method(prop) >> ans
 #define WRAP_CALL(t, i, j) t(i,j)

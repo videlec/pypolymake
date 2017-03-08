@@ -15,6 +15,15 @@ from .cygmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
 from .cygmp.mpq cimport mpq_init, mpq_clear, mpq_numref, mpq_denref, mpq_canonicalize
 from .cygmp.utils cimport mpz_set_pylong, mpz_get_bytes, mpq_get_bytes
 
+from libcpp.string cimport string
+
+cdef extern from "<sstream>" namespace "std":
+    cdef cppclass ostringstream:
+        string str()
+
+cdef extern from "wrap.h" namespace "polymake":
+    void pm_Integer_repr "WRAP_wrap_OUT" (ostringstream, pm_Integer)
+    void pm_Rational_repr "WRAP_wrap_OUT" (ostringstream, pm_Rational)
 
 def get_num_den(elt):
     num = None
@@ -73,7 +82,9 @@ cdef class Integer:
         return not self.pm_obj.is_zero()
 
     def __repr__(self):
-        return (<bytes> mpz_get_bytes(self.pm_obj.get_rep())).decode('ascii')
+        cdef ostringstream out
+        pm_Integer_repr(out, self.pm_obj)
+        return (<bytes>out.str()).decode('ascii')
 
     #TODO: overflow!!
     def __int__(self):
@@ -251,7 +262,9 @@ cdef class Rational:
             return op in (Py_GE, Py_GT, Py_NE)
 
     def __repr__(self):
-        return (<bytes> mpq_get_bytes(self.pm_obj.get_rep())).decode('ascii')
+        cdef ostringstream out
+        pm_Rational_repr(out, self.pm_obj)
+        return (<bytes>out.str()).decode('ascii')
 
     def numerator(self):
         cdef Integer ans = Integer.__new__(Integer)

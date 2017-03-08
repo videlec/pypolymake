@@ -16,22 +16,24 @@ from .cygmp.mpq cimport *
 from .number cimport Rational, Integer
 from .number import get_num_den
 
+from libcpp.string cimport string
+
+cdef extern from "<sstream>" namespace "std":
+    cdef cppclass ostringstream:
+        string str()
+
+cdef extern from "wrap.h" namespace "polymake":
+    void pm_MatrixInt_repr "WRAP_wrap_OUT" (ostringstream, pm_MatrixInt)
+    void pm_MatrixFloat_repr "WRAP_wrap_OUT" (ostringstream, pm_MatrixFloat)
+    void pm_MatrixInteger_repr "WRAP_wrap_OUT" (ostringstream, pm_MatrixInteger)
+    void pm_MatrixRational_repr "WRAP_wrap_OUT" (ostringstream, pm_MatrixRational)
+    void pm_SparseMatrixIntNonSymmetric_repr "WRAP_wrap_OUT" (ostringstream, pm_SparseMatrixIntNonSymmetric)
+    void pm_SparseMatrixRationalNonSymmetric_repr "WRAP_wrap_OUT" (ostringstream, pm_SparseMatrixRationalNonSymmetric)
+    void pm_IncidenceMatrixNonSymmetric_repr "WRAP_wrap_OUT" (ostringstream, pm_IncidenceMatrixNonSymmetric)
+
 cdef class MatrixGeneric(object):
     cpdef Py_ssize_t rows(self): return -1
     cpdef Py_ssize_t cols(self): return -1
-    def __repr__(self):
-        cdef Py_ssize_t nrows, ncols, i, j
-        nrows = self.rows()
-        ncols = self.cols()
-
-        rows = [[str(self[i,j]) for j in range(ncols)] for i in range(nrows)]
-        col_sizes = [max(len(rows[i][j]) for i in range(nrows)) for j in range(ncols)]
-
-        line_format = "[ " +  \
-                " ".join("{{:{width}}}".format(width=t) for t in col_sizes) + \
-                      "]"
-
-        return "\n".join(line_format.format(*row) for row in rows)
 
     def python(self):
         r"""Converts to a list of list of fractions
@@ -79,19 +81,21 @@ cdef class MatrixGeneric(object):
         except AttributeError:
             return [[self[i,j] for j in range(ncols)] for i in range(nrows)]
 
-cdef class MatrixRational(MatrixGeneric):
+cdef class MatrixInt(MatrixGeneric):
+    def __repr__(self):
+        cdef ostringstream out
+        pm_MatrixInt_repr(out, self.pm_obj)
+        return (<bytes>out.str()).decode('ascii')
+
     def __getitem__(self, elt):
-        cdef Py_ssize_t nrows, ncols, i, j
+        cdef Py_ssize_t nrows, ncols, i,j
         nrows = self.pm_obj.rows()
         ncols = self.pm_obj.cols()
         i,j = elt
         if not (0 <= i < nrows) or not (0 <= j < ncols):
             raise IndexError("matrix index out of range")
 
-        cdef Rational ans = Rational.__new__(Rational)
-        cdef mpq_srcptr q = pm_MatrixRational_get(self.pm_obj, i, j).get_rep()
-        ans.pm_obj.set_mpq_srcptr(q)
-        return ans
+        return pm_MatrixInt_get(self.pm_obj, i, j)
 
     cpdef Py_ssize_t rows(self):
         return self.pm_obj.rows()
@@ -103,20 +107,47 @@ cdef class MatrixRational(MatrixGeneric):
 
         >>> import polymake
         >>> c = polymake.cube(3)
-        >>> m = c.VERTEX_NORMALS.sage()
-        >>> m
-        [ 1/2  1/2  1/2  1/2]
-        [ 1/2 -1/2  1/2  1/2]
-        [ 1/2  1/2 -1/2  1/2]
+        >>> m = c.EDGE_ORIENTATION
+        >>> m.sage()
+        [0 4]
+        [2 6]
+        [0 2]
         ...
-        [ 1/2 -1/2 -1/2 -1/2]
-        >>> type(m)
-        <type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'>
+        [2 3]
+        [6 7]
+        >>> type(m.sage())
+        <type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'>
         """
-        from .sage_conversion import MatrixRational_to_sage
-        return MatrixRational_to_sage(self)
+        from .sage_conversion import MatrixInt_to_sage
+        return MatrixInt_to_sage(self)
+
+cdef class MatrixFloat(MatrixGeneric):
+    def __repr__(self):
+        cdef ostringstream out
+        pm_MatrixFloat_repr(out, self.pm_obj)
+        return (<bytes>out.str()).decode('ascii')
+
+    def __getitem__(self, elt):
+        cdef Py_ssize_t nrows, ncols, i,j
+        nrows = self.pm_obj.rows()
+        ncols = self.pm_obj.cols()
+        i,j = elt
+        if not (0 <= i < nrows) or not (0 <= j < ncols):
+            raise IndexError("matrix index out of range")
+
+        return pm_MatrixFloat_get(self.pm_obj, i, j)
+
+    cpdef Py_ssize_t rows(self):
+        return self.pm_obj.rows()
+    cpdef Py_ssize_t cols(self):
+        return self.pm_obj.cols()
 
 cdef class MatrixInteger:
+    def __repr__(self):
+        cdef ostringstream out
+        pm_MatrixInteger_repr(out, self.pm_obj)
+        return (<bytes>out.str()).decode('ascii')
+
     def __getitem__(self, elt):
         cdef Py_ssize_t nrows, ncols, i,j
         nrows = self.pm_obj.rows()
@@ -165,16 +196,25 @@ cdef class MatrixInteger:
         from .sage_conversion import MatrixInteger_to_sage
         return MatrixInteger_to_sage(self)
 
-cdef class MatrixInt(MatrixGeneric):
+
+cdef class MatrixRational(MatrixGeneric):
+    def __repr__(self):
+        cdef ostringstream out
+        pm_MatrixRational_repr(out, self.pm_obj)
+        return (<bytes>out.str()).decode('ascii')
+
     def __getitem__(self, elt):
-        cdef Py_ssize_t nrows, ncols, i,j
+        cdef Py_ssize_t nrows, ncols, i, j
         nrows = self.pm_obj.rows()
         ncols = self.pm_obj.cols()
         i,j = elt
         if not (0 <= i < nrows) or not (0 <= j < ncols):
             raise IndexError("matrix index out of range")
 
-        return pm_MatrixInt_get(self.pm_obj, i, j)
+        cdef Rational ans = Rational.__new__(Rational)
+        cdef mpq_srcptr q = pm_MatrixRational_get(self.pm_obj, i, j).get_rep()
+        ans.pm_obj.set_mpq_srcptr(q)
+        return ans
 
     cpdef Py_ssize_t rows(self):
         return self.pm_obj.rows()
@@ -186,38 +226,25 @@ cdef class MatrixInt(MatrixGeneric):
 
         >>> import polymake
         >>> c = polymake.cube(3)
-        >>> m = c.EDGE_ORIENTATION
-        >>> m.sage()
-        [0 4]
-        [2 6]
-        [0 2]
+        >>> m = c.VERTEX_NORMALS.sage()
+        >>> m
+        [ 1/2  1/2  1/2  1/2]
+        [ 1/2 -1/2  1/2  1/2]
+        [ 1/2  1/2 -1/2  1/2]
         ...
-        [2 3]
-        [6 7]
-        >>> type(m.sage())
-        <type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'>
+        [ 1/2 -1/2 -1/2 -1/2]
+        >>> type(m)
+        <type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'>
         """
-        from .sage_conversion import MatrixInt_to_sage
-        return MatrixInt_to_sage(self)
+        from .sage_conversion import MatrixRational_to_sage
+        return MatrixRational_to_sage(self)
 
-cdef class MatrixFloat(MatrixGeneric):
-    def __getitem__(self, elt):
-        cdef Py_ssize_t nrows, ncols, i,j
-        nrows = self.pm_obj.rows()
-        ncols = self.pm_obj.cols()
-        i,j = elt
-        if not (0 <= i < nrows) or not (0 <= j < ncols):
-            raise IndexError("matrix index out of range")
-
-        return pm_MatrixFloat_get(self.pm_obj, i, j)
-
-    cpdef Py_ssize_t rows(self):
-        return self.pm_obj.rows()
-    cpdef Py_ssize_t cols(self):
-        return self.pm_obj.cols()
-
- 
 cdef class SparseMatrixIntNonSymmetric(MatrixGeneric):
+    def __repr__(self):
+        cdef ostringstream out
+        pm_SparseMatrixIntNonSymmetric_repr(out, self.pm_obj)
+        return (<bytes>out.str()).decode('ascii')
+
     def __getitem__(self, elt):
         cdef Py_ssize_t nrows, ncols, i,j
         nrows = self.pm_obj.rows()
@@ -234,6 +261,11 @@ cdef class SparseMatrixIntNonSymmetric(MatrixGeneric):
         return self.pm_obj.cols()
 
 cdef class SparseMatrixRationalNonSymmetric(MatrixGeneric):
+    def __repr__(self):
+        cdef ostringstream out
+        pm_SparseMatrixRationalNonSymmetric_repr(out, self.pm_obj)
+        return (<bytes>out.str()).decode('ascii')
+
     def __getitem__(self, elt):
         cdef Py_ssize_t nrows, ncols, i,j
         nrows = self.pm_obj.rows()
@@ -254,6 +286,12 @@ cdef class SparseMatrixRationalNonSymmetric(MatrixGeneric):
         return self.pm_obj.cols()
 
 cdef class IncidenceMatrixNonSymmetric(MatrixGeneric):
+    def __repr__(self):
+        cdef ostringstream out
+        pm_IncidenceMatrixNonSymmetric_repr(out, self.pm_obj)
+        return (<bytes>out.str()).decode('ascii')
+
+
     def __getitem__(self, elt):
         cdef Py_ssize_t nrows, ncols, i,j
         nrows = self.pm_obj.rows()

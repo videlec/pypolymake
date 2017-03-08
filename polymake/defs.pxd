@@ -1,3 +1,4 @@
+
 ###############################################################################
 #       Copyright (C) 2011-2012 Burcin Erocal <burcin@erocal.org>
 #                     2016      Vincent Delecroix <vincent.delecroix@labri.fr>
@@ -6,10 +7,9 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-# header files in include/core/polymake
-# (should corresponds to "small objects" in polymake)
-# the perl bindings
-# GREP declare property_type  and   c++
+# This file contain header declarations from polymake (in include/core/polymake).
+# The explicit list of supported "small objects" from polymake is declared
+# in this file
 #
 #     AccurateFloat.h
 #     AnyString.h
@@ -234,7 +234,7 @@ cdef extern from "polymake/Array.h" namespace "polymake":
         void resize(int)
         void assign(int, long)
         long get "operator[]" (int i)
-    cdef cppclass pm_ArrayString "Array<char *>":
+    cdef cppclass pm_ArrayString "Array<std::string>":
         pm_ArrayString()
         pm_ArrayString(int)
         int size()
@@ -242,7 +242,7 @@ cdef extern from "polymake/Array.h" namespace "polymake":
         void clear()
         void resize(int)
         void assign(int, char *)
-        char * get "operator[]" (int i)
+        string get "operator[]" (int i)
 
 cdef extern from "polymake/Set.h" namespace "polymake":
     cdef cppclass pm_SetInt "Set<long>":
@@ -330,6 +330,7 @@ cdef extern from "polymake/Matrix.h" namespace "polymake":
 
 
     # WRAP_OUT(x,y) x<<y
+
     void pm_assign_MatrixRational "WRAP_OUT" (pm_PerlPropertyValue, pm_MatrixRational)
 
     # the except clause below is fake

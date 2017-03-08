@@ -10,6 +10,17 @@
 
 from .number cimport Integer, Rational
 
+from libcpp.string cimport string
+
+cdef extern from "<sstream>" namespace "std":
+    cdef cppclass ostringstream:
+        string str()
+
+cdef extern from "wrap.h" namespace "polymake":
+    void pm_VectorInteger_repr "WRAP_wrap_OUT" (ostringstream, pm_VectorInteger)
+    void pm_VectorRational_repr "WRAP_wrap_OUT" (ostringstream, pm_VectorRational)
+
+
 cdef class VectorInteger:
     def __len__(self):
         return self.pm_obj.size()
@@ -26,7 +37,9 @@ cdef class VectorInteger:
         return ans
 
     def __repr__(self):
-        return "(" + ", ".join(str(x) for x in self) + ")"
+        cdef ostringstream out
+        pm_VectorInteger_repr(out, self.pm_obj)
+        return (<bytes>out.str()).decode('ascii')
 
     def sage(self):
         r"""
@@ -60,7 +73,9 @@ cdef class VectorRational:
         return ans
 
     def __repr__(self):
-        return "(" + ", ".join(str(x) for x in self) + ")"
+        cdef ostringstream out
+        pm_VectorRational_repr(out, self.pm_obj)
+        return (<bytes>out.str()).decode('ascii')
 
     def sage(self):
         r"""
