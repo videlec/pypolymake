@@ -16,23 +16,6 @@ from .cygmp.mpq cimport *
 from .number cimport Rational, Integer
 from .number import get_num_den
 
-from .defs cimport pm_Integer, pm_Rational
-
-cdef extern from "polymake/Matrix.h" namespace "polymake":
-    # WRAP_CALL(t,i,j) -> t(i,j)
-    long pm_MatrixInt_get "WRAP_CALL" (pm_MatrixInt, int i, int j)
-    float pm_MatrixFloat_get "WRAP_CALL" (pm_MatrixFloat, int i, int j)
-    pm_Rational pm_MatrixRational_get "WRAP_CALL" (pm_MatrixRational, int i, int j)
-    pm_Integer pm_MatrixInteger_get "WRAP_CALL" (pm_MatrixInteger, int i, int j)
-
-cdef extern from "polymake/SparseMatrix.h" namespace "polymake":
-    # WRAP_CALL(t,i,j) -> t(i,j)
-    long pm_SparseMatrixIntNonSymmetric_get "WRAP_CALL" (pm_SparseMatrixIntNonSymmetric, int i, int j)
-    pm_Rational pm_SparseMatrixRationalNonSymmetric_get "WRAP_CALL" (pm_SparseMatrixRationalNonSymmetric, int i, int j)
-
-cdef extern from "polymake/IncidenceMatrix.h" namespace "polymake":
-    bint pm_IncidenceMatrixNonSymmetric_get "WRAP_CALL" (pm_IncidenceMatrixNonSymmetric, int i, int j)
-
 cdef class MatrixGeneric(object):
     cpdef Py_ssize_t rows(self): return -1
     cpdef Py_ssize_t cols(self): return -1
