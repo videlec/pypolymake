@@ -55,7 +55,6 @@
 #     Series.h
 #     Set.h
 #     Smith_normal_form.h
-#     socketstream.h
 #     SparseMatrix.h
 #     SparseVector.h
 #     TransformedContainer.h
@@ -72,10 +71,10 @@
 #     numerical_functions.h
 #     pair.h
 #     permutations.h
+#     socketstream.h
 #     totally_unimodular.h
 #     type_utils.h
 #
-# lib/core/include/client.h
 # lib/callable/include/Main.h
 
 from libcpp cimport bool
@@ -89,6 +88,7 @@ cdef extern from "polymake/Main.h" namespace "polymake":
     cdef cppclass Main:
         void set_application(string)
         void set_preference(string)
+        void pm_include "include" (string)
 
 cdef extern from "polymake/Integer.h" namespace "polymake":
     ctypedef pm_const_Integer "const Integer"
@@ -225,14 +225,23 @@ cdef extern from "polymake/client.h":
     pm_PerlObject* new_PerlObject_from_PerlObject "new perl::Object" (pm_PerlObject)
 
 cdef extern from "polymake/Array.h" namespace "polymake":
-    cdef cppclass pm_ArrayInt "Array<long>":
+    cdef cppclass pm_ArrayBool "Array<bool>":
+        pm_ArrayBool()
+        pm_ArrayBool(int)
+        int size()
+        bool empty()
+        void clear()
+        void resize(int)
+        void assign(int, int)
+        bool get "operator[]" (int i)
+    cdef cppclass pm_ArrayInt "Array<int>":
         pm_ArrayInt()
         pm_ArrayInt(int)
         int size()
         bool empty()
         void clear()
         void resize(int)
-        void assign(int, long)
+        void assign(int, int)
         long get "operator[]" (int i)
     cdef cppclass pm_ArrayString "Array<std::string>":
         pm_ArrayString()
@@ -243,9 +252,28 @@ cdef extern from "polymake/Array.h" namespace "polymake":
         void resize(int)
         void assign(int, char *)
         string get "operator[]" (int i)
+    cdef cppclass pm_ArraySetInt "Array<Set<int>>":
+        pm_ArraySetInt()
+        pm_ArraySetInt(int)
+        int size()
+        bool empty()
+        void clear()
+        void resize(int)
+        void assign(int, char *)
+        pm_SetInt get "operator[]" (int i)
+    cdef cppclass pm_ArrayArrayInt "Array<Array<int>>":
+        pm_ArrayArrayInt()
+        pm_ArrayArrayInt(int)
+        int size()
+        bool empty()
+        void clear()
+        void resize(int)
+        void assign(int, char *)
+        pm_ArrayInt get "operator[]" (int i)
+       
 
 cdef extern from "polymake/Set.h" namespace "polymake":
-    cdef cppclass pm_SetInt "Set<long>":
+    cdef cppclass pm_SetInt "Set<int>":
         pm_SetInt()
         void clear()
         void resize(int)
@@ -256,8 +284,16 @@ cdef extern from "polymake/Set.h" namespace "polymake":
         # reverse_iterator rbegin()
         # reverse_iterator rend()
 
+
 cdef extern from "polymake/Map.h" namespace "polymake":
-    pass
+    cdef cppclass pm_MapStringString "Map<std::string,std::string>":
+        string get "operator[]" (string&)
+    cdef cppclass pm_MapRationalRational "Map<Rational, Rational>":
+        pm_Rational get "operator[]" (pm_Rational&)
+    cdef cppclass pm_MapIntInt "Map<int, int>":
+        int get "operator[]" (int)
+    cdef cppclass pm_MapIntegerInt "Map<Integer, int>":
+        int get "operator[]" (pm_Integer)
 
 cdef extern from "polymake/Polynomial.h" namespace "polymake":
     pass
@@ -275,7 +311,7 @@ cdef extern from "polymake/IncidenceMatrix.h" namespace "polymake":
 # SparseMatrix<Rational, NonSymmetric>"
 # SparseMatrix<Rational, Symmetric>"
 cdef extern from "polymake/SparseMatrix.h" namespace "polymake":
-    cdef cppclass pm_SparseMatrixIntNonSymmetric "SparseMatrix<long, NonSymmetric>":
+    cdef cppclass pm_SparseMatrixIntNonSymmetric "SparseMatrix<int, NonSymmetric>":
         pm_SparseMatrixInt ()
         pm_SparseMatrixInt (int nr, int nc)
         Py_ssize_t rows()
@@ -293,10 +329,10 @@ cdef extern from "polymake/SparseMatrix.h" namespace "polymake":
 # NOTE: for Matrix the C++ type does not match the perl type
 # namely, the "" part is fake
 cdef extern from "polymake/Matrix.h" namespace "polymake":
-    cdef cppclass pm_MatrixInt "Matrix<long>":
+    cdef cppclass pm_MatrixInt "Matrix<int>":
         pm_MatrixInt()
         pm_MatrixInt(int nr, int nc)
-        void assign(int r, int c, long val)
+        void assign(int r, int c, int val)
         Py_ssize_t rows()
         Py_ssize_t cols()
 

@@ -1,0 +1,53 @@
+{
+    "Integer":
+    [
+    
+        ["Integer", "Integer"]
+    ],
+
+    "Array":
+    [
+        ["ArrayBool", "Array<Bool>"],
+        ["ArrayInt", "Array<Int>"],
+        ["ArrayString", "Array<String>"],
+        ["ArraySetInt", "Array<Set<Int>>"],
+        ["ArrayArrayInt", "Array<Array<Int>>"]
+    ],
+
+    "IncidenceMatrix":
+    [
+        ["IncidenceMatrixNonSymmetric", "IncidenceMatrix<NonSymmetric>"]
+    ],
+
+    "Map":
+    [
+        ["MapStringString", "Map<String, String>"],
+        ["MapRationalRational", "Map<Rational, Rational>"],
+        ["MapIntInt", "Map<Int, Int>"],
+        ["MapIntegerInt", "Map<Integer, Int>"]
+    ],
+
+    "Matrix":
+    [
+        ["MatrixInt", "Matrix<Int, NonSymmetric>"],
+        ["MatrixFloat", "Matrix<Float, NonSymmetric>"],
+        ["MatrixInteger", "Matrix<Integer, NonSymmetric>"],
+        ["MatrixRational", "Matrix<Rational, NonSymmetric>"]
+    ],
+
+    "Rational":
+    [
+        ["Rational", "Rational"]
+    ],
+    "SparseMatrix":
+    [
+        ["SparseMatrixIntNonSymmetric", "SparseMatrix<Int, NonSymmetric>"],
+        ["SparseMatrixRationalNonSymmetric", "SparseMatrix<Rational, NonSymmetric>"]
+    ],
+
+    "Vector":
+    [
+        ["VectorInteger", "Vector<Integer>"],
+        ["VectorRational", "Vector<Rational>"]
+    ]
+}

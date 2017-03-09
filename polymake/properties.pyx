@@ -1,12 +1,12 @@
 # distutils: language = c++
 # distutils: libraries = gmp polymake
 r"""
-Structure of polymake objects and mapping to Python objects
+Handlers for polymake objects
 
-Most of the code dealing with small objects is automatically
-generated at build time and belong to "handlers.pxi" and
-"auto_mappings.pxi".
-
+This file organizes the conversion of C++ polymake objects
+to the actual wrappers of the pypolymake library. Most of the code
+is actually generated automatically at build time in "handlers.pxi"
+and "auto_mappings.pxi".
 """
 ###############################################################################
 #       Copyright (C) 2016      Vincent Delecroix <vincent.delecroix@labri.fr>
@@ -16,31 +16,20 @@ generated at build time and belong to "handlers.pxi" and
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-
 from libcpp cimport bool
 from libcpp.string cimport string
 
+from .perl_object cimport pm
+
 from .defs cimport *
 from .perl_object cimport *
+
+from .array cimport *
+from .map cimport *
 from .matrix cimport *
 from .number cimport *
-from .array cimport *
 from .vector cimport *
 
-
-cdef dict type_properties = {}
-include "auto_properties.pxi"
-
-# TODO: this should be a dynamical function
-cpdef get_properties(bytes pm_type):
-    global type_properties
-    try:
-        return type_properties[pm_type]
-    except KeyError:
-        print("  pypolymake debug WARNING: properties unknown for {}".format(pm_type))
-        return {}
-
-# Hand written handler that
 
 cdef extern from "wrap.h" namespace "polymake":
     void pm_get_PerlObject "GIVE" (pm_PerlObject, pm_PerlObject*, string)
@@ -90,11 +79,17 @@ cdef dict handlers = {
 include "auto_mappings.pxi"
 handlers.update(auto_handlers)
 
+cdef list small_types = [b"Array", b"Integer", b"Map", b"Matrix", b"PowerSet",
+        b"Rational", b"Set", b"SparseMatrix", b"SparseVector", b"Vector"]
 
 cpdef get_handler(bytes pm_type):
+    cdef bytes typ
     global handlers
     try:
         return handlers[pm_type]
     except KeyError:
+        for typ in small_types:
+            if pm_type.startswith(typ):
+                raise NotImplementedError("lacking support for polymake small type {}".format(pm_type))
         print("  pypolymake debug WARNING: falling back to generic handler")
         return handler_generic

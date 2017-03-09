@@ -28,6 +28,9 @@ extensions = [
     Extension("polymake.vector", ["polymake/vector.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
+    Extension("polymake.map", ["polymake/map.pyx"],
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
+
     Extension("polymake.matrix", ["polymake/matrix.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
@@ -102,7 +105,7 @@ class build_ext(_build_ext):
             sys.stderr.write("The installation of ppl requires Cython\n")
             sys.exit(1)
 
-# cysignals not needed right now
+# cysignals not yet integrated
 #        try:
 #            # We need the header files for cysignals at compile-time
 #            import cysignals

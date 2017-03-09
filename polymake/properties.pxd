@@ -16,8 +16,9 @@ This file defines how perl properties are handled.
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
+from .perl_object cimport PerlObject
+from .map cimport MapStringString
 
-cpdef get_properties(bytes pm_type)
-cpdef get_handler(bytes pm_type)
+cpdef get_handler(bytes)
 
 cdef dict handlers

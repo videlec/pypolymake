@@ -8,12 +8,13 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
+from libcpp.string cimport string
+
 from .defs cimport (call_function, call_function1, call_function2, call_function3,
-        new_PerlObject_from_PerlObject)
+        new_PerlObject_from_PerlObject, pm_MapStringString)
 
-
-from .properties cimport handlers, get_properties, get_handler
-        
+from .map cimport MapStringString
+from .properties cimport handlers, get_handler
 
 cdef int DEBUG = 0
 
@@ -21,12 +22,33 @@ cdef int DEBUG = 0
 def _NOT_TO_BE_USED_():
     raise ValueError
 
-# TODO: needs something stronger to deal with type detection
+cdef extern from "polymake/client.h" namespace "polymake":
+    pm_MapStringString call_it "call_function" (string, pm_PerlObject) except +
+
+def get_properties(PerlObject p):
+    r"""
+    Return the properties of the perl object ``p``
+
+    The argument must correspond to a "big object" in polymake
+
+    EXAMPLES:
+
+    >>> import polymake
+    >>> from polymake.properties import get_properties
+    >>> c = polymake.cube(3)
+    >>> m = get_properties(c)
+    """
+    pm.pm_include("common::sage.rules")
+    cdef MapStringString s = MapStringString.__new__(MapStringString)
+    s.pm_obj = call_it(<string> "Sage::properties_for_object", p.pm_obj[0])
+    return s
+
+# Hand written handler that
+
 cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj):
     cdef PerlObject ans = PerlObject.__new__(PerlObject)
     ans.pm_obj = new_PerlObject_from_PerlObject(pm_obj)
-    pm_type = pm_obj.type().name()
-    ans.properties = get_properties(pm_type)
+    ans.properties = get_properties(ans)
     return ans
 
 def call_polymake_function(bytes app, bytes name, *args):
@@ -51,6 +73,10 @@ cdef class PerlObject:
 
     def __getattr__(self, name):
         cdef bytes bname = name.encode('utf-8')
+        if not bname.isupper():
+            # FIXME: currently we have no way of checking whether a given string
+            # is actually present in a pm::Map!!
+            raise AttributeError
         print("  pypolymake debug WARNING: __getattr__:\n  self = {}\n  name = {}".format(type(self), bname))
         try:
             pm_type = self.properties[bname]
@@ -62,26 +88,17 @@ cdef class PerlObject:
         return handler(self, bname)
 
 
-#    def _getitem_long(self, int i):
-#        return self.pm_obj.get_long_from_int(i)
-#    def _getitem_object(self, int i):
-#        cdef pm_PerlObject pm_obj
-#        sig_on()
-#        pm_obj = self.pm_obj.get_PerlObject_from_int(i)
-#        sig_off()
-#        return wrap_perl_object(pm_obj)
-
     def __dir__(self):
-        if self.properties is None:
-            return dir(self.__class__)
-        else:
-            return dir(self.__class__) + [x.decode('ascii') for x in self.properties]
+        return dir(self.__class__) + [x.decode('ascii') for x in self.properties]
 
     def _save(self, filename):
         """
         Saves this polytope to a file using polymake's representation.
         """
         self.pm_obj.save(filename)
+
+    def _properties(self):
+        return self.properties
 
     def _get_property(self, bytes prop, bytes pm_type=None):
         r"""
@@ -105,11 +122,13 @@ cdef class PerlObject:
         r"""
         Return the name of the type of this object
         """
-        print("  pypolymake debug WARNING: calling type_name")
-        return <bytes> self.pm_obj.type().name()
+        return (<bytes> self.pm_obj.type().name()).decode('ascii')
+
+    def __str__(self): return self.type_name()
+    def __repr__(self): return self.type_name()
 
     def name(self):
-        return <bytes> self.pm_obj.name()
+        return (<bytes> self.pm_obj.name()).decode('ascii')
 
 #    def description(self):
 #        r"""
@@ -118,12 +137,6 @@ cdef class PerlObject:
 #            Sometimes this gives a Segmentation fault!
 #        """
 #        return <bytes> self.pm_obj.description()
-
-    def __str__(self):
-        return "{}<{}>".format(self.type_name(), hex(id(self)))
-
-    def __repr__(self):
-        return "{}<{}>".format(self.type_name(), hex(id(self)))
 
     def sage(self):
         r"""Converts to a Sage object
