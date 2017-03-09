@@ -48,9 +48,13 @@ Note that this uses the stable version of polymake and is not further developed.
 
 ### Installation against the beta version of polymake in Python2 or Python3
 
-1. Clone, compile and install the "feature/sage" branch of polymake at git.polymake.org
+1. Clone the following development version of polymake
 
-2. Install pypolymake
+    $ git clone https://daemon@git.math.cnrs.fr/anon/plm/delecroix/polymake
+
+2, Compile and install the cloned branch
+
+3. Install pypolymake
 
     $ pip install git+https://github.com/videlec/pypolymake@beta [--user] [--upgrade]
 
