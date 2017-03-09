@@ -41,6 +41,9 @@ cdef class VectorInteger:
         pm_VectorInteger_repr(out, self.pm_obj)
         return (<bytes>out.str()).decode('ascii')
 
+    def python(self):
+        return [x.python() for x in self]
+
     def sage(self):
         r"""
         Convert to a Sage integer vector
@@ -76,6 +79,9 @@ cdef class VectorRational:
         cdef ostringstream out
         pm_VectorRational_repr(out, self.pm_obj)
         return (<bytes>out.str()).decode('ascii')
+
+    def python(self):
+        return [x.python() for x in self]
 
     def sage(self):
         r"""
