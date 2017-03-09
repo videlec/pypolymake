@@ -8,12 +8,19 @@ It depends on distutils
 from __future__ import print_function
 
 from setuptools import setup
+import distutils
 from distutils.cmd import Command
 from distutils.command.build_ext import build_ext as _build_ext
 from setuptools.extension import Extension
 
-
 import os
+
+
+# temporary fix to
+#   https://github.com/videlec/pypolymake/issues/17
+cfg_vars = distutils.sysconfig.get_config_vars()
+cfg_vars['CFLAGS'] = cfg_vars['CFLAGS'].replace("-Wstrict-prototypes", "")
+
 
 extensions = [
     Extension("polymake.cygmp.utils", ["polymake/cygmp/utils.pyx"],
