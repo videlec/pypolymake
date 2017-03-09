@@ -288,12 +288,16 @@ cdef extern from "polymake/Set.h" namespace "polymake":
 cdef extern from "polymake/Map.h" namespace "polymake":
     cdef cppclass pm_MapStringString "Map<std::string,std::string>":
         string get "operator[]" (string&)
+        int size()
     cdef cppclass pm_MapRationalRational "Map<Rational, Rational>":
         pm_Rational get "operator[]" (pm_Rational&)
+        int size()
     cdef cppclass pm_MapIntInt "Map<int, int>":
         int get "operator[]" (int)
+        int size()
     cdef cppclass pm_MapIntegerInt "Map<Integer, int>":
         int get "operator[]" (pm_Integer)
+        int size()
 
 cdef extern from "polymake/Polynomial.h" namespace "polymake":
     pass

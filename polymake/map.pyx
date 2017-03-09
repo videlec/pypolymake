@@ -46,6 +46,9 @@ cdef class MapStringString:
     def __getitem__(self, bytes key):
         return self.pm_obj.get(key)
 
+    def __len__(self):
+        return self.pm_obj.size()
+
     def __iter__(self):
         cdef pm_MapStringString_iterator it = entire_MapStringString(self.pm_obj)
         while not it.at_end():
@@ -68,7 +71,7 @@ cdef class MapStringString:
             it.next()
 
     def values(self):
-        "Iterator throug the pairs (key, value) of this map"
+        "Iterator throug the values of this map"
         cdef pm_MapStringString_iterator it = entire_MapStringString(self.pm_obj)
         while not it.at_end():
             yield it.get().second
@@ -76,6 +79,7 @@ cdef class MapStringString:
 
     def python(self):
         return dict(self.items())
+
 
 cdef class MapIntInt:
     def __repr__(self):
@@ -85,6 +89,9 @@ cdef class MapIntInt:
 
     def __getitem__(self, int key):
         return self.pm_obj.get(key)
+
+    def __len__(self):
+        return self.pm_obj.size()
 
     def __iter__(self):
         cdef pm_MapIntInt_iterator it = entire_MapIntInt(self.pm_obj)
@@ -117,8 +124,6 @@ cdef class MapIntInt:
         return dict(self.items())
 
 
-
-
 cdef class MapRationalRational:
     def __repr__(self):
         cdef ostringstream out
@@ -130,6 +135,10 @@ cdef class MapRationalRational:
         out.pm_obj = self.pm_obj.get(key.pm_obj)
         return out
 
+    def __len__(self):
+        return self.pm_obj.size()
+
+
 cdef class MapIntegerInt:
     def __repr__(self):
         cdef ostringstream out
@@ -138,4 +147,7 @@ cdef class MapIntegerInt:
 
     def __getitem__(self, Integer key):
         return self.pm_obj.get(key.pm_obj)
+
+    def __len__(self):
+        return self.pm_obj.size()
 
