@@ -289,22 +289,25 @@ cdef extern from "polymake/Map.h" namespace "polymake":
     cdef cppclass pm_MapStringString "Map<std::string,std::string>":
         string get "operator[]" (string&)
         int size()
+        bool exists(string&)
     cdef cppclass pm_MapRationalRational "Map<Rational, Rational>":
         pm_Rational get "operator[]" (pm_Rational&)
         int size()
+        bool exists(pm_Rational&)
     cdef cppclass pm_MapIntInt "Map<int, int>":
         int get "operator[]" (int)
         int size()
+        bool exists(int)
     cdef cppclass pm_MapIntegerInt "Map<Integer, int>":
         int get "operator[]" (pm_Integer)
         int size()
+        bool exists(pm_Integer&)
+
 
 cdef extern from "polymake/Polynomial.h" namespace "polymake":
     pass
 
 
-#     IncidenceMatrix.h
-# IncidenceMatrix<>
 cdef extern from "polymake/IncidenceMatrix.h" namespace "polymake":
     cdef cppclass pm_IncidenceMatrixNonSymmetric "IncidenceMatrix<NonSymmetric>":
         pm_IncidenceMatrixNonSymmetric()

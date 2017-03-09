@@ -55,6 +55,9 @@ cdef class MapStringString:
             yield it.get().first
             it.next()
 
+    def __contains__(self, bytes key):
+        return self.pm_obj.exists(key)
+
     def items(self):
         "Iterator throug the pairs (key, value) of this map"
         cdef pm_MapStringString_iterator it = entire_MapStringString(self.pm_obj)
@@ -99,6 +102,26 @@ cdef class MapIntInt:
             yield it.get().first
             it.next()
 
+    def __contains__(self, int key):
+        r"""
+        TESTS:
+
+        >>> import polymake
+        >>> c = polymake.associahedron(3)
+        >>> m = c.TWO_FACE_SIZES
+        >>> 4 in m
+        True
+        >>> 5 in m
+        True
+        >>> 2 in m
+        False
+        >>> 'a' in m
+        Traceback (most recent call last):
+        ...
+        TypeError: an integer is required
+        """
+        return self.pm_obj.exists(key)
+
     def items(self):
         "Iterator throug the pairs (key, value) of this map"
         cdef pm_MapIntInt_iterator it = entire_MapIntInt(self.pm_obj)
@@ -138,6 +161,20 @@ cdef class MapRationalRational:
     def __len__(self):
         return self.pm_obj.size()
 
+    def __contains__(self, Rational key):
+        r"""
+        TESTS:
+
+        >>> import polymake
+        >>> c = polymake.associahedron(3)
+        >>> m = c.RELATIVE_VOLUME
+        >>> polymake.Rational(805,1) in m
+        True
+        >>> polymake.Rational(805,2) in m
+        False
+        """
+        return self.pm_obj.exists(key.pm_obj)
+
 
 cdef class MapIntegerInt:
     def __repr__(self):
@@ -150,4 +187,7 @@ cdef class MapIntegerInt:
 
     def __len__(self):
         return self.pm_obj.size()
+
+    def __contains__(self, Integer key):
+        return self.pm_obj.exists(key.pm_obj)
 
