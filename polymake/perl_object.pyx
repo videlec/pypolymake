@@ -27,24 +27,24 @@ cdef extern from "polymake/client.h" namespace "polymake":
 
 def get_properties(PerlObject p):
     r"""
-    Return the properties of the perl object ``p``
+    Return the dictionary of properties the perl object ``p``
 
-    The argument must correspond to a "big object" in polymake
+    The argument must correspond to a "big object" in polymake. The result
+    is a dictionary where keys are attributes and keys are types.
 
     EXAMPLES:
 
     >>> import polymake
-    >>> from polymake.properties import get_properties
+    >>> from polymake.perl_object import get_properties
     >>> c = polymake.cube(3)
     >>> m = get_properties(c)
     """
     pm.pm_include("common::sage.rules")
     cdef MapStringString s = MapStringString.__new__(MapStringString)
     s.pm_obj = call_it(<string> "Sage::properties_for_object", p.pm_obj[0])
-    return s
+    return s.python()
 
 # Hand written handler that
-
 cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj):
     cdef PerlObject ans = PerlObject.__new__(PerlObject)
     ans.pm_obj = new_PerlObject_from_PerlObject(pm_obj)
@@ -73,20 +73,17 @@ cdef class PerlObject:
 
     def __getattr__(self, name):
         cdef bytes bname = name.encode('utf-8')
-        if not bname.isupper():
-            # FIXME: currently we have no way of checking whether a given string
-            # is actually present in a pm::Map!!
-            raise AttributeError
-        print("  pypolymake debug WARNING: __getattr__:\n  self = {}\n  name = {}".format(type(self), bname))
+        if DEBUG:
+            print("  pypolymake debug WARNING: __getattr__:\n  self = {}\n  name = {}".format(type(self), bname))
         try:
             pm_type = self.properties[bname]
         except KeyError:
             raise AttributeError("{} not a registered attribute".format(name))
 
         handler = get_handler(pm_type)
-        print("  pypolymake debug WARNING: using {} with arg {}".format(handler, bname))
+        if DEBUG:
+            print("  pypolymake debug WARNING: using {} with arg {}".format(handler, bname))
         return handler(self, bname)
-
 
     def __dir__(self):
         return dir(self.__class__) + [x.decode('ascii') for x in self.properties]
@@ -97,9 +94,7 @@ cdef class PerlObject:
         """
         self.pm_obj.save(filename)
 
-    def _properties(self):
-        return self.properties
-
+    # FIXME: this method should not exists anymore
     def _get_property(self, bytes prop, bytes pm_type=None):
         r"""
         Generic method to get a property of the object
@@ -129,14 +124,6 @@ cdef class PerlObject:
 
     def name(self):
         return (<bytes> self.pm_obj.name()).decode('ascii')
-
-#    def description(self):
-#        r"""
-#        .. WARNING::
-#
-#            Sometimes this gives a Segmentation fault!
-#        """
-#        return <bytes> self.pm_obj.description()
 
     def sage(self):
         r"""Converts to a Sage object
