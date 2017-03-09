@@ -46,29 +46,13 @@ two commands
 
 Note that this uses the stable version of polymake and is not further developed.
 
-### Installation against the beta version of polymake inside Sage
-
-1. Clone the branch `u/vdelecroix/lrslib+polymakebeta` from the trac Sage server
-
-2. Install the beta version of polymake inside Sage
-
-    $ sage -f lrslib
-    $ sage -f polymake
-
-(several perl libraries are required for the compilation of polymake)
-
-3. Install pypolymake beta
-
-    $ sage -pip install git+https://github.com/videlec/pypolymake@beta [--user] [--upgrade]
-
-
 ### Installation against the beta version of polymake in Python2 or Python3
 
-1. Clone, compile and install the last beta of polymake from https://github.com/polymake/polymake
+1. Clone, compile and install the "feature/sage" branch of polymake at git.polymake.org
 
 2. Install pypolymake
 
-    $ pip install  git+https://github.com/videlec/pypolymake@beta [--user] [--upgrade]
+    $ pip install git+https://github.com/videlec/pypolymake@beta [--user] [--upgrade]
 
 
 ### Extra notes
