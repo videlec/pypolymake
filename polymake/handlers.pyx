@@ -99,8 +99,15 @@ cdef list small_types = [b"Array", b"Integer", b"Map", b"Matrix", b"PowerSet",
 
 cpdef get_property_handler(bytes pm_type):
     global property_handlers
-    return property_handlers[pm_type]
+    try:
+        return property_handlers[pm_type]
+    except KeyError:
+        raise NotImplementedError("pypolymake does not handle {} polymake type".format(pm_type))
 
 cpdef get_method_handler(bytes pm_type):
     global method_handlers
-    return method_handlers[pm_type]
+    try:
+        return method_handlers[pm_type]
+    except KeyError:
+        raise NotImplementedError("pypolymake does not handle {} polymake type".format(pm_type))
+

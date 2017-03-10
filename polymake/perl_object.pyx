@@ -113,32 +113,13 @@ cdef class PerlObject:
         return handler(self, bname)
 
     def __dir__(self):
-        return dir(self.__class__) + [x.decode('ascii') for x in self.properties]
+        return dir(self.__class__) + [x.decode('ascii') for x in self.properties] + [x.decode('ascii') for x in self.methods]
 
     def _save(self, filename):
         """
         Saves this polytope to a file using polymake's representation.
         """
         self.pm_obj.save(filename)
-
-#    # FIXME: this method should not exists anymore
-#    def _get_property(self, bytes prop, bytes pm_type=None):
-#        r"""
-#        Generic method to get a property of the object
-#
-#        >>> import polymake
-#        >>> p = polymake.cube(3)
-#        >>> g = p._get_property('GRAPH')
-#        >>> g
-#        Graph<Undirected> as Polytope::Lattice::GRAPH<...>
-#        >>> g._get_integer_property('N_NODES')
-#        8
-#        >>> g._get_integer_property('N_EDGES')
-#        12
-#        """
-#        if pm_type is None:
-#            pm_type = b"Unknown"
-#        return get_handler(pm_type)(self, prop)
 
     def type_name(self):
         r"""
