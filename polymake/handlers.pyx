@@ -5,7 +5,7 @@ Handlers for polymake objects
 
 This file organizes the conversion of C++ polymake objects
 to the actual wrappers of the pypolymake library. Most of the code
-is actually generated automatically at build time in "handlers.pxi"
+is actually generated automatically at build time in "auto_handlers.pxi"
 and "auto_mappings.pxi".
 """
 ###############################################################################
@@ -69,7 +69,7 @@ def handler_float(PerlObject perl_object, bytes prop):
         pm_get2_float(ans, perl_object.pm_obj, prop)
     return ans
 
-include "handlers.pxi"
+include "auto_handlers.pxi"
 
 cdef dict handlers = {
     b"Bool"          : handler_bool,

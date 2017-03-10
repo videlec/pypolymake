@@ -44,7 +44,7 @@ extensions = [
     Extension("polymake.perl_object", ["polymake/perl_object.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
-    Extension("polymake.properties", ["polymake/properties.pyx"],
+    Extension("polymake.handlers", ["polymake/handlers.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
     Extension("polymake.polytope", ["polymake/polytope.pyx"],

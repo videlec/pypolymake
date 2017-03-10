@@ -14,7 +14,7 @@ cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj)
 cdef Main pm
 
 #from .map cimport MapStringString
-# FIXME: properties should be declared as MapStringString
+# FIXME: the attribute properties below should be declared as MapStringString
 # but the python shell complains at execution with
 # ImportError: ... map.cpython-36m-x86_64-linux-gnu.so: undefined symbol: _ZN2pm21shared_object_secrets9empty_repE
 

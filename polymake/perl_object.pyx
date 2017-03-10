@@ -14,7 +14,7 @@ from .defs cimport (call_function, call_function1, call_function2, call_function
         new_PerlObject_from_PerlObject, pm_MapStringString)
 
 from .map cimport MapStringString
-from .properties cimport handlers, get_handler
+from .handlers cimport get_handler
 
 cdef int DEBUG = 0
 
@@ -111,7 +111,7 @@ cdef class PerlObject:
         """
         if pm_type is None:
             pm_type = b"Unknown"
-        return handlers[pm_type](self, prop)
+        return get_handler(pm_type)(self, prop)
 
     def type_name(self):
         r"""

@@ -74,8 +74,8 @@ cdef class MatrixGeneric(object):
         (<type 'list'>, <type 'list'>, <type 'int'>)
         """
         cdef Py_ssize_t i, j, nrows, ncols
-        nrows = self.pm_obj.rows()
-        ncols = self.pm_obj.cols()
+        nrows = self.rows()
+        ncols = self.cols()
         try:
             return [[self[i,j].python() for j in range(ncols)] for i in range(nrows)]
         except AttributeError:
