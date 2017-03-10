@@ -1,5 +1,5 @@
 # distutils: language = c++
-# distutils: libraries = gmp polymake
+# distutils: libraries = polymake
 ###############################################################################
 #       Copyright (C) 2011-2012 Burcin Erocal <burcin@erocal.org>
 #                     2016      Vincent Delecroix <vincent.delecroix@labri.fr>
@@ -11,12 +11,15 @@
 from libcpp.string cimport string
 
 from .defs cimport (call_function, call_function1, call_function2, call_function3,
-        new_PerlObject_from_PerlObject, pm_MapStringString)
-
+        new_PerlObject_from_PerlObject, pm_PerlObject, pm_MapStringString)
 from .map cimport MapStringString
-from .handlers cimport get_handler
+from .main cimport pm
+
+
+from .handlers cimport get_property_handler, get_method_handler
 
 cdef int DEBUG = 0
+
 
 # this is a bug in Cython!
 def _NOT_TO_BE_USED_():
@@ -25,9 +28,9 @@ def _NOT_TO_BE_USED_():
 cdef extern from "polymake/client.h" namespace "polymake":
     pm_MapStringString call_it "call_function" (string, pm_PerlObject) except +
 
-def get_properties(PerlObject p):
+cpdef dict get_properties(PerlObject p):
     r"""
-    Return the dictionary of properties the perl object ``p``
+    Return the dictionary of properties of the perl object ``p``
 
     The argument must correspond to a "big object" in polymake. The result
     is a dictionary where keys are attributes and keys are types.
@@ -35,7 +38,7 @@ def get_properties(PerlObject p):
     EXAMPLES:
 
     >>> import polymake
-    >>> from polymake.perl_object import get_properties
+    >>> from polymake.properties import get_properties
     >>> c = polymake.cube(3)
     >>> m = get_properties(c)
     """
@@ -44,15 +47,33 @@ def get_properties(PerlObject p):
     s.pm_obj = call_it(<string> "Sage::properties_for_object", p.pm_obj[0])
     return s.python()
 
+cpdef dict get_methods(PerlObject p):
+    r"""
+    Return the dictionary of methods of the perl object ``p``
+
+    EXAMPLES:
+
+    >>> import polymake
+    >>> from polymake.properties import get_methods
+    >>> c = polymake.cube(3)
+    >>> m = get_methods(c)
+    """
+    pm.pm_include("common::sage.rules")
+    cdef MapStringString s = MapStringString.__new__(MapStringString)
+    s.pm_obj = call_it(<string> "Sage::methods_for_object", p.pm_obj[0])
+    return s.python()
+
 # Hand written handler that
 cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj):
     cdef PerlObject ans = PerlObject.__new__(PerlObject)
     ans.pm_obj = new_PerlObject_from_PerlObject(pm_obj)
     ans.properties = get_properties(ans)
+    ans.methods = get_methods(ans)
     return ans
 
 def call_polymake_function(bytes app, bytes name, *args):
-    pm.set_application(app)
+    from .main import pm_set_application
+    pm_set_application(app)
     cdef pm_PerlObject pm_obj
     if len(args) == 0:
         pm_obj = call_function(name)
@@ -75,14 +96,20 @@ cdef class PerlObject:
         cdef bytes bname = name.encode('utf-8')
         if DEBUG:
             print("  pypolymake debug WARNING: __getattr__:\n  self = {}\n  name = {}".format(type(self), bname))
-        try:
+
+        if bname in self.properties:
             pm_type = self.properties[bname]
-        except KeyError:
+            handler = get_property_handler(pm_type)
+
+        elif bname in self.methods:
+            pm_type = self.methods[bname]
+            if not pm_type:
+                raise ValueError("polymake documentation is incomplete: type of {}->{} not available. Send a request to polymake developers!".format(self, name))
+            handler = get_method_handler(pm_type)
+
+        else:
             raise AttributeError("{} not a registered attribute".format(name))
 
-        handler = get_handler(pm_type)
-        if DEBUG:
-            print("  pypolymake debug WARNING: using {} with arg {}".format(handler, bname))
         return handler(self, bname)
 
     def __dir__(self):
@@ -94,24 +121,24 @@ cdef class PerlObject:
         """
         self.pm_obj.save(filename)
 
-    # FIXME: this method should not exists anymore
-    def _get_property(self, bytes prop, bytes pm_type=None):
-        r"""
-        Generic method to get a property of the object
-
-        >>> import polymake
-        >>> p = polymake.cube(3)
-        >>> g = p._get_property('GRAPH')
-        >>> g
-        Graph<Undirected> as Polytope::Lattice::GRAPH<...>
-        >>> g._get_integer_property('N_NODES')
-        8
-        >>> g._get_integer_property('N_EDGES')
-        12
-        """
-        if pm_type is None:
-            pm_type = b"Unknown"
-        return get_handler(pm_type)(self, prop)
+#    # FIXME: this method should not exists anymore
+#    def _get_property(self, bytes prop, bytes pm_type=None):
+#        r"""
+#        Generic method to get a property of the object
+#
+#        >>> import polymake
+#        >>> p = polymake.cube(3)
+#        >>> g = p._get_property('GRAPH')
+#        >>> g
+#        Graph<Undirected> as Polytope::Lattice::GRAPH<...>
+#        >>> g._get_integer_property('N_NODES')
+#        8
+#        >>> g._get_integer_property('N_EDGES')
+#        12
+#        """
+#        if pm_type is None:
+#            pm_type = b"Unknown"
+#        return get_handler(pm_type)(self, prop)
 
     def type_name(self):
         r"""

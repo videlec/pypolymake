@@ -1,5 +1,5 @@
 # distutils: language = c++
-# distutils: libraries = gmp polymake
+# distutils: libraries = polymake
 ###############################################################################
 #       Copyright (C) 2016 Vincent Delecroix <vincent.delecroix@labri.fr> 
 #

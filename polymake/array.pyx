@@ -1,5 +1,5 @@
 # distutils: language = c++
-# distutils: libraries = gmp polymake
+# distutils: libraries = polymake
 
 from libcpp.string cimport string
 

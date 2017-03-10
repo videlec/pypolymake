@@ -1,5 +1,5 @@
 # distutils: language = c++
-# distutils: libraries = gmp polymake
+# distutils: libraries = polymake
 r"""
 Handlers for polymake objects
 
@@ -19,8 +19,6 @@ and "auto_mappings.pxi".
 from libcpp cimport bool
 from libcpp.string cimport string
 
-from .perl_object cimport pm
-
 from .defs cimport *
 from .perl_object cimport *
 
@@ -32,64 +30,77 @@ from .vector cimport *
 
 
 cdef extern from "wrap.h" namespace "polymake":
-    void pm_get_PerlObject "GIVE" (pm_PerlObject, pm_PerlObject*, string)
+    void pm_give_PerlObject "GIVE" (pm_PerlObject, pm_PerlObject*, string)
+    void pm_call_method_PerlObject "CALL_METHOD" (pm_PerlObject, pm_PerlObject*, string)
 
-    void pm_get1_int "GIVE" (int, pm_PerlObject*, string) except +
-    void pm_get2_int "CALL_METHOD" (int, pm_PerlObject*, string) except +
+    void pm_give_int "GIVE" (int, pm_PerlObject*, string) except +
+    void pm_call_method_int "CALL_METHOD" (int, pm_PerlObject*, string) except +
 
-    void pm_get1_float "GIVE" (float, pm_PerlObject*, string) except +
-    void pm_get2_float "CALL_METHOD" (float, pm_PerlObject*, string) except +
+    void pm_give_float "GIVE" (float, pm_PerlObject*, string) except +
+    void pm_call_method_float "CALL_METHOD" (float, pm_PerlObject*, string) except +
 
 
-def handler_generic(PerlObject perl_object, bytes prop):
+def give_generic(PerlObject perl_object, bytes prop):
     cdef pm_PerlObject pm_ans
-    print("  pypolymake debug WARNING: generic handler")
-    pm_get_PerlObject(pm_ans, perl_object.pm_obj, prop)
+    pm_give_PerlObject(pm_ans, perl_object.pm_obj, prop)
     if not pm_ans.valid():
         raise ValueError("invalid property {}".format(prop))
-
     return wrap_perl_object(pm_ans)
 
-def handler_bool(PerlObject perl_object, bytes prop):
-    return handler_int(perl_object, prop)
+def call_method_generic(PerlObject perl_object, bytes prop):
+    cdef pm_PerlObject pm_ans
+    pm_call_method_PerlObject(pm_ans, perl_object.pm_obj, prop)
+    if not pm_ans.valid():
+        raise ValueError("invalid property {}".format(prop))
+    return wrap_perl_object(pm_ans)
 
-def handler_int(PerlObject perl_object, bytes prop):
+def give_bool(PerlObject perl_object, bytes prop):
+    return give_int(perl_object, prop)
+
+def call_method_bool(PerlObject perl_object, bytes prop):
+    return call_method_int(perl_object, prop)
+
+def give_int(PerlObject perl_object, bytes prop):
     cdef int ans
-    try:
-        pm_get1_int(ans, perl_object.pm_obj, prop)
-    except RuntimeError:
-        pm_get2_int(ans, perl_object.pm_obj, prop)
+    pm_give_int(ans, perl_object.pm_obj, prop)
+    return ans
+def call_method_int(PerlObject perl_object, bytes prop):
+    cdef int ans
+    pm_call_method_int(ans, perl_object.pm_obj, prop)
     return ans
 
-def handler_float(PerlObject perl_object, bytes prop):
+def give_float(PerlObject perl_object, bytes prop):
     cdef float ans
-    try:
-        pm_get1_float(ans, perl_object.pm_obj, prop)
-    except RuntimeError:
-        pm_get2_float(ans, perl_object.pm_obj, prop)
+    pm_give_float(ans, perl_object.pm_obj, prop)
+    return ans
+def call_method_float(PerlObject perl_object, bytes prop):
+    cdef float ans
+    pm_call_method_float(ans, perl_object.pm_obj, prop)
     return ans
 
 include "auto_handlers.pxi"
 
-cdef dict handlers = {
-    b"Bool"          : handler_bool,
-    b"Int"           : handler_int,
-    b"Float"         : handler_float,
+cdef dict property_handlers = {
+    b"Bool"          : give_bool,
+    b"Int"           : give_int,
+    b"Float"         : give_float,
+}
+cdef dict method_handlers = {
+    b"Bool"          : call_method_bool,
+    b"Int"           : call_method_int,
+    b"Float"         : call_method_float
 }
 include "auto_mappings.pxi"
-handlers.update(auto_handlers)
+property_handlers.update(auto_property_handlers)
+method_handlers.update(auto_method_handlers)
 
 cdef list small_types = [b"Array", b"Integer", b"Map", b"Matrix", b"PowerSet",
         b"Rational", b"Set", b"SparseMatrix", b"SparseVector", b"Vector"]
 
-cpdef get_handler(bytes pm_type):
-    cdef bytes typ
-    global handlers
-    try:
-        return handlers[pm_type]
-    except KeyError:
-        for typ in small_types:
-            if pm_type.startswith(typ):
-                raise NotImplementedError("lacking support for polymake small type {}".format(pm_type))
-        print("  pypolymake debug WARNING: falling back to generic handler")
-        return handler_generic
+cpdef get_property_handler(bytes pm_type):
+    global property_handlers
+    return property_handlers[pm_type]
+
+cpdef get_method_handler(bytes pm_type):
+    global method_handlers
+    return method_handlers[pm_type]

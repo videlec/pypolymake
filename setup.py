@@ -26,6 +26,12 @@ extensions = [
     Extension("polymake.cygmp.utils", ["polymake/cygmp/utils.pyx"],
         depends = ["polymake/cygmp/*.pxd", "polymake/cygmp/*h"]),
 
+    Extension("polymake.perl_object", ["polymake/perl_object.pyx"],
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
+
+    Extension("polymake.main", ["polymake/main.pyx"],
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
+
     Extension("polymake.number", ["polymake/number.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
@@ -39,9 +45,6 @@ extensions = [
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
     Extension("polymake.matrix", ["polymake/matrix.pyx"],
-        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
-
-    Extension("polymake.perl_object", ["polymake/perl_object.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
     Extension("polymake.handlers", ["polymake/handlers.pyx"],

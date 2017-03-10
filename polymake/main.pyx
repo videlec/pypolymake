@@ -1,3 +1,5 @@
+# distutils: language = c++
+# distutils: libraries = polymake
 ###############################################################################
 #       Copyright (C) 2011-2012 Burcin Erocal <burcin@erocal.org>
 #                     2016      Vincent Delecroix <vincent.delecroix@labri.fr>
@@ -6,12 +8,12 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-from .defs cimport pm_PerlObject
+# properly initialize the Main
+# FIXME: pass user-settings parameter?
+cdef Main * pm = new Main("@interactive")
 
-cdef class PerlObject:
-    cdef pm_PerlObject * pm_obj       # underlying perl object
-    cdef ref                          # reference to other perl object
-    cdef dict properties              # polymake properties
-    cdef dict methods                 # polymake methods
+def pm_set_application(bytes s):
+    pm.set_application(s)
 
-cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj)
+def pm_include(bytes s):
+    pm.pm_include(s)

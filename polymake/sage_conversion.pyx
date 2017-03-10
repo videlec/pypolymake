@@ -1,5 +1,5 @@
 # distutils: language = c++
-# distutils: libraries = gmp polymake
+# distutils: libraries = polymake
 r"""
 Conversion of low level base types to Sage
 """

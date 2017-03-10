@@ -6,12 +6,7 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-from .defs cimport pm_PerlObject
 
-cdef class PerlObject:
-    cdef pm_PerlObject * pm_obj       # underlying perl object
-    cdef ref                          # reference to other perl object
-    cdef dict properties              # polymake properties
-    cdef dict methods                 # polymake methods
+from .defs cimport Main
 
-cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj)
+cdef Main * pm

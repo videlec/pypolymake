@@ -1,5 +1,67 @@
 # distutils: language = c++
-# distutils: libraries = gmp polymake
+# distutils: libraries = polymake
+r"""
+Polymake matrices
+
+This file contains wrappers for polymake matrices
+
+- Matrix
+- SparseMatrix
+- IncidenceMatrix
+
+EXAMPLES::
+
+>>> import polymake
+>>> c = polymake.associahedron(3)
+
+>>> m1 = c.AFFINE_HULL
+>>> m1
+-150 1 2 3 4 5
+106/11 -34/11 -46/11 -36/11 -4/11 50/11
+>>> type(m1)
+polymake.matrix.MatrixRational
+>>> e = m1[1,2]
+>>> e, type(e)
+(-46/11, polymake.number.Rational)
+>>> m1.python()
+[[Fraction(-150, 1), Fraction(1, 1), Fraction(2, 1), Fraction(3, 1), Fraction(4, 1), Fraction(5, 1)],
+ [Fraction(106, 11), Fraction(-34, 11), Fraction(-46, 11), Fraction(-36, 11), Fraction(-4, 11), Fraction(50, 11)]]
+
+>>> m2 = c.COCIRCUIT_EQUATIONS
+>>> m2
+(946) (0 1) (1 1) (2 1) (3 1) (4 1) (5 -1) (6 -1) (7 -1) (8 -1) (9 -1)
+(946) (0 -1) (10 -1) (11 -1) (12 -1) (13 1) (14 1) (15 -1) (16 -1) (17 -1) (18 -1) (19 -1)
+...
+(946) (260 -1) (466 1) (622 1) (738 1) (819 1) (873 1) (906 1) (925 1) (941 -1) (944 -1) (945 -1)
+>>> type(m2)
+polymake.matrix.SparseMatrixRationalNonSymmetric
+>>> e = m2[1,10]
+>>> e, type(e)
+(-1, polymake.number.Rational)
+
+>>> m3 = c.DEGREE_ONE_GENERATORS
+>>> m3
+1 1 4 9 16 10
+1 1 4 19 1 16
+...
+1 20 1 4 9 16
+>>> type(m3)
+polymake.matrix.MatrixInteger
+>>> e = m3[5, 2]
+>>> e,type(e)
+(8, polymake.number.Integer)
+
+>>> m4 = c.VERTICES_IN_FACETS
+>>> m4
+{0 5 6 10 11}
+{0 8 9 11}
+...
+{0 3 6 7 8}
+>>> type(m4)
+polymake.matrix.IncidenceMatrixNonSymmetric
+>>> m4[0,2], m4[0,5]
+(False, True)
+"""
 ###############################################################################
 #       Copyright (C) 2011-2012 Burcin Erocal <burcin@erocal.org>
 #                     2016      Vincent Delecroix <vincent.delecroix@labri.fr>

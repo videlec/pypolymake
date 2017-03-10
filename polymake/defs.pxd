@@ -86,6 +86,8 @@ cdef extern from "wrap.h":
 
 cdef extern from "polymake/Main.h" namespace "polymake":
     cdef cppclass Main:
+        Main()
+        Main(string)
         void set_application(string)
         void set_preference(string)
         void pm_include "include" (string)
