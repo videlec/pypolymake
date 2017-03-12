@@ -42,11 +42,11 @@ cpdef dict get_properties(PerlObject p):
     if DEBUG:
         print("  pypolymake debug WARNING: calling properties...")
     s.pm_obj = call_function(<string> "Sage::properties_for_object", p.pm_obj[0])
-    s = s.python()
+    cdef dict d  = s.python()
     for k in list(s.keys()):
-        if s[k].startswith(b"Visual::"):
-            del s[k]
-    return s
+        if d[k].startswith(b"Visual::"):
+            del d[k]
+    return d
 
 cpdef dict get_methods(PerlObject p):
     r"""
@@ -64,12 +64,13 @@ cpdef dict get_methods(PerlObject p):
     if DEBUG:
         print("  pypolymake debug WARNING: calling methods...")
     s.pm_obj = call_function(<string> "Sage::methods_for_object", p.pm_obj[0])
+    cdef dict d = s.python()
     for k in list(s.keys()):
-        if s[k].startswith(b"Visual::"):
-            del s[k]
-    return s
+        if d[k].startswith(b"Visual::"):
+            del d[k]
+    return d
 
-# Hand written handler that
+# Hand written handlers
 cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj):
     cdef PerlObject ans = PerlObject.__new__(PerlObject)
     ans.pm_obj = new_PerlObject_from_PerlObject(pm_obj)
