@@ -129,7 +129,7 @@ cdef class Integer(object):
             return NotImplemented
         return ans
 
-    def __div__(self, other):
+    def __truediv__(self, other):
         if not other:
             raise ZeroDivisionError("polymake.number.Integer division by zero")
 
@@ -144,6 +144,9 @@ cdef class Integer(object):
             return NotImplemented
         return ans
 
+    def __div__(self, other):
+        return self.__truediv__(other)
+    
     def sage(self):
         r"""Converts to a Sage integer
 

@@ -197,7 +197,8 @@ cdef class Rational(object):
             return NotImplemented
         return ans
 
-    def __div__(self, other):
+
+    def __truediv__(self, other):
         if not other:
             raise ZeroDivisionError("polymake.number.Rational division by zero")
 
@@ -217,4 +218,6 @@ cdef class Rational(object):
             return NotImplemented
         return ans
 
+    def __div__(self, other):
+        return self.__truediv__(other)
 
