@@ -1,6 +1,7 @@
 atomic_types = {
     "Bool":
     {
+        "name"   : "Bool",
         "simple" : True,
         "module" : "none",
         "perl"   : "Bool",
@@ -10,6 +11,7 @@ atomic_types = {
 
     "Int":
     {
+        "name"  : "Int",
         "simple": True,
         "module": "none",
         "perl"  : "Int",
@@ -19,6 +21,7 @@ atomic_types = {
 
     "Float":
     {
+        "name"  : "Float",
         "simple": True,
         "module": "none",
         "perl"  : "Float",
@@ -29,6 +32,7 @@ atomic_types = {
 
     "String":
     {
+        "name"   : "String",
         "simple" : True,
         "module" : "none",
         "perl"   : "String",
@@ -38,8 +42,9 @@ atomic_types = {
 
     "Integer":
     {
+        "name"   : "Integer",
         "simple" : False,
-        "module" : "integer",
+        "module" : "Integer",
         "perl"   : "Integer",
         "cpp"    : "Integer",
         "cython" : "Integer"
@@ -47,8 +52,9 @@ atomic_types = {
 
     "Rational":
     {
+        "name"   : "Rational",
         "simple" : False,
-        "module" : "rational",
+        "module" : "Rational",
         "perl"   : "Rational",
         "cpp"    : "Rational",
         "cython" : "Rational"
@@ -56,6 +62,7 @@ atomic_types = {
 
     "PairStringString":
     {
+        "name"   : "PairStringString",
         "simple" : False,
         "module" : "extra_types",
         "perl"   : "Pair<String, String>",
@@ -74,6 +81,8 @@ module_data = {
 # vectors and matrices
     "Vector":
     [
+        "Int",
+        "Float",
         "Integer",
         "Rational"
     ],
@@ -113,6 +122,11 @@ module_data = {
         "MatrixRational"
     ],
 
+    "PowerSet":
+    [
+        "Int"
+    ],
+
 # maps
     "Map":
     [
@@ -123,6 +137,16 @@ module_data = {
     ],
 }
 
+
+def caml_to_python(s):
+    cap = [i for i,j in enumerate(s) if j.isupper()]
+    cap.append(len(s))
+    return '_'.join(s[cap[i]].lower() + s[cap[i]+1:cap[i+1]] for i in range(len(cap)-1))
+def python_to_caml(s):
+    und = [0]
+    und.extend(i for i,j in enumerte(s) if j == '_')
+    und.append(len(s))
+    return ''.join(s[und[i+1]].upper() + s[und[i+1]+1:und[i+1]] for i in range(len(und)-1))
 
 def pm_types():
     r"""
@@ -141,8 +165,9 @@ def pm_types():
         cpp = "Vector<{scal}>".format(scal=atomic_types[scal]["cpp"])
 
         ans[cython] = {
+            "name"  : cython,
             "simple": False,
-            "module": "vector",
+            "module": "Vector",
             "cython": cython,
             "perl"  : perl,
             "cpp"   : cpp}
@@ -153,8 +178,9 @@ def pm_types():
         cpp = "Matrix<{scal}>".format(scal=atomic_types[scal]["cpp"])
 
         ans[cython] = {
+            "name"  : cython,
             "simple": False,
-            "module": "matrix",
+            "module": "Matrix",
             "cython": cython,
             "perl"  : perl,
             "cpp"   : cpp}
@@ -165,6 +191,7 @@ def pm_types():
         cpp = "SparseMatrix<{scal}, {sym}>".format(scal=atomic_types[scal]["cpp"], sym=sym)
 
         ans[cython] = {
+            "name"  : cython,
             "simple": False,
             "module": "sparse_matrix",
             "cython": cython,
@@ -172,8 +199,9 @@ def pm_types():
             "cpp"   : cpp}
 
     ans["IncidenceMatrixNonSymmetric"] = {
+        "name"  : "IncidenceMatrixNonSymmetric",
         "simple": False,
-        "module": "incidence_matrix",
+        "module": "IncidenceMatrix",
         "cython": "IncidenceMatrixNonSymmetric",
         "perl"  : "IncidenceMatrix<NonSymmetric>",
         "cpp"   : "IncidenceMatrix<NonSymmetric>"
@@ -181,9 +209,8 @@ def pm_types():
 
 
     # containers
-    todo = set((c,s) for c in ("Array","Set") for s in module_data[c])
+    todo = set((c,s) for c in ("Array","Set","PowerSet") for s in module_data[c])
     while todo:
-        print(todo)
         todo2 = set()
         while todo:
             c, s = todo.pop()
@@ -197,12 +224,27 @@ def pm_types():
             cpp = "{container}<{subtype}>".format(container=c, subtype=data["cpp"])
 
             ans[cython] = {
+                "name"  : cython,
                 "simple": False,
-                "module": c.lower(),
+                "module": c,
                 "cython": cython,
                 "perl"  : perl,
                 "cpp"   : cpp}
 
         todo = todo2
+
+    # maps
+    for typ1,typ2 in module_data["Map"]:
+        cython = "Map{typ1}{typ2}".format(typ1=typ1,typ2=typ2)
+        perl = "Map<{typ1}, {typ2}>".format(typ1=ans[typ1]["perl"], typ2=ans[typ2]["perl"])
+        cpp = "Map<{typ1}, {typ2}>".format(typ1=ans[typ1]["cpp"], typ2=ans[typ2]["cpp"])
+
+        ans[cython] = {
+            "name"  : cython,
+            "simple": False,
+            "module": "Map",
+            "cython": cython,
+            "perl"  : perl,
+            "cpp"   : cpp}
 
     return ans

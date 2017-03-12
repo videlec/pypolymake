@@ -8,11 +8,10 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-
-include "auto_set.pxi"
-
 from libcpp cimport bool
 from libcpp.string cimport string
+
+include "auto_set.pxi"
 
 cdef extern from "<sstream>" namespace "std":
     cdef cppclass ostringstream:

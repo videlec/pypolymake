@@ -56,6 +56,9 @@ extensions = [
     Extension("polymake.matrix", ["polymake/matrix.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
+    Extension("polymake.power_set", ["polymake/power_set.pyx"],
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
+
     Extension("polymake.rational", ["polymake/rational.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 

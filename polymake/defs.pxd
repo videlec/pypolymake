@@ -406,16 +406,21 @@ cdef extern from "polymake/SparseMatrix.h" namespace "polymake":
 # Vector<Integer>
 # Vector<Rational>
 cdef extern from "polymake/Vector.h" namespace 'polymake':
+    cdef cppclass pm_VectorInt "Vector<int>":
+        int get "operator[]" (int i)
+        int size()
+    cdef cppclass pm_VectorFloat "Vector<float>":
+        float get "operator[]" (int i)
+        int size()
     cdef cppclass pm_VectorInteger "Vector<Integer>":
-        pm_VectorInteger()
-        pm_VectorInteger(int nr)
         pm_Integer get "operator[]" (int i)
         int size()
-
     cdef cppclass pm_VectorRational "Vector<Rational>":
-        pm_VectorRational()
-        pm_VectorRational(int nr)
         pm_Rational get "operator []" (int i)
+        int size()
+
+cdef extern from "polymake/PowerSet.h" namespace "polymake":
+    cdef cppclass pm_PowerSetInt "PowerSet<int>":
         int size()
 
 cdef extern from "polymake/SparseVector.h" namespace "polymake":
