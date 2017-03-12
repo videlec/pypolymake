@@ -1,18 +1,19 @@
 # distutils: language = c++
 # distutils: libraries = polymake
+###############################################################################
+#       Copyright (C) 2011-2012 Burcin Erocal <burcin@erocal.org>
+#                     2016      Vincent Delecroix <vincent.delecroix@labri.fr>
+#  Distributed under the terms of the GNU General Public License (GPL),
+#  version 3 or any later version.  The full text of the GPL is available at:
+#                  http://www.gnu.org/licenses/
+###############################################################################
 
 from libcpp cimport bool
 from libcpp.string cimport string
 
-from .number cimport Integer, Rational
-
-cdef extern from "<utility>":
-    cdef cppclass pairstringstring "std::pair<std::string, std::string>":
-        string first
-        string second
-    cdef cppclass pairintint "std::pair<int,int>":
-        int first
-        int second
+from .defs cimport pairstringstring, pairintint
+from .integer cimport Integer
+from .rational cimport Rational
 
 cdef extern from "<sstream>" namespace "std":
     cdef cppclass ostringstream:
@@ -38,7 +39,7 @@ cdef extern from "wrap.h" namespace "polymake":
     void pm_MapIntInt_repr "WRAP_wrap_OUT" (ostringstream, pm_MapIntInt)
     void pm_MapIntegerInt_repr "WRAP_wrap_OUT" (ostringstream, pm_MapIntegerInt)
 
-cdef class MapStringString:
+cdef class MapStringString(object):
     def __repr__(self):
         cdef ostringstream out
         pm_MapStringString_repr(out, self.pm_obj)
@@ -85,7 +86,7 @@ cdef class MapStringString:
         return dict(self.items())
 
 
-cdef class MapIntInt:
+cdef class MapIntInt(object):
     def __repr__(self):
         cdef ostringstream out
         pm_MapIntInt_repr(out, self.pm_obj)
@@ -148,7 +149,7 @@ cdef class MapIntInt:
         return dict(self.items())
 
 
-cdef class MapRationalRational:
+cdef class MapRationalRational(object):
     def __repr__(self):
         cdef ostringstream out
         pm_MapRationalRational_repr(out, self.pm_obj)
@@ -177,7 +178,7 @@ cdef class MapRationalRational:
         return self.pm_obj.exists(key.pm_obj)
 
 
-cdef class MapIntegerInt:
+cdef class MapIntegerInt(object):
     def __repr__(self):
         cdef ostringstream out
         pm_MapIntegerInt_repr(out, self.pm_obj)

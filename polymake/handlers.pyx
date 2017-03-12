@@ -23,9 +23,13 @@ from .defs cimport *
 from .perl_object cimport *
 
 from .array cimport *
+from .incidence_matrix cimport *
+from .integer cimport *
 from .map cimport *
 from .matrix cimport *
-from .number cimport *
+from .rational cimport *
+from .set cimport *
+from .sparse_matrix cimport *
 from .vector cimport *
 
 

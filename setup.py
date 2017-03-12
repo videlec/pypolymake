@@ -32,13 +32,22 @@ extensions = [
     Extension("polymake.main", ["polymake/main.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
-    Extension("polymake.number", ["polymake/number.pyx"],
+    Extension("polymake.handlers", ["polymake/handlers.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
+
+    Extension("polymake.function_dispatcher", ["polymake/function_dispatcher.pyx"],
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
+
+# wrappers for small objects in polymake
+# (should be automatized)
 
     Extension("polymake.array", ["polymake/array.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
-    Extension("polymake.vector", ["polymake/vector.pyx"],
+    Extension("polymake.incidence_matrix", ["polymake/incidence_matrix.pyx"],
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
+
+    Extension("polymake.integer", ["polymake/integer.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
     Extension("polymake.map", ["polymake/map.pyx"],
@@ -47,8 +56,20 @@ extensions = [
     Extension("polymake.matrix", ["polymake/matrix.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
-    Extension("polymake.handlers", ["polymake/handlers.pyx"],
+    Extension("polymake.rational", ["polymake/rational.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
+
+    Extension("polymake.set", ["polymake/set.pyx"],
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
+
+    Extension("polymake.sparse_matrix", ["polymake/sparse_matrix.pyx"],
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
+
+    Extension("polymake.vector", ["polymake/vector.pyx"],
+        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
+
+
+# misc (to be removed)
 
     Extension("polymake.polytope", ["polymake/polytope.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),

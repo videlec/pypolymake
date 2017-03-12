@@ -75,10 +75,25 @@ from .cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
 from .cygmp.mpz cimport *
 from .cygmp.mpq cimport *
 
-from .number cimport Rational, Integer
-from .number import get_num_den
+from .defs cimport pm_Integer, pm_Rational
+
+from .integer cimport Integer
+from .rational cimport Rational
+from .rational import get_num_den
 
 from libcpp.string cimport string
+
+cdef extern from "polymake/Matrix.h" namespace "polymake":
+    # WRAP_CALL(t,i,j) -> t(i,j)
+    long pm_MatrixInt_get "WRAP_CALL" (pm_MatrixInt, int i, int j)
+    float pm_MatrixFloat_get "WRAP_CALL" (pm_MatrixFloat, int i, int j)
+    pm_Rational pm_MatrixRational_get "WRAP_CALL" (pm_MatrixRational, int i, int j)
+    pm_Integer pm_MatrixInteger_get "WRAP_CALL" (pm_MatrixInteger, int i, int j)
+
+cdef extern from "polymake/SparseMatrix.h" namespace "polymake":
+    # WRAP_CALL(t,i,j) -> t(i,j)
+    long pm_SparseMatrixIntNonSymmetric_get "WRAP_CALL" (pm_SparseMatrixIntNonSymmetric, int i, int j)
+    pm_Rational pm_SparseMatrixRationalNonSymmetric_get "WRAP_CALL" (pm_SparseMatrixRationalNonSymmetric, int i, int j)
 
 cdef extern from "<sstream>" namespace "std":
     cdef cppclass ostringstream:
@@ -89,61 +104,54 @@ cdef extern from "wrap.h" namespace "polymake":
     void pm_MatrixFloat_repr "WRAP_wrap_OUT" (ostringstream, pm_MatrixFloat)
     void pm_MatrixInteger_repr "WRAP_wrap_OUT" (ostringstream, pm_MatrixInteger)
     void pm_MatrixRational_repr "WRAP_wrap_OUT" (ostringstream, pm_MatrixRational)
-    void pm_SparseMatrixIntNonSymmetric_repr "WRAP_wrap_OUT" (ostringstream, pm_SparseMatrixIntNonSymmetric)
-    void pm_SparseMatrixRationalNonSymmetric_repr "WRAP_wrap_OUT" (ostringstream, pm_SparseMatrixRationalNonSymmetric)
-    void pm_IncidenceMatrixNonSymmetric_repr "WRAP_wrap_OUT" (ostringstream, pm_IncidenceMatrixNonSymmetric)
 
-cdef class MatrixGeneric(object):
-    cpdef Py_ssize_t rows(self): return -1
-    cpdef Py_ssize_t cols(self): return -1
+#    def python(self):
+#        r"""Converts to a list of list of fractions
+#
+#        >>> import polymake
+#
+#        >>> c = polymake.cube(3)
+#        >>> m = c.DEGREE_ONE_GENERATORS.python()
+#        >>> m
+#        [[1, -1, -1, -1],
+#         [1, -1, -1, 0],
+#         [1, -1, -1, 1],
+#        ...
+#         [1, 1, 1, 0],
+#         [1, 1, 1, 1]]
+#        >>> type(m), type(m[0]), type(m[0][0])
+#        (<type 'list'>, <type 'list'>, <type 'int'>)
+#
+#        >>> c = polymake.cube(3)
+#        >>> m = c.VERTEX_NORMALS.python()
+#        >>> m
+#        [[Fraction(1, 2), Fraction(1, 2), Fraction(1, 2), Fraction(1, 2)],
+#         [Fraction(1, 2), Fraction(-1, 2), Fraction(1, 2), Fraction(1, 2)],
+#         [Fraction(1, 2), Fraction(1, 2), Fraction(-1, 2), Fraction(1, 2)],
+#        ...
+#         [Fraction(1, 2), Fraction(1, 2), Fraction(-1, 2), Fraction(-1, 2)],
+#         [Fraction(1, 2), Fraction(-1, 2), Fraction(-1, 2), Fraction(-1, 2)]]
+#
+#        >>> c = polymake.cube(3)
+#        >>> m = c.EDGE_ORIENTATION.python()
+#        [[0, 4],
+#         [2, 6],
+#         [0, 2],
+#         ...
+#         [2, 3],
+#         [6, 7]]
+#        >>> type(m), type(m[0]), type(m[0][0])
+#        (<type 'list'>, <type 'list'>, <type 'int'>)
+#        """
+#        cdef Py_ssize_t i, j, nrows, ncols
+#        nrows = self.rows()
+#        ncols = self.cols()
+#        try:
+#            return [[self[i,j].python() for j in range(ncols)] for i in range(nrows)]
+#        except AttributeError:
+#            return [[self[i,j] for j in range(ncols)] for i in range(nrows)]
 
-    def python(self):
-        r"""Converts to a list of list of fractions
-
-        >>> import polymake
-
-        >>> c = polymake.cube(3)
-        >>> m = c.DEGREE_ONE_GENERATORS.python()
-        >>> m
-        [[1, -1, -1, -1],
-         [1, -1, -1, 0],
-         [1, -1, -1, 1],
-        ...
-         [1, 1, 1, 0],
-         [1, 1, 1, 1]]
-        >>> type(m), type(m[0]), type(m[0][0])
-        (<type 'list'>, <type 'list'>, <type 'int'>)
-
-        >>> c = polymake.cube(3)
-        >>> m = c.VERTEX_NORMALS.python()
-        >>> m
-        [[Fraction(1, 2), Fraction(1, 2), Fraction(1, 2), Fraction(1, 2)],
-         [Fraction(1, 2), Fraction(-1, 2), Fraction(1, 2), Fraction(1, 2)],
-         [Fraction(1, 2), Fraction(1, 2), Fraction(-1, 2), Fraction(1, 2)],
-        ...
-         [Fraction(1, 2), Fraction(1, 2), Fraction(-1, 2), Fraction(-1, 2)],
-         [Fraction(1, 2), Fraction(-1, 2), Fraction(-1, 2), Fraction(-1, 2)]]
-
-        >>> c = polymake.cube(3)
-        >>> m = c.EDGE_ORIENTATION.python()
-        [[0, 4],
-         [2, 6],
-         [0, 2],
-         ...
-         [2, 3],
-         [6, 7]]
-        >>> type(m), type(m[0]), type(m[0][0])
-        (<type 'list'>, <type 'list'>, <type 'int'>)
-        """
-        cdef Py_ssize_t i, j, nrows, ncols
-        nrows = self.rows()
-        ncols = self.cols()
-        try:
-            return [[self[i,j].python() for j in range(ncols)] for i in range(nrows)]
-        except AttributeError:
-            return [[self[i,j] for j in range(ncols)] for i in range(nrows)]
-
-cdef class MatrixInt(MatrixGeneric):
+cdef class MatrixInt(object):
     def __repr__(self):
         cdef ostringstream out
         pm_MatrixInt_repr(out, self.pm_obj)
@@ -159,9 +167,9 @@ cdef class MatrixInt(MatrixGeneric):
 
         return pm_MatrixInt_get(self.pm_obj, i, j)
 
-    cpdef Py_ssize_t rows(self):
+    def rows(self):
         return self.pm_obj.rows()
-    cpdef Py_ssize_t cols(self):
+    def cols(self):
         return self.pm_obj.cols()
 
     def sage(self):
@@ -183,7 +191,7 @@ cdef class MatrixInt(MatrixGeneric):
         from .sage_conversion import MatrixInt_to_sage
         return MatrixInt_to_sage(self)
 
-cdef class MatrixFloat(MatrixGeneric):
+cdef class MatrixFloat(object):
     def __repr__(self):
         cdef ostringstream out
         pm_MatrixFloat_repr(out, self.pm_obj)
@@ -199,12 +207,12 @@ cdef class MatrixFloat(MatrixGeneric):
 
         return pm_MatrixFloat_get(self.pm_obj, i, j)
 
-    cpdef Py_ssize_t rows(self):
+    def rows(self):
         return self.pm_obj.rows()
-    cpdef Py_ssize_t cols(self):
+    def cols(self):
         return self.pm_obj.cols()
 
-cdef class MatrixInteger:
+cdef class MatrixInteger(object):
     def __repr__(self):
         cdef ostringstream out
         pm_MatrixInteger_repr(out, self.pm_obj)
@@ -222,9 +230,9 @@ cdef class MatrixInteger:
         ans.pm_obj.set_mpz_srcptr(pm_MatrixInteger_get(self.pm_obj, i, j).get_rep())
         return ans
 
-    cpdef Py_ssize_t rows(self):
+    def rows(self):
         return self.pm_obj.rows()
-    cpdef Py_ssize_t cols(self):
+    def cols(self):
         return self.pm_obj.cols()
 
     def sage(self):
@@ -259,7 +267,7 @@ cdef class MatrixInteger:
         return MatrixInteger_to_sage(self)
 
 
-cdef class MatrixRational(MatrixGeneric):
+cdef class MatrixRational(object):
     def __repr__(self):
         cdef ostringstream out
         pm_MatrixRational_repr(out, self.pm_obj)
@@ -278,9 +286,9 @@ cdef class MatrixRational(MatrixGeneric):
         ans.pm_obj.set_mpq_srcptr(q)
         return ans
 
-    cpdef Py_ssize_t rows(self):
+    def rows(self):
         return self.pm_obj.rows()
-    cpdef Py_ssize_t cols(self):
+    def cols(self):
         return self.pm_obj.cols()
 
     def sage(self):
@@ -300,76 +308,6 @@ cdef class MatrixRational(MatrixGeneric):
         """
         from .sage_conversion import MatrixRational_to_sage
         return MatrixRational_to_sage(self)
-
-cdef class SparseMatrixIntNonSymmetric(MatrixGeneric):
-    def __repr__(self):
-        cdef ostringstream out
-        pm_SparseMatrixIntNonSymmetric_repr(out, self.pm_obj)
-        return (<bytes>out.str()).decode('ascii')
-
-    def __getitem__(self, elt):
-        cdef Py_ssize_t nrows, ncols, i,j
-        nrows = self.pm_obj.rows()
-        ncols = self.pm_obj.cols()
-        i,j = elt
-        if not (0 <= i < nrows) or not (0 <= j < ncols):
-            raise IndexError("matrix index out of range")
-
-        return pm_SparseMatrixIntNonSymmetric_get(self.pm_obj, i, j)
-
-    cpdef Py_ssize_t rows(self):
-        return self.pm_obj.rows()
-    cpdef Py_ssize_t cols(self):
-        return self.pm_obj.cols()
-
-cdef class SparseMatrixRationalNonSymmetric(MatrixGeneric):
-    def __repr__(self):
-        cdef ostringstream out
-        pm_SparseMatrixRationalNonSymmetric_repr(out, self.pm_obj)
-        return (<bytes>out.str()).decode('ascii')
-
-    def __getitem__(self, elt):
-        cdef Py_ssize_t nrows, ncols, i,j
-        nrows = self.pm_obj.rows()
-        ncols = self.pm_obj.cols()
-        i,j = elt
-        if not (0 <= i < nrows) or not (0 <= j < ncols):
-            raise IndexError("matrix index out of range")
-
-
-        cdef Rational ans = Rational.__new__(Rational)
-        cdef pm_Rational q = pm_SparseMatrixRationalNonSymmetric_get(self.pm_obj, i, j)
-        ans.pm_obj.set_mpq_srcptr(q.get_rep())
-        return ans
-
-    cpdef Py_ssize_t rows(self):
-        return self.pm_obj.rows()
-    cpdef Py_ssize_t cols(self):
-        return self.pm_obj.cols()
-
-cdef class IncidenceMatrixNonSymmetric(MatrixGeneric):
-    def __repr__(self):
-        cdef ostringstream out
-        pm_IncidenceMatrixNonSymmetric_repr(out, self.pm_obj)
-        return (<bytes>out.str()).decode('ascii')
-
-
-    def __getitem__(self, elt):
-        cdef Py_ssize_t nrows, ncols, i,j
-        nrows = self.pm_obj.rows()
-        ncols = self.pm_obj.cols()
-        i,j = elt
-        if not (0 <= i < nrows) or not (0 <= j < ncols):
-            raise IndexError("matrix index out of range")
-
-        return pm_IncidenceMatrixNonSymmetric_get(self.pm_obj, i, j)
-
-    cpdef Py_ssize_t rows(self):
-        return self.pm_obj.rows()
-    cpdef Py_ssize_t cols(self):
-        return self.pm_obj.cols()
-
-
 
 def clean_mat(mat):
     r"Return a triple (nr, nc, entries)"

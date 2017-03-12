@@ -35,7 +35,7 @@ def birkhoff(n, even=False):
     >>> b.N_VERTICES
     6
     """
-    return call_polymake_function("polytope", "birkhoff", n, even)
+    return call_polymake_function(b"polytope", b"birkhoff", n, even)
 
 def cross(d):
     r"""Produce a d-dimensional cross polytope.
@@ -245,7 +245,7 @@ def neighborly_cubical(d, n):
     evenness criterion.  See Joswig and Ziegler, Discr. Comput. Geom.
     24:315-344 (2000).
     """
-    return call_polymake_function("polytope", "neighborly_cubical", d, n)
+    return call_polymake_function(b"polytope", b"neighborly_cubical", d, n)
 
 
 def rand_sphere(dim, npoints):
@@ -262,4 +262,4 @@ def rand_sphere(dim, npoints):
     >>> p.N_VERTICES
     10
     """
-    return call_polymake_function("polytope", "rand_sphere", dim, npoints)
+    return call_polymake_function(b"polytope", b"rand_sphere", dim, npoints)

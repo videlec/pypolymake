@@ -10,11 +10,10 @@
 
 from libcpp.string cimport string
 
-from .defs cimport (call_function, call_function1, call_function2, call_function3,
+from .defs cimport (call_function,
         new_PerlObject_from_PerlObject, pm_PerlObject, pm_MapStringString)
 from .map cimport MapStringString
 from .main cimport pm
-
 
 from .handlers cimport get_property_handler, get_method_handler
 
@@ -24,9 +23,6 @@ cdef int DEBUG = 0
 # this is a bug in Cython!
 def _NOT_TO_BE_USED_():
     raise ValueError
-
-cdef extern from "polymake/client.h" namespace "polymake":
-    pm_MapStringString call_it "call_function" (string, pm_PerlObject) except +
 
 cpdef dict get_properties(PerlObject p):
     r"""
@@ -42,10 +38,15 @@ cpdef dict get_properties(PerlObject p):
     >>> c = polymake.cube(3)
     >>> m = get_properties(c)
     """
-    pm.pm_include("common::sage.rules")
     cdef MapStringString s = MapStringString.__new__(MapStringString)
-    s.pm_obj = call_it(<string> "Sage::properties_for_object", p.pm_obj[0])
-    return s.python()
+    if DEBUG:
+        print("  pypolymake debug WARNING: calling properties...")
+    s.pm_obj = call_function(<string> "Sage::properties_for_object", p.pm_obj[0])
+    s = s.python()
+    for k in list(s.keys()):
+        if s[k].startswith(b"Visual::"):
+            del s[k]
+    return s
 
 cpdef dict get_methods(PerlObject p):
     r"""
@@ -60,8 +61,13 @@ cpdef dict get_methods(PerlObject p):
     """
     pm.pm_include("common::sage.rules")
     cdef MapStringString s = MapStringString.__new__(MapStringString)
-    s.pm_obj = call_it(<string> "Sage::methods_for_object", p.pm_obj[0])
-    return s.python()
+    if DEBUG:
+        print("  pypolymake debug WARNING: calling methods...")
+    s.pm_obj = call_function(<string> "Sage::methods_for_object", p.pm_obj[0])
+    for k in list(s.keys()):
+        if s[k].startswith(b"Visual::"):
+            del s[k]
+    return s
 
 # Hand written handler that
 cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj):
@@ -76,13 +82,13 @@ def call_polymake_function(bytes app, bytes name, *args):
     pm_set_application(app)
     cdef pm_PerlObject pm_obj
     if len(args) == 0:
-        pm_obj = call_function(name)
+        pm_obj = call_function(<string> name)
     elif len(args) == 1:
-        pm_obj = call_function1(name, args[0])
+        pm_obj = call_function(<string> name, <int> args[0])
     elif len(args) == 2:
-        pm_obj = call_function2(name, args[0], args[1])
+        pm_obj = call_function(<string> name, <int> args[0], <int> args[1])
     elif len(args) == 3:
-        pm_obj = call_function3(name, args[0], args[1], args[2])
+        pm_obj = call_function(<string> name, <int> args[0], <int> args[1], <int> args[2])
     else:
         raise NotImplementedError("can only handle 0-3 arguments")
 

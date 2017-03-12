@@ -84,6 +84,14 @@ from .cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
 cdef extern from "wrap.h":
     pass
 
+cdef extern from "<utility>":
+    cdef cppclass pairstringstring "std::pair<std::string, std::string>":
+        string first
+        string second
+    cdef cppclass pairintint "std::pair<int,int>":
+        int first
+        int second
+
 cdef extern from "polymake/Main.h" namespace "polymake":
     cdef cppclass Main:
         Main()
@@ -219,60 +227,52 @@ cdef extern from "polymake/client.h":
 #            (char*, int, int) except +ValueError
 #    pm_PerlObject CallPolymakeFunction3 "CallPolymakeFunction" \
 #            (char*, int, int, int) except +ValueError
-    pm_PerlObject call_function(string) except +ValueError
-    pm_PerlObject call_function1 "call_function" (string, int) except +ValueError
-    pm_PerlObject call_function2 "call_function" (string, int, int) except +ValueError
-    pm_PerlObject call_function3 "call_function" (string, int, int, int) except +ValueError
+
+    pm_PerlObject call_function (string) except+
+    pm_PerlObject call_function (string, int) except+
+    pm_PerlObject call_function (string, int, int) except+
+    pm_PerlObject call_function (string, int, int, int) except+
+    pm_MapStringString call_function (string, pm_PerlObject) except+
 
     pm_PerlObject* new_PerlObject_from_PerlObject "new perl::Object" (pm_PerlObject)
 
 cdef extern from "polymake/Array.h" namespace "polymake":
     cdef cppclass pm_ArrayBool "Array<bool>":
-        pm_ArrayBool()
-        pm_ArrayBool(int)
         int size()
         bool empty()
-        void clear()
-        void resize(int)
-        void assign(int, int)
         bool get "operator[]" (int i)
     cdef cppclass pm_ArrayInt "Array<int>":
-        pm_ArrayInt()
-        pm_ArrayInt(int)
         int size()
         bool empty()
-        void clear()
-        void resize(int)
-        void assign(int, int)
         long get "operator[]" (int i)
+    cdef cppclass pm_ArrayRational "Array<Rational>":
+        int size()
+        bool empty()
+        pm_Rational get "operator[]" (int i)
     cdef cppclass pm_ArrayString "Array<std::string>":
-        pm_ArrayString()
-        pm_ArrayString(int)
         int size()
         bool empty()
-        void clear()
-        void resize(int)
-        void assign(int, char *)
         string get "operator[]" (int i)
-    cdef cppclass pm_ArraySetInt "Array<Set<int>>":
-        pm_ArraySetInt()
-        pm_ArraySetInt(int)
+    cdef cppclass pm_ArrayMatrixInteger "Array<Matrix<Integer>>":
         int size()
         bool empty()
-        void clear()
-        void resize(int)
-        void assign(int, char *)
+        pm_MatrixInteger "operator[]" (int i)
+    cdef cppclass pm_ArraySetInt "Array<Set<int>>":
+        int size()
+        bool empty()
         pm_SetInt get "operator[]" (int i)
     cdef cppclass pm_ArrayArrayInt "Array<Array<int>>":
-        pm_ArrayArrayInt()
-        pm_ArrayArrayInt(int)
         int size()
         bool empty()
-        void clear()
-        void resize(int)
-        void assign(int, char *)
         pm_ArrayInt get "operator[]" (int i)
-       
+    cdef cppclass pm_ArrayPairStringString "Array<std::pair<std::string,std::string>>":
+        int size()
+        bool empty()
+        pairstringstring get "operator[]" (int i)
+    cdef cppclass pm_ArrayArrayPairStringString "Array<Array<std::pair<std::string,std::string>>>":
+        int size()
+        bool empty()
+        pm_ArrayPairStringString get "operator[]" (int i)
 
 cdef extern from "polymake/Set.h" namespace "polymake":
     cdef cppclass pm_SetInt "Set<int>":
@@ -286,6 +286,10 @@ cdef extern from "polymake/Set.h" namespace "polymake":
         # reverse_iterator rbegin()
         # reverse_iterator rend()
 
+    cdef cppclass pm_SetSetInt "Set<Set<int>>":
+        int size()
+    cdef cppclass pm_SetMatrixRational "Set<Matrix<Rational>>":
+        int size()
 
 cdef extern from "polymake/Map.h" namespace "polymake":
     cdef cppclass pm_MapStringString "Map<std::string,std::string>":
@@ -366,6 +370,10 @@ cdef extern from "polymake/Matrix.h" namespace "polymake":
         Py_ssize_t rows()
         Py_ssize_t cols()
 
+
+cdef extern from "polymake/Set.h" namespace "polymake":
+    cdef cppclass pm_SetInt "Set<Int>":
+        pass
 
 #cdef extern from "polymake/GenericVector.h" namespace 'polymake':
 #    pm_MatrixRational ones_vector_Rational "ones_vector<Rational>" ()

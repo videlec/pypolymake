@@ -8,7 +8,8 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-from .number cimport Integer, Rational
+from .integer cimport Integer
+from .rational cimport Rational
 
 from libcpp.string cimport string
 
@@ -20,8 +21,7 @@ cdef extern from "wrap.h" namespace "polymake":
     void pm_VectorInteger_repr "WRAP_wrap_OUT" (ostringstream, pm_VectorInteger)
     void pm_VectorRational_repr "WRAP_wrap_OUT" (ostringstream, pm_VectorRational)
 
-
-cdef class VectorInteger:
+cdef class VectorInteger(object):
     def __len__(self):
         return self.pm_obj.size()
 
@@ -60,7 +60,7 @@ cdef class VectorInteger:
         from .sage_conversion import VectorInteger_to_sage
         return VectorInteger_to_sage(self)
 
-cdef class VectorRational:
+cdef class VectorRational(object):
     def __len__(self):
         return self.pm_obj.size()
 

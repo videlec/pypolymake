@@ -8,10 +8,10 @@
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
-from .defs cimport pm_MatrixRational, pm_assign_MatrixRational, pm_PerlObject
-from .perl_object cimport wrap_perl_object
-from .matrix cimport rat_mat_to_pm
-from .matrix import clean_mat
+#from .defs cimport pm_MatrixRational, pm_assign_MatrixRational, pm_PerlObject
+#from .perl_object cimport wrap_perl_object
+#from .matrix cimport rat_mat_to_pm
+#from .matrix import clean_mat
 
 
 def Polytope(bytes prop_name, data):
@@ -26,13 +26,14 @@ def Polytope(bytes prop_name, data):
     """
     if prop_name not in ['VERTICES', 'POINTS', 'FACETS']:
         raise ValueError("property must be VERTICES, POINTS or FACETS")
+    return 0
 
     # FIXME: this should not be needed
-    from .main import pm_set_application
-    pm_set_application("polytope")
-
-    cdef pm_PerlObject * pm_obj = new pm_PerlObject(b"Polytope<Rational>")
-    nr, nc, mat = clean_mat(data)
+#    from .main import pm_set_application
+#    pm_set_application("polytope")
+#
+#    cdef pm_PerlObject * pm_obj = new pm_PerlObject(b"Polytope<Rational>")
+#    nr, nc, mat = clean_mat(data)
 #    cdef pm_MatrixRational* pm_mat = rat_mat_to_pm(nr, nc, mat)
 #    pm_assign_MatrixRational(pm_obj.take(prop_name), pm_mat[0])
 #    del pm_mat
