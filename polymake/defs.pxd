@@ -370,6 +370,8 @@ cdef extern from "polymake/Matrix.h" namespace "polymake":
         Py_ssize_t rows()
         Py_ssize_t cols()
 
+    cdef cppclass pm_MatrixQuadraticExtensionRational " Matrix<QuadraticExtension<Rational>>":
+        pass
 
 cdef extern from "polymake/Polynomial.h" namespace "polymake":
     cdef cppclass pm_UniPolynomialRationalInt "UniPolynomial<Rational, int>":
@@ -384,6 +386,9 @@ cdef extern from "polymake/Polynomial.h" namespace "polymake":
 #        bool operator== (const UniPolynomial& other)
 #        bool operator!= (const UniPolynomial& other)
 
+cdef extern from "polymake/QuadraticExtension.h" namespace "polymake":
+    cdef cppclass pm_QuadraticExtensionRational "QuadraticExtension<Rational>":
+        pass
 
 cdef extern from "polymake/RationalFunction.h" namespace "polymake":
     cdef cppclass pm_RationalFunctionRationalInt "RationalFunction<Rational, int>":

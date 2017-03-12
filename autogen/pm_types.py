@@ -60,6 +60,16 @@ atomic_types = {
         "cython" : "Rational"
     },
 
+    "QuadraticExtensionRational":
+    {
+        "name"   : "QuadraticExtensionRational",
+        "simple" : False,
+        "module" : "QuadraticExtension",
+        "perl"   : "QuadraticExtension<Rational>",
+        "cpp"    : "QuadraticExtension<Rational>",
+        "cython" : "QuadraticExtensionRational"
+    },
+
     "PairStringString":
     {
         "name"   : "PairStringString",
@@ -92,7 +102,8 @@ module_data = {
         "Int",
         "Float",
         "Integer",
-        "Rational"
+        "Rational",
+        "QuadraticExtensionRational",
     ],
 
     "SparseMatrix":
@@ -187,7 +198,7 @@ def pm_types():
 
     for scal in module_data["Matrix"]:
         cython = "Matrix{scal}".format(scal=scal)
-        perl = "Matrix<{scal}, NonSymmetric>".format(scal=scal)
+        perl = "Matrix<{scal}, NonSymmetric>".format(scal=atomic_types[scal]["perl"])
         cpp = "Matrix<{scal}>".format(scal=atomic_types[scal]["cpp"])
 
         ans[cython] = {
@@ -200,7 +211,7 @@ def pm_types():
 
     for (scal, sym) in module_data["SparseMatrix"]:
         cython = "SparseMatrix{scal}{sym}".format(scal=scal, sym=sym)
-        perl = "SparseMatrix<{scal}, {sym}>".format(scal=scal, sym=sym)
+        perl = "SparseMatrix<{scal}, {sym}>".format(scal=atomic_types[scal]["perl"], sym=sym)
         cpp = "SparseMatrix<{scal}, {sym}>".format(scal=atomic_types[scal]["cpp"], sym=sym)
 
         ans[cython] = {

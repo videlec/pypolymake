@@ -7,6 +7,7 @@ It depends on distutils
 
 from __future__ import print_function
 
+from autogen.pm_types import pm_modules
 from setuptools import setup
 import distutils
 from distutils.cmd import Command
@@ -38,45 +39,15 @@ extensions = [
     Extension("polymake.function_dispatcher", ["polymake/function_dispatcher.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
-# wrappers for small objects in polymake
-# (should be automatized)
-
-    Extension("polymake.array", ["polymake/array.pyx"],
-        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
-
-    Extension("polymake.incidence_matrix", ["polymake/incidence_matrix.pyx"],
-        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
-
-    Extension("polymake.integer", ["polymake/integer.pyx"],
-        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
-
-    Extension("polymake.map", ["polymake/map.pyx"],
-        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
-
-    Extension("polymake.matrix", ["polymake/matrix.pyx"],
-        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
-
-    Extension("polymake.power_set", ["polymake/power_set.pyx"],
-        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
-
-    Extension("polymake.rational", ["polymake/rational.pyx"],
-        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
-
-    Extension("polymake.set", ["polymake/set.pyx"],
-        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
-
-    Extension("polymake.sparse_matrix", ["polymake/sparse_matrix.pyx"],
-        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
-
-    Extension("polymake.vector", ["polymake/vector.pyx"],
-        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
-
-
-# misc (to be removed)
-
-    Extension("polymake.polytope", ["polymake/polytope.pyx"],
+    Extension("polymake.big_object", ["polymake/big_object.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 ]
+
+for mod in pm_modules():
+    extensions.append(
+        Extension("polymake." + mod, ["polymake/" + mod + ".pyx"],
+            depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
+    )
 
 try:
     import sage

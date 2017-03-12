@@ -70,6 +70,11 @@ polymake.matrix.IncidenceMatrixNonSymmetric
 #                  http://www.gnu.org/licenses/
 ###############################################################################
 
+from libcpp cimport bool
+from libcpp.string cimport string
+
+include "auto_matrix.pxi"
+
 from libc.stdlib cimport malloc, free
 from .cygmp.types cimport mpz_t, mpq_t, mpz_srcptr, mpq_srcptr
 from .cygmp.mpz cimport *
@@ -79,21 +84,20 @@ from .defs cimport pm_Integer, pm_Rational
 
 from .integer cimport Integer
 from .rational cimport Rational
-from .rational import get_num_den
 
-from libcpp.string cimport string
 
 cdef extern from "polymake/Matrix.h" namespace "polymake":
     # WRAP_CALL(t,i,j) -> t(i,j)
     long pm_MatrixInt_get "WRAP_CALL" (pm_MatrixInt, int i, int j)
     float pm_MatrixFloat_get "WRAP_CALL" (pm_MatrixFloat, int i, int j)
-    pm_Rational pm_MatrixRational_get "WRAP_CALL" (pm_MatrixRational, int i, int j)
     pm_Integer pm_MatrixInteger_get "WRAP_CALL" (pm_MatrixInteger, int i, int j)
+    pm_Rational pm_MatrixRational_get "WRAP_CALL" (pm_MatrixRational, int i, int j)
+    pm_QuadraticExtensionRational_get "WRAP_CALL" (pm_MatrixQuadraticExtensionRational, int i, int j)
 
-cdef extern from "polymake/SparseMatrix.h" namespace "polymake":
-    # WRAP_CALL(t,i,j) -> t(i,j)
-    long pm_SparseMatrixIntNonSymmetric_get "WRAP_CALL" (pm_SparseMatrixIntNonSymmetric, int i, int j)
-    pm_Rational pm_SparseMatrixRationalNonSymmetric_get "WRAP_CALL" (pm_SparseMatrixRationalNonSymmetric, int i, int j)
+#cdef extern from "polymake/SparseMatrix.h" namespace "polymake":
+#    # WRAP_CALL(t,i,j) -> t(i,j)
+#    long pm_SparseMatrixIntNonSymmetric_get "WRAP_CALL" (pm_SparseMatrixIntNonSymmetric, int i, int j)
+#    pm_Rational pm_SparseMatrixRationalNonSymmetric_get "WRAP_CALL" (pm_SparseMatrixRationalNonSymmetric, int i, int j)
 
 cdef extern from "<sstream>" namespace "std":
     cdef cppclass ostringstream:
@@ -309,80 +313,4 @@ cdef class MatrixRational(object):
         from .sage_conversion import MatrixRational_to_sage
         return MatrixRational_to_sage(self)
 
-def clean_mat(mat):
-    r"Return a triple (nr, nc, entries)"
-    try:
-        nr = mat.nrows()
-        nc = mat.ncols()
-    except AttributeError:
-        if isinstance(mat, (tuple,list)) and mat and \
-           all(isinstance(row, (tuple,list)) for row in mat) and mat[0] and \
-           all(len(row) == len(mat[0]) for row in mat):
-               nr = len(mat)
-               nc = len(mat[0])
-        else:
-            raise ValueError("invalid input {}".format(mat))
 
-    if nr <= 0 or nc <= 0:
-        raise ValueError("invalid input {}".format(mat))
-
-    cdef long num, den
-    cdef Py_ssize_t i,j
-    cdef list clean_mat = []
-    cdef list row
-    for i in range(nr):
-        row = []
-        mi = mat[i]
-        for j in range(nc):
-            row.append(get_num_den(mi[j]))
-        clean_mat.append(row)
-
-    return (nr, nc, clean_mat)
-
-cdef pm_MatrixRational* rat_mat_to_pm(int nr, int nc, list mat):
-    """
-    Create a polymake rational matrix from input so that:
-
-    - there are methods ``nrows``, ``ncols`` giving the number of rows and cols
-    - accessing to the elements is done via ``mat[i,j]``
-    - given a rational entry we access to numerator and denominator via the
-      methods ``.numerator()`` and ``.denominator()``
-    """
-    # create polymake matrix with dimensions of mat
-    cdef pm_MatrixRational* pm_mat = new pm_MatrixRational(nr, nc)
-
-    cdef mpq_t z
-    cdef Py_ssize_t i, j
-    cdef long num, den
-
-    # clean data
-    mpq_init(z)
-    for i,row in enumerate(mat):
-        for j,elt in enumerate(row):
-            pm_MatrixRational_get(pm_mat[0], i, j).set_long(num, den)
-    mpq_clear(z)
-
-    return pm_mat
-
-cdef pm_MatrixInteger* int_mat_to_pm(int nr, int nc, list mat):
-    """
-    Create a polymake integer matrix from input so that:
-
-    - there are methods ``nrows``, ``ncols`` giving the number of rows and cols
-    - accessing to the elements is done via ``mat[i,j]``
-    """
-    # create polymake matrix with dimensions of mat
-    cdef pm_MatrixInteger* pm_mat = new pm_MatrixInteger(nr, nc)
-
-    cdef mpz_t z
-    cdef Py_ssize_t i, j
-
-    # clean data
-    mpz_init(z)
-    for i,row in enumerate(mat):
-        for j,elt in enumerate(row):
-            mpz_set_si(z, elt)
-            pm_MatrixInteger_get(pm_mat[0], i, j).set_mpz_srcptr(z)
-    mpz_clear(z)
-
-    return pm_mat

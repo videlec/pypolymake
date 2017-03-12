@@ -29,6 +29,7 @@ from .map cimport *
 from .matrix cimport *
 from .polynomial cimport *
 from .power_set cimport *
+from .quadratic_extension cimport *
 from .rational cimport *
 from .rational_function cimport *
 from .set cimport *

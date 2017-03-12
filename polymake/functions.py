@@ -263,3 +263,18 @@ def rand_sphere(dim, npoints):
     10
     """
     return call_polymake_function(b"polytope", b"rand_sphere", dim, npoints)
+
+def regular_24_cell():
+    r"""Create regular 24-cell.
+    """
+    return call_polymake_function(b"polytope", b"regular_24_cell")
+
+def regular_120_cell():
+    r"""Create exact regular 120-cell in Q(sqrt{5}).
+    """
+    return call_polymake_function(b"polytope", b"regular_120_cell")
+
+def regular_600_cell():
+    r"""Create exact regular 600-cell in Q(sqrt{5}).
+    """
+    return call_polymake_function(b"polytope", b"regular_600_cell")
