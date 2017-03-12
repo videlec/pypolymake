@@ -67,6 +67,7 @@ cdef pm_MatrixRational* rat_mat_to_pm(int nr, int nc, list mat):
     # clean data
     for i,row in enumerate(mat):
         for j,elt in enumerate(row):
+            num, den = get_num_den(elt)
             pm_MatrixRational_get(pm_mat[0], i, j).set_long(num, den)
 
     return pm_mat
