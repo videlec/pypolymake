@@ -3,7 +3,7 @@ atomic_types = {
     {
         "name"   : "Bool",
         "simple" : True,
-        "module" : "none",
+        "module" : None,
         "perl"   : "Bool",
         "cpp"    : "bool",
         "cython" : "bool"
@@ -13,7 +13,7 @@ atomic_types = {
     {
         "name"  : "Int",
         "simple": True,
-        "module": "none",
+        "module": None,
         "perl"  : "Int",
         "cpp"   : "int",
         "cython": "int"
@@ -23,7 +23,7 @@ atomic_types = {
     {
         "name"  : "Float",
         "simple": True,
-        "module": "none",
+        "module": None,
         "perl"  : "Float",
         "cpp"   : "float",
         "cython": "float"
@@ -34,7 +34,7 @@ atomic_types = {
     {
         "name"   : "String",
         "simple" : True,
-        "module" : "none",
+        "module" : None,
         "perl"   : "String",
         "cpp"    : "std::string",
         "cython" : "string"
@@ -64,7 +64,7 @@ atomic_types = {
     {
         "name"   : "PairStringString",
         "simple" : False,
-        "module" : "extra_types",
+        "module" : None,
         "perl"   : "Pair<String, String>",
         "cpp"    : "std::pair<std::string, std::string>",
         "cython" : "PairStringString"
@@ -101,6 +101,18 @@ module_data = {
         ("Rational", "NonSymmetric")
     ],
 
+# polynomials, rational functions
+
+    "Polynomial":
+    [
+        ("Rational", "Int")
+    ],
+
+    "RationalFunction":
+    [
+        ("Rational", "Int")
+    ],
+
 # containers
     "Array":
     [
@@ -112,7 +124,8 @@ module_data = {
         "SetInt",
         "PairStringString",
         "MatrixInteger",
-        "ArrayPairStringString"
+        "ArrayPairStringString",
+        "PowerSetInt"
     ],
 
     "Set":
@@ -193,7 +206,35 @@ def pm_types():
         ans[cython] = {
             "name"  : cython,
             "simple": False,
-            "module": "sparse_matrix",
+            "module": "SparseMatrix",
+            "cython": cython,
+            "perl"  : perl,
+            "cpp"   : cpp}
+
+    for (coeff, exp) in module_data["Polynomial"]:
+        cython = "UniPolynomial{coeff}{exp}".format(coeff=coeff, exp=exp)
+        perl = "UniPolynomial<{coeff}, {exp}>".format(coeff=coeff, exp=exp)
+        cpp = "UniPolynomial<{coeff}, {exp}>".format(coeff=atomic_types[coeff]["cpp"],
+                                                     exp=atomic_types[exp]["cpp"])
+
+        ans[cython] = {
+            "name"  : cython,
+            "simple": False,
+            "module": "Polynomial",
+            "cython": cython,
+            "perl"  : perl,
+            "cpp"   : cpp}
+
+    for (coeff, exp) in module_data["RationalFunction"]:
+        cython = "RationalFunction{coeff}{exp}".format(coeff=coeff, exp=exp)
+        perl = "RationalFunction<{coeff}, {exp}>".format(coeff=coeff, exp=exp)
+        cpp = "RationalFunction<{coeff}, {exp}>".format(coeff=atomic_types[coeff]["cpp"],
+                                                        exp=atomic_types[exp]["cpp"])
+
+        ans[cython] = {
+            "name"  : cython,
+            "simple": False,
+            "module": "RationalFunction",
             "cython": cython,
             "perl"  : perl,
             "cpp"   : cpp}
@@ -248,3 +289,8 @@ def pm_types():
             "cpp"   : cpp}
 
     return ans
+
+def pm_modules():
+    ans = set(typ["module"] for typ in pm_types().values())
+    ans.remove(None)
+    return sorted(caml_to_python(x) for x in ans)

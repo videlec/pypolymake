@@ -1,5 +1,5 @@
 # distutils: language = c++
-# distutils: libraries = polymake
+# distutils: libraries = polymake gmpxx gmp
 r"""
 Handlers for polymake objects
 
@@ -27,11 +27,13 @@ from .incidence_matrix cimport *
 from .integer cimport *
 from .map cimport *
 from .matrix cimport *
+from .polynomial cimport *
+from .power_set cimport *
 from .rational cimport *
+from .rational_function cimport *
 from .set cimport *
 from .sparse_matrix cimport *
 from .vector cimport *
-
 
 cdef extern from "wrap.h" namespace "polymake":
     void pm_give_PerlObject "GIVE" (pm_PerlObject, pm_PerlObject*, string)
@@ -98,18 +100,27 @@ include "auto_mappings.pxi"
 property_handlers.update(auto_property_handlers)
 method_handlers.update(auto_method_handlers)
 
-cdef list small_types = [b"Array", b"Integer", b"Map", b"Matrix", b"PowerSet",
-        b"Rational", b"Set", b"SparseMatrix", b"SparseVector", b"Vector"]
+cpdef bint is_small_type(bytes typ):
+    return (typ == b"Integer" or
+            typ == b"Rational" or
+            typ.startswith(b"Array<") or
+            typ.startswith(b"Map<") or
+            typ.startswith(b"Matrix<") or
+            typ.startswith(b"PowerSet<") or
+            typ.startswith(b"RationalFunction<") or
+            typ.startswith(b"Set<") or
+            typ.startswith(b"SparseMatrix<") or
+            typ.startswith(b"SparseVector<") or
+            typ.startswith(b"UniPolynomial<") or
+            typ.startswith(b"Vector<"))
 
 cpdef get_property_handler(bytes pm_type):
     global property_handlers
-    cdef bytes typ
     try:
         return property_handlers[pm_type]
     except KeyError:
-        for typ in small_types:
-            if pm_type.startswith(typ):
-                raise NotImplementedError("pypolymake does not handle {} polymake type".format(pm_type))
+        if is_small_type(pm_type):
+            raise NotImplementedError("pypolymake does not handle {} polymake type".format(pm_type))
         return give_generic
 
 cpdef get_method_handler(bytes pm_type):
@@ -118,8 +129,7 @@ cpdef get_method_handler(bytes pm_type):
     try:
         return method_handlers[pm_type]
     except KeyError:
-        for typ in small_types:
-            if pm_type.startswith(typ):
-                raise NotImplementedError("pypolymake does not handle {} polymake type".format(pm_type))
+        if is_small_type(pm_type):
+            raise NotImplementedError("pypolymake does not handle {} polymake type".format(pm_type))
         return call_method_generic
 

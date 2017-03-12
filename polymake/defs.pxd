@@ -273,6 +273,10 @@ cdef extern from "polymake/Array.h" namespace "polymake":
         int size()
         bool empty()
         pm_ArrayPairStringString get "operator[]" (int i)
+    cdef cppclass pm_ArrayPowerSetInt "Array<PowerSet<int>>":
+        int size()
+        bool empty()
+        pm_PowerSetInt get "operator[]" (int i)
 
 cdef extern from "polymake/Set.h" namespace "polymake":
     cdef cppclass pm_SetInt "Set<int>":
@@ -308,10 +312,6 @@ cdef extern from "polymake/Map.h" namespace "polymake":
         int get "operator[]" (pm_Integer)
         int size()
         bool exists(pm_Integer&)
-
-
-cdef extern from "polymake/Polynomial.h" namespace "polymake":
-    pass
 
 
 cdef extern from "polymake/IncidenceMatrix.h" namespace "polymake":
@@ -370,6 +370,25 @@ cdef extern from "polymake/Matrix.h" namespace "polymake":
         Py_ssize_t rows()
         Py_ssize_t cols()
 
+
+cdef extern from "polymake/Polynomial.h" namespace "polymake":
+    cdef cppclass pm_UniPolynomialRationalInt "UniPolynomial<Rational, int>":
+        int n_vars()
+        int n_terms()
+        bool trivial()
+        bool unit()
+        int deg()
+        int lower_deg()
+
+        pm_VectorRational coefficients_as_vector()
+#        bool operator== (const UniPolynomial& other)
+#        bool operator!= (const UniPolynomial& other)
+
+
+cdef extern from "polymake/RationalFunction.h" namespace "polymake":
+    cdef cppclass pm_RationalFunctionRationalInt "RationalFunction<Rational, int>":
+        pm_UniPolynomialRationalInt numerator()
+        pm_UniPolynomialRationalInt denominator()
 
 cdef extern from "polymake/Set.h" namespace "polymake":
     cdef cppclass pm_SetInt "Set<Int>":
