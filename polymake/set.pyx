@@ -13,10 +13,6 @@ from libcpp.string cimport string
 
 include "auto_set.pxi"
 
-cdef extern from "<sstream>" namespace "std":
-    cdef cppclass ostringstream:
-        string str()
-
 cdef extern from "wrap.h" namespace "polymake":
     void pm_SetInt_repr "WRAP_wrap_OUT" (ostringstream, pm_SetInt)
 
