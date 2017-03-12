@@ -1,32 +1,32 @@
 atomic_types = {
     "Bool":
     {
-        "name"   : "Bool",
-        "simple" : True,
-        "module" : None,
-        "perl"   : "Bool",
-        "cpp"    : "bool",
-        "cython" : "bool"
+        "name"  : "Bool",
+        "simple": True,
+        "module": None,
+        "perl"  : "Bool",
+        "cpp"   : "bool",
+        "cython": "bool"
     },
 
     "Int":
     {
-        "name"  : "Int",
-        "simple": True,
-        "module": None,
-        "perl"  : "Int",
-        "cpp"   : "int",
-        "cython": "int"
+        "name"   : "Int",
+        "simple" : True,
+        "module" : None,
+        "perl"   : "Int",
+        "cpp"    : "int",
+        "cython" : "int"
     },
 
     "Float":
     {
-        "name"  : "Float",
-        "simple": True,
-        "module": None,
-        "perl"  : "Float",
-        "cpp"   : "float",
-        "cython": "float"
+        "name"   : "Float",
+        "simple" : True,
+        "module" : None,
+        "perl"   : "Float",
+        "cpp"    : "float",
+        "cython" : "float"
     },
 
 
@@ -136,14 +136,16 @@ module_data = {
         "PairStringString",
         "MatrixInteger",
         "ArrayPairStringString",
-        "PowerSetInt"
+        "PowerSetInt",
+        "SetArrayInt"
     ],
 
     "Set":
     [
         "Int",
         "SetInt",
-        "MatrixRational"
+        "MatrixRational",
+        "ArrayInt"
     ],
 
     "PowerSet":

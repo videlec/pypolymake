@@ -277,6 +277,10 @@ cdef extern from "polymake/Array.h" namespace "polymake":
         int size()
         bool empty()
         pm_PowerSetInt get "operator[]" (int i)
+    cdef cppclass pm_ArraySetArrayInt "Array<Set<Array<int>>>":
+        int size()
+        bool empty()
+        pm_SetArrayInt get "operator[]" (int i)
 
 cdef extern from "polymake/Set.h" namespace "polymake":
     cdef cppclass pm_SetInt "Set<int>":
@@ -293,6 +297,8 @@ cdef extern from "polymake/Set.h" namespace "polymake":
     cdef cppclass pm_SetSetInt "Set<Set<int>>":
         int size()
     cdef cppclass pm_SetMatrixRational "Set<Matrix<Rational>>":
+        int size()
+    cdef cppclass pm_SetArrayInt "Set<Array<int>>":
         int size()
 
 cdef extern from "polymake/Map.h" namespace "polymake":
