@@ -59,7 +59,6 @@ cpdef dict get_methods(PerlObject p):
     >>> c = polymake.cube(3)
     >>> m = get_methods(c)
     """
-    pm.pm_include("common::sage.rules")
     cdef MapStringString s = MapStringString.__new__(MapStringString)
     if DEBUG:
         print("  pypolymake debug WARNING: calling methods...")
