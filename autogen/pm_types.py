@@ -78,6 +78,16 @@ atomic_types = {
         "perl"   : "Pair<String, String>",
         "cpp"    : "std::pair<std::string, std::string>",
         "cython" : "PairStringString"
+    },
+
+    "PairStringArrayString":
+    {
+        "name"   : "PairStringArrayString",
+        "simple" : False,
+        "module" : None,
+        "perl"   : "Pair<String, Array<String>>",
+        "cpp"    : "std::pair<std::string, Array<std::string>>",
+        "cython" : "PairStringArrayString"
     }
 }
 
@@ -132,10 +142,12 @@ module_data = {
         "Rational",
         "String",
         "ArrayInt",
+        "ArrayString",
         "SetInt",
         "PairStringString",
         "MatrixInteger",
         "ArrayPairStringString",
+        "PairStringArrayString",
         "PowerSetInt",
         "SetArrayInt"
     ],

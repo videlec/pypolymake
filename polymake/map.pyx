@@ -11,7 +11,7 @@
 from libcpp cimport bool
 from libcpp.string cimport string
 
-from .defs cimport pairstringstring, pairintint
+from .defs cimport pm_PairStringString, pm_PairIntInt
 from .integer cimport Integer
 from .rational cimport Rational
 
@@ -23,12 +23,12 @@ cdef extern from "polymake/Map.h" namespace "polymake":
     cdef cppclass pm_MapStringString_iterator "Entire<const Map<std::string,std::string>>::iterator":
         void next "operator++" ()
         bool at_end()
-        pairstringstring get "operator*" ()
+        pm_PairStringString get "operator*" ()
 
     cdef cppclass pm_MapIntInt_iterator "Entire<const Map<int,int>>::iterator":
         void next "operator++" ()
         bool at_end()
-        pairintint get "operator*" ()
+        pm_PairIntInt get "operator*" ()
 
     cdef pm_MapStringString_iterator entire_MapStringString "entire" (pm_MapStringString)
     cdef pm_MapIntInt_iterator entire_MapIntInt "entire" (pm_MapIntInt)

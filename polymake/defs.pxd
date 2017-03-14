@@ -85,12 +85,15 @@ cdef extern from "wrap.h":
     pass
 
 cdef extern from "<utility>":
-    cdef cppclass pairstringstring "std::pair<std::string, std::string>":
+    cdef cppclass pm_PairStringString "std::pair<std::string, std::string>":
         string first
         string second
-    cdef cppclass pairintint "std::pair<int,int>":
+    cdef cppclass pm_PairIntInt "std::pair<int,int>":
         int first
         int second
+    cdef cppclass pm_PairStringArrayString "std::pair<std::string, Array<std::string>>":
+        string first 
+        pm_ArrayString second
 
 cdef extern from "polymake/Main.h" namespace "polymake":
     cdef cppclass Main:
@@ -265,10 +268,18 @@ cdef extern from "polymake/Array.h" namespace "polymake":
         int size()
         bool empty()
         pm_ArrayInt get "operator[]" (int i)
+    cdef cppclass pm_ArrayArrayString "Array<Array<std::string>>":
+        int size()
+        bool empty()
+        pm_ArrayString get "operator[]" (int i)
     cdef cppclass pm_ArrayPairStringString "Array<std::pair<std::string,std::string>>":
         int size()
         bool empty()
-        pairstringstring get "operator[]" (int i)
+        pm_PairStringString get "operator[]" (int i)
+    cdef cppclass pm_ArrayPairStringArrayString "Array<std::pair<std::string, Array<std::string>>>":
+        int size()
+        bool empty()
+        pm_PairStringArrayString get "operator[]" (int i)
     cdef cppclass pm_ArrayArrayPairStringString "Array<Array<std::pair<std::string,std::string>>>":
         int size()
         bool empty()

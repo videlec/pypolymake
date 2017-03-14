@@ -9,7 +9,7 @@
 
 from libcpp.string cimport string
 
-from .defs cimport pairstringstring, pm_SetInt
+from .defs cimport pm_PairStringString, pm_PairStringArrayString, pm_SetInt
 from .set cimport SetInt
 
 cdef extern from "<sstream>" namespace "std":
@@ -22,9 +22,10 @@ cdef extern from "wrap.h" namespace "polymake":
     void pm_ArrayString_repr "WRAP_wrap_OUT" (ostringstream, pm_ArrayString)
     void pm_ArraySetInt_repr "WRAP_wrap_OUT" (ostringstream, pm_ArraySetInt)
     void pm_ArrayArrayInt_repr "WRAP_wrap_OUT" (ostringstream, pm_ArrayArrayInt)
+    void pm_ArrayArrayString_repr "WRAP_wrap_OUT" (ostringstream, pm_ArrayArrayString)
     void pm_ArrayPairStringString_repr "WRAP_wrap_OUT" (ostringstream, pm_ArrayPairStringString)
+    void pm_ArrayPairStringArrayString_repr "WRAP_wrap_OUT" (ostringstream, pm_ArrayPairStringArrayString)
     void pm_ArrayArrayPairStringString_repr "WRAP_wrap_OUT" (ostringstream, pm_ArrayArrayPairStringString)
-
 
 
 #    def __iter__(self):
@@ -116,10 +117,26 @@ cdef class ArrayArrayInt(object):
         pm_ArrayArrayInt_repr(out, self.pm_obj)
         return (<bytes>out.str()).decode('ascii')
 
+cdef class ArrayArrayString(object):
+    def __len__(self): return self.pm_obj.size()
+    def __getitem__(self, Py_ssize_t i):
+        cdef ArrayString a = ArrayString.__new__(ArrayString)
+        a.pm_obj = self.pm_obj.get(i)
+        return a
+    def __repr__(self):
+        cdef ostringstream out
+        pm_ArrayArrayString_repr(out, self.pm_obj)
+        return (<bytes>out.str()).decode('ascii')
+    def python(self):
+        r"""Converts into a list of list of strings
+        """
+        return [self[i].python() for i in range(len(self))]
+
+
 cdef class ArrayPairStringString(object):
     def __len__(self): return self.pm_obj.size()
     def __getitem__(self, Py_ssize_t i):
-        cdef pairstringstring x = self.pm_obj.get(i)
+        cdef pm_PairStringString x = self.pm_obj.get(i)
         return (x.first, x.second)
     def __repr__(self):
         cdef ostringstream out
@@ -128,6 +145,22 @@ cdef class ArrayPairStringString(object):
     def python(self):
         cdef Py_ssize_t i
         return [self[i] for i in range(self.pm_obj.size())]
+
+cdef class ArrayPairStringArrayString(object):
+    def __len__(self): return self.pm_obj.size()
+    def __getitem__(self, Py_ssize_t i):
+        cdef pm_PairStringArrayString x = self.pm_obj.get(i)
+        cdef ArrayString y = ArrayString.__new__(ArrayString)
+        y.pm_obj = x.second
+        return (x.first, y)
+    def __repr__(self):
+        cdef ostringstream out
+        pm_ArrayPairStringArrayString_repr(out, self.pm_obj)
+        return (<bytes>out.str()).decode('ascii')
+    def python(self):
+        cdef Py_ssize_t i
+        l = [self[i] for i in range(self.pm_obj.size())]
+        return [(x, y.python()) for x,y in l]
 
 cdef class ArrayArrayPairStringString(object):
     def __len__(self): return self.pm_obj.size()
