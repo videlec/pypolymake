@@ -36,8 +36,8 @@ extensions = [
     Extension("polymake.handlers", ["polymake/handlers.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
-    Extension("polymake.function_dispatcher", ["polymake/function_dispatcher.pyx"],
-        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
+#    Extension("polymake.function_dispatcher", ["polymake/function_dispatcher.pyx"],
+#        depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 
     Extension("polymake.big_object", ["polymake/big_object.pyx"],
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
