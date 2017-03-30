@@ -19,6 +19,12 @@ from .handlers cimport get_property_handler, get_method_handler
 
 cdef int DEBUG = 0
 
+def set_debug():
+    global DEBUG
+    DEBUG = 1
+def uset_debug():
+    global DEBUG
+    DEBUG = 0
 
 # this is a bug in Cython!
 def _NOT_TO_BE_USED_():
@@ -107,17 +113,25 @@ cdef class PerlObject:
     def __getattr__(self, name):
         cdef bytes bname = name.encode('utf-8')
         if DEBUG:
-            print("  pypolymake debug WARNING: __getattr__:\n  self = {}\n  name = {}".format(type(self), bname))
+            print("  pypolymake debug WARNING: __getattr__: name = {}".format(type(self), bname))
 
         if bname in self.properties:
             pm_type = self.properties[bname]
             handler = get_property_handler(pm_type)
+            if DEBUG:
+                print("  pypolymake debug WARNING: attribute found as a property")
+                print("  pypolymake debug WARNING: pm_type = {}".format(pm_type))
+                print("  pypolymake debug WARNING: handler = {}".format(handler))
 
         elif bname in self.methods:
             pm_type = self.methods[bname]
             if not pm_type:
                 raise ValueError("polymake documentation is incomplete: type of {}->{} not available. Send a request to polymake developers!".format(self, name))
             handler = get_method_handler(pm_type)
+            if DEBUG:
+                print("  pypolymake debug WARNING: attribute found as a method")
+                print("  pypolymake debug WARNING: pm_type = {}".format(pm_type))
+                print("  pypolymake debug WARNING: handler = {}".format(handler))
 
         else:
             raise AttributeError("{} not a registered attribute".format(name))
