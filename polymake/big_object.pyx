@@ -95,7 +95,7 @@ cdef pm_MatrixInteger* int_mat_to_pm(int nr, int nc, list mat):
 
     return pm_mat
 
-def Polytope(**args):
+def PolytopeRational(**args):
     r"""
     Construct a polytope
 
@@ -111,23 +111,32 @@ def Polytope(**args):
 
     >>> 
     """
+    raise NotImplementedError
+#    cdef pm_MatrixRational * pm_mat
+#    cdef string cprop
+#    # FIXME: this should not be needed
+#    from .main import pm_set_application
+#
+#    cdef pm_PerlObject * pm_obj = new pm_PerlObject(b"polytope::Polytope<Rational>")
+#
+#    cdef pm_MapStringString props = pm_get_properties(pm_obj)
+#
+#    for prop, value in args.items():
+#        cprop = prop.encode('ascii')
+#        if not props.exist(cprop):
+#            raise ValueError("{} is not a valid property of polytope::Polytope<Rational>")
+#
+#        if constructor = constructors[value]
+#
+#        nr, nc, mat = clean_mat(value)
+#        pm_mat = rat_mat_to_pm(nr, nc, mat)
+#        pm_assign_MatrixRational(pm_obj.take(prop), pm_mat[0])
+#        del pm_mat
+#
+#    return wrap_perl_object(pm_obj[0])
+
+Polytope = PolytopeRational
+
+def PointConfiguration(**args):
     cdef pm_MatrixRational * pm_mat
-    # FIXME: this should not be needed
-    from .main import pm_set_application
-    pm_set_application(b"polytope")
-
-    cdef pm_PerlObject * pm_obj = new pm_PerlObject(b"Polytope<Rational>")
-
-    for prop, value in args.items():
-        if prop not in ['VERTICES', 'POINTS', 'FACETS']:
-            raise ValueError("property must be VERTICES, POINTS or FACETS")
-
-        prop = prop.encode('ascii')
-
-        nr, nc, mat = clean_mat(value)
-        pm_mat = rat_mat_to_pm(nr, nc, mat)
-        pm_assign_MatrixRational(pm_obj.take(prop), pm_mat[0])
-        del pm_mat
-
-    return wrap_perl_object(pm_obj[0])
-
+    cdef pm_PerlObject * pm_obj = new pm_PerlObject(b"PointConfiguration<Rational>")

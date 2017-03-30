@@ -16,6 +16,3 @@ cdef class PerlObject:
 
 cdef PerlObject wrap_perl_object(pm_PerlObject pm_obj)
 
-cdef pm_MapStringString pm_get_properties(pm_PerlObject * p)
-cdef pm_MapStringString pm_get_methods(pm_PerlObject *p)
-

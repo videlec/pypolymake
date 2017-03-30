@@ -30,11 +30,7 @@ def uset_debug():
 def _NOT_TO_BE_USED_():
     raise ValueError
 
-cdef pm_MapStringString pm_get_properties(pm_PerlObject * p):
-    return call_function(<string> "Sage::properties_for_object", p[0])
-
-cdef pm_MapStringString pm_get_methods(pm_PerlObject *p):
-    return call_function(<string> "Sage::methods_for_object", p[0])
+    
 
 cpdef dict get_properties(PerlObject p):
     r"""
@@ -52,8 +48,8 @@ cpdef dict get_properties(PerlObject p):
     """
     cdef MapStringString s = MapStringString.__new__(MapStringString)
     if DEBUG:
-        print("  pypolymake debug WARNING: calling properties...")
-    s.pm_obj = pm_get_properties(p.pm_obj)
+        print("  pypolymake debug WARNING: properties_for_object...")
+    s.pm_obj = call_function(<string> "Sage::properties_for_object", p.pm_obj[0])
     cdef dict d  = s.python()
     for k in list(s.keys()):
         if d[k].startswith(b"Visual::"):
@@ -73,8 +69,8 @@ cpdef dict get_methods(PerlObject p):
     """
     cdef MapStringString s = MapStringString.__new__(MapStringString)
     if DEBUG:
-        print("  pypolymake debug WARNING: calling methods...")
-    s.pm_obj = pm_get_methods(p.pm_obj)
+        print("  pypolymake debug WARNING: methods_for_object...")
+    s.pm_obj = call_function(<string> "Sage::methods_for_object", p.pm_obj[0])
     cdef dict d = s.python()
     for k in list(s.keys()):
         if d[k].startswith(b"Visual::"):
