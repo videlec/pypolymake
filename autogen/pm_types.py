@@ -188,11 +188,13 @@ def python_to_caml(s):
 
 def pm_types():
     r"""
-    The list of supported polymake types.
+    Construct the list of supported polymake types from the dictionaries ``atomic_types`` and
+    ``module_data``.
 
     OUTPUT:
 
     A dictionary:
+
       name -> dictionary of properties
     """
     ans = atomic_types.copy()
@@ -212,7 +214,7 @@ def pm_types():
 
     for scal in module_data["Matrix"]:
         cython = "Matrix{scal}".format(scal=scal)
-        perl = "Matrix<{scal}, NonSymmetric>".format(scal=atomic_types[scal]["perl"])
+        perl = "Matrix<{scal}>".format(scal=atomic_types[scal]["perl"])
         cpp = "Matrix<{scal}>".format(scal=atomic_types[scal]["cpp"])
 
         ans[cython] = {

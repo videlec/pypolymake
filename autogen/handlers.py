@@ -21,13 +21,11 @@ cdef extern from "wrap.h" namespace "polymake":
 
 def give_{cython}(PerlObject perl_object, bytes prop):
     cdef {cython} ans = {cython}.__new__({cython})
-    print("accessing property {{}}".format(prop))
     pm_give_{cython}(ans.pm_obj, perl_object.pm_obj, prop)
     return ans
 
 def call_method_{cython}(PerlObject perl_object, bytes prop):
     cdef {cython} ans = {cython}.__new__({cython})
-    print("accessing method {{}}".format(prop))
     pm_call_method_{cython}(ans.pm_obj, perl_object.pm_obj, prop)
     return ans
 """
