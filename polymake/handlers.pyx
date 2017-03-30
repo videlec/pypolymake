@@ -19,6 +19,8 @@ and "auto_mappings.pxi".
 from libcpp cimport bool
 from libcpp.string cimport string
 
+include "cysignals/signals.pxi"
+
 from .defs cimport *
 from .perl_object cimport *
 
@@ -49,14 +51,20 @@ cdef extern from "wrap.h" namespace "polymake":
 
 def give_generic(PerlObject perl_object, bytes prop):
     cdef pm_PerlObject pm_ans
+    cdef string cprop = prop
+    sig_str("error in polymake while accessing property")
     pm_give_PerlObject(pm_ans, perl_object.pm_obj, prop)
+    sig_off()
     if not pm_ans.valid():
         raise ValueError("invalid property {}".format(prop))
     return wrap_perl_object(pm_ans)
 
 def call_method_generic(PerlObject perl_object, bytes prop):
     cdef pm_PerlObject pm_ans
+    cdef string cprop = prop
+    sig_str("error in polymke while accessing method")
     pm_call_method_PerlObject(pm_ans, perl_object.pm_obj, prop)
+    sig_off()
     if not pm_ans.valid():
         raise ValueError("invalid property {}".format(prop))
     return wrap_perl_object(pm_ans)
