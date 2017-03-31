@@ -4,7 +4,7 @@ pypolymake
 What is it?
 -----------
 
-The Python module pypolymake provides wrappers for `polymake
+The Python module pypolymake provides wrappers for `polymake version 3.1
 <https://polymake.org/doku.php>`_.
 
 The language has been kept as close as possible as the original. The
@@ -36,30 +36,21 @@ Installation and source code
 
 In principle, pypolymake could be used with Python2, Python3 and within Sage.
 
-### Installation of against current stable version of polymake inside Sage
+### Installation against the beta version of polymake in Python2 or Python3
 
-If you are using `SageMath <http://www.sagemath.org>`_ then just run the following
-two commands
+Just run the following command to install pypolymake
+
+    $ pip install git+https://github.com/videlec/pypolymake [--user] [--upgrade]
+
+### Installation inside Sage
+
+If you are using `SageMath <http://www.sagemath.org>`_ version at least 8.beta0 then
+run the following two commands to install polymake and pypolymake
 
     $ sage -i polymake
     $ sage -pip install git+https://github.com/videlec/pypolymake [--user] [--upgrade]
 
-Note that this uses the stable version of polymake and is not further developed.
-
-### Installation against the beta version of polymake in Python2 or Python3
-
-1. Clone the following development version of polymake
-
-    $ git clone https://daemon@git.math.cnrs.fr/anon/plm/delecroix/polymake
-
-2, Compile and install the cloned branch
-
-3. Install pypolymake
-
-    $ pip install git+https://github.com/videlec/pypolymake@beta [--user] [--upgrade]
-
-
-### Extra notes
+### Notes
 
 If polymake headers or libraries are installed in a non standard location you
 may need to set the environment variables CFLAGS, CXXFLAGS, LDFLAGS. For example,
