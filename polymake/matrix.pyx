@@ -85,14 +85,8 @@ from .defs cimport pm_Integer, pm_Rational
 from .integer cimport Integer
 from .rational cimport Rational
 
+from .defs cimport pm_MatrixInt_get, pm_MatrixFloat_get, pm_MatrixInteger_get, pm_MatrixRational_get
 
-cdef extern from "polymake/Matrix.h" namespace "polymake":
-    # WRAP_CALL(t,i,j) -> t(i,j)
-    long pm_MatrixInt_get "WRAP_CALL" (pm_MatrixInt, int i, int j)
-    float pm_MatrixFloat_get "WRAP_CALL" (pm_MatrixFloat, int i, int j)
-    pm_Integer pm_MatrixInteger_get "WRAP_CALL" (pm_MatrixInteger, int i, int j)
-    pm_Rational pm_MatrixRational_get "WRAP_CALL" (pm_MatrixRational, int i, int j)
-    pm_QuadraticExtensionRational_get "WRAP_CALL" (pm_MatrixQuadraticExtensionRational, int i, int j)
 
 #cdef extern from "polymake/SparseMatrix.h" namespace "polymake":
 #    # WRAP_CALL(t,i,j) -> t(i,j)

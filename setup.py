@@ -43,6 +43,8 @@ extensions = [
         depends = ["polymake/*.pxd", "polymake/cygmp/*"]),
 ]
 
+
+
 for mod in pm_modules():
     extensions.append(
         Extension("polymake." + mod, ["polymake/" + mod + ".pyx"],
@@ -50,7 +52,14 @@ for mod in pm_modules():
     )
 
 try:
+    import sage.all
     import sage
+    import sage.env
+    compile_from_sage = True
+except ImportError:
+    compile_from_sage = False
+
+if compile_from_sage:
     import site
     extensions.append(
         Extension("polymake.sage_conversion", ["polymake/sage_conversion.pyx"],
@@ -62,8 +71,6 @@ try:
     #    gcc -fno-strict-aliasing -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wno-unused -fPIC -I/opt/sage/local/include/python2.7 -c src/polymake/sage_conversion.cpp -o build/temp.linux-x86_64-2.7/src/polymake/sage_conversion.o
     #    src/polymake/sage_conversion.cpp:480:35: erreur fatale : sage/libs/ntl/ntlwrap.h : Aucun fichier ou dossier de ce type
     #     #include "sage/libs/ntl/ntlwrap.h"
-except ImportError:
-    pass
 
 class TestCommand(Command):
     user_options = []
@@ -92,6 +99,8 @@ class TestCommand(Command):
                 if call(["python", f]):
                     raise RuntimeError("some tests failed in {}".format(f))
 
+
+
 # Adapted from Cython's new_build_ext
 class build_ext(_build_ext):
     def finalize_options(self):
@@ -119,8 +128,27 @@ class build_ext(_build_ext):
 #            sys.stderr.write("The installation of ppl requires cysignals\n")
 #            sys.exit(1)
 
+
+        compile_time_env = {}
+        if compile_from_sage:
+
+            version = sage.env.SAGE_VERSION.split('.')
+            major = int(version[0])
+            minor = int(version[1])
+            if len(version) == 3:
+                beta = int(version[2][4:])
+            else:
+                beta = -1
+            sage_version = (major,minor,beta)
+
+            # trac ticket #22970 changes datastructure of rational matrices
+            # merged in 8.0.beta9
+            compile_time_env['SAGE_RAT_MAT_ARE_FMPQ_T_MAT'] = (sage_version >= (8,0,9))
+
         self.distribution.ext_modules[:] = cythonize(
-            self.distribution.ext_modules, include_path=sys.path)
+            self.distribution.ext_modules,
+            compile_time_env=compile_time_env,
+            include_path=sys.path)
         _build_ext.finalize_options(self)
 
 

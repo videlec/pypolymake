@@ -355,6 +355,13 @@ cdef extern from "polymake/SparseMatrix.h" namespace "polymake":
         Py_ssize_t cols()
 
 
+cdef extern from "polymake/Matrix.h" namespace "polymake":
+    # WRAP_CALL(t,i,j) -> t(i,j)
+    long pm_MatrixInt_get "WRAP_CALL" (pm_MatrixInt, int i, int j)
+    float pm_MatrixFloat_get "WRAP_CALL" (pm_MatrixFloat, int i, int j)
+    pm_Integer pm_MatrixInteger_get "WRAP_CALL" (pm_MatrixInteger, int i, int j)
+    pm_Rational pm_MatrixRational_get "WRAP_CALL" (pm_MatrixRational, int i, int j)
+
 
 # NOTE: for Matrix the C++ type does not match the perl type
 # namely, the "" part is fake

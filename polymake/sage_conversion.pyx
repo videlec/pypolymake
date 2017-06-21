@@ -12,16 +12,19 @@ Conversion of low level base types to Sage
 
 from __future__ import absolute_import
 
-from .number cimport Integer, Rational
+from .integer cimport Integer
+from .rational cimport Rational
 from .vector cimport VectorInteger, VectorRational
-from .matrix cimport (MatrixInt, MatrixInteger, MatrixRational,
-                    pm_MatrixInt_get, pm_MatrixInteger_get, pm_MatrixRational_get)
+from .matrix cimport MatrixInt, MatrixInteger, MatrixRational
+from .defs cimport pm_MatrixInt_get, pm_MatrixInteger_get, pm_MatrixRational_get
 
 from .cygmp.types cimport mpz_t, mpq_t
 from .cygmp.mpz cimport mpz_set
 from .cygmp.mpq cimport mpq_set
 
 from sage.ext.stdsage cimport PY_NEW
+from sage.libs.flint.fmpq cimport fmpq_set_mpq
+from sage.libs.flint.fmpq_mat cimport fmpq_mat_entry
 
 from sage.rings.integer_ring import ZZ
 from sage.rings.rational_field import QQ
@@ -96,5 +99,8 @@ def MatrixRational_to_sage(MatrixRational m):
     cdef sage_Matrix_rational_dense ans = M.zero().__copy__()
     for i in range(nrows):
         for j in range(ncols):
-            mpq_set(ans._matrix[i][j], <mpq_t> pm_MatrixRational_get(m.pm_obj, i, j).get_rep())
+            IF SAGE_RAT_MAT_ARE_FMPQ_T_MAT:
+                fmpq_set_mpq(fmpq_mat_entry(ans._matrix, i, j), <mpq_t> pm_MatrixRational_get(m.pm_obj, i, j).get_rep())
+            ELSE:
+                mpq_set(ans._matrix[i][j], <mpq_t> pm_MatrixRational_get(m.pm_obj, i, j).get_rep())
     return ans
