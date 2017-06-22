@@ -23,8 +23,10 @@ from .cygmp.mpz cimport mpz_set
 from .cygmp.mpq cimport mpq_set
 
 from sage.ext.stdsage cimport PY_NEW
-from sage.libs.flint.fmpq cimport fmpq_set_mpq
-from sage.libs.flint.fmpq_mat cimport fmpq_mat_entry
+
+IF SAGE_RAT_MAT_ARE_FMPQ_T_MAT:
+    from sage.libs.flint.fmpq cimport fmpq_set_mpq
+    from sage.libs.flint.fmpq_mat cimport fmpq_mat_entry
 
 from sage.rings.integer_ring import ZZ
 from sage.rings.rational_field import QQ
