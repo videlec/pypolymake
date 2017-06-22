@@ -60,15 +60,15 @@ def cube(d, x_up=1, x_low=-1):
 
     >>> import polymake
     >>> polymake.cube(2).VERTICES
-    [ 1 -1 -1]
-    [ 1 1  -1]
-    [ 1 -1 1 ]
-    [ 1 1  1 ]
+    1 -1 -1
+    1 1 -1
+    1 -1 1
+    1 1 1
     >>> polymake.cube(2,2,0).VERTICES
-    [ 1 0 0]
-    [ 1 2 0]
-    [ 1 0 2]
-    [ 1 2 2]
+    1 0 0
+    1 2 0
+    1 0 2
+    1 2 2
     """
     return call_polymake_function(b"polytope", b"cube", d, x_up, x_low)
 
@@ -77,28 +77,28 @@ def cuboctahedron():
 
     >>> import polymake
     >>> polymake.cuboctahedron().VERTICES
-    [ 1 1  1  0 ]
-    [ 1 1  0  1 ]
-    [ 1 0  1  1 ]
-    [ 1 1  0  -1]
-    [ 1 0  1  -1]
-    [ 1 1  -1 0 ]
-    [ 1 0  -1 1 ]
-    [ 1 -1 1  0 ]
-    [ 1 -1 0  1 ]
-    [ 1 0  -1 -1]
-    [ 1 -1 0  -1]
-    [ 1 -1 -1 0 ]
+    1 1  1  0
+    1 1  0  1
+    1 0  1  1
+    1 1  0  -1
+    1 0  1  -1
+    1 1  -1 0
+    1 0  -1 1
+    1 -1 1  0
+    1 -1 0  1
+    1 0  -1 -1
+    1 -1 0  -1
+    1 -1 -1 0
     """
     return call_polymake_function(b"polytope", b"cuboctahedron")
 
 def cycle_graph(n):
     r"""Constructs a cycle graph on n nodes.
-    
+
     >>> import polymake
     >>> g = polymake.cycle_graph(7)
     >>> g
-    Graph<Undirected><...>
+    Graph<Undirected>
     >>> g.N_NODES
     7
     >>> g.N_EDGES
@@ -118,14 +118,14 @@ def cyclic(d, n):
 
     >>> import polymake
     >>> polymake.cyclic(2, 4).VERTICES
-    [ 1 0 0]
-    [ 1 1 1]
-    [ 1 2 4]
-    [ 1 3 9]
+    1 0 0
+    1 1 1
+    1 2 4
+    1 3 9
     >>> polymake.cyclic(3, 3)
     Traceback (most recent call last):
     ...
-    ValueError: cyclic: d >= 2 and n > d required
+    RuntimeError: cyclic: d >= 2 and n > d required
     <BLANKLINE>
     """
     return call_polymake_function(b"polytope", b"cyclic", d, n)
@@ -153,12 +153,12 @@ def delpezzo(d, scale=1):
 
     >>> import polymake
     >>> polymake.delpezzo(2).VERTICES
-    [ 1 1  0 ]
-    [ 1 0  1 ]
-    [ 1 -1 0 ]
-    [ 1 0  -1]
-    [ 1 1  1 ]
-    [ 1 -1 -1]
+    1 1  0
+    1 0  1
+    1 -1 0
+    1 0  -1
+    1 1 1
+    1 -1 -1
     """
     return call_polymake_function(b"polytope", b"delpezzo", d, scale)
 
@@ -169,7 +169,7 @@ def dodecahedron():
     >>> import polymake
     >>> dod = polymake.dodecahedron()
     >>> dod
-    Polytope<QuadraticExtension<Rational>><...>
+    Polytope<QuadraticExtension<Rational>>
     """
     return call_polymake_function(b"polytope", b"dodecahedron")
 
@@ -193,7 +193,7 @@ def icosahedron():
     >>> import polymake
     >>> ico = polymake.icosahedron()
     >>> ico
-    Polytope<QuadraticExtension<Rational>><...>
+    Polytope<QuadraticExtension<Rational>>
     """
     return call_polymake_function(b"polytope", b"icosahedron")
 
@@ -207,7 +207,7 @@ def johnson_graph(n, k):
     >>> import polymake
     >>> g = polymake.johnson_graph(5, 3)
     >>> g
-    Graph<Undirected><...>
+    Graph<Undirected>
     >>> g.N_NODES
     10
     >>> g.N_EDGES
@@ -225,7 +225,7 @@ def kneser_graph(n, k):
     >>> import polymake
     >>> g = polymake.kneser_graph(6, 3)
     >>> g
-    Graph<Undirected><...>
+    Graph<Undirected>
     >>> g.N_NODES
     20
     >>> g.N_EDGES
