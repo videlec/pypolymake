@@ -1,3 +1,4 @@
+# encoding: utf-8
 #!/usr/bin/env python
 r"""
 Installation script for pypolymake
@@ -82,21 +83,19 @@ class TestCommand(Command):
         pass
 
     def run(self):
+        import sys
+        from subprocess import call
+
+        os.chdir('tests')
+
         # run the doctests
-        import doctest
-        import polymake
-        (failure_count, test_count) = doctest.testmod(polymake.functions,
-                optionflags=doctest.ELLIPSIS)
-        if failure_count:
-            raise RuntimeError("{} test(s) failed in polymake.polytope".format(failure_count))
+        call([sys.executable, "rundoctests.py"])
 
         # run the tests in the tests/ repo
-        from subprocess import call
-        for f in os.listdir('tests'):
+        for f in os.listdir('.'):
             if f.startswith('test_') and f.endswith('.py'):
-                f = os.path.join("tests", f)
                 print("running tests in {}".format(f))
-                if call(["python", f]):
+                if call([sys.executable, f]):
                     raise RuntimeError("some tests failed in {}".format(f))
 
 
