@@ -231,11 +231,11 @@ cdef extern from "polymake/client.h":
 #    pm_PerlObject CallPolymakeFunction3 "CallPolymakeFunction" \
 #            (char*, int, int, int) except +ValueError
 
-    pm_PerlObject call_function (string) except+
-    pm_PerlObject call_function (string, int) except+
-    pm_PerlObject call_function (string, int, int) except+
-    pm_PerlObject call_function (string, int, int, int) except+
-    pm_MapStringString call_function (string, pm_PerlObject) except+
+    pm_PerlObject call_function "polymake::call_function" (string) except+
+    pm_PerlObject call_function "polymake::call_function" (string, int) except+
+    pm_PerlObject call_function "polymake::call_function" (string, int, int) except+
+    pm_PerlObject call_function "polymake::call_function" (string, int, int, int) except+
+    pm_MapStringString call_function "polymake::call_function" (string, pm_PerlObject) except+
 
     pm_PerlObject* new_PerlObject_from_PerlObject "new perl::Object" (pm_PerlObject)
 
