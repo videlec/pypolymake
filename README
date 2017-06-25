@@ -5,7 +5,8 @@ What is it?
 -----------
 
 The Python module pypolymake provides wrappers for `polymake version 3.1
-<https://polymake.org/doku.php>`_.
+<https://polymake.org/doku.php>`_. This module will not compile with
+older version of polymake.
 
 The language has been kept as close as possible as the original. The
 following polymake construction::
@@ -34,18 +35,13 @@ to break.
 Installation and source code
 ----------------------------
 
-In principle, pypolymake could be used with Python2, Python3 and within Sage.
-
-### Installation against the beta version of polymake in Python2 or Python3
-
 Just run the following command to install pypolymake
 
     $ pip install git+https://github.com/videlec/pypolymake [--user] [--upgrade]
 
-### Installation inside Sage
-
-If you are using `SageMath <http://www.sagemath.org>`_ version at least 8.beta0 then
-run the following two commands to install polymake and pypolymake
+If you want to use it inside Sage, you need a version more recent than Sage
+8.0.beta0 (earlier versions ships polymake version 2.7, not compatible with
+pypolymake). To install polymake and pypolymake run
 
     $ sage -i polymake
     $ sage -pip install git+https://github.com/videlec/pypolymake [--user] [--upgrade]
